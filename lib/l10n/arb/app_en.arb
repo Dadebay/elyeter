@@ -1,0 +1,45 @@
+{
+  "@@locale": "en",
+
+  "appName": "Elyeter",
+
+  "navHome": "Home",
+  "navCategory": "Category",
+  "navCart": "Cart",
+  "navFavorite": "Favorite",
+  "navProfile": "Profile",
+
+  "commonRetry": "Retry",
+  "commonCancel": "Cancel",
+  "commonSave": "Save",
+  "commonSearch": "Search",
+  "commonSeeAll": "See all",
+  "commonAddToCart": "Add to cart",
+  "commonCheckout": "Checkout",
+  "commonTotal": "Total",
+  "commonEmpty": "Nothing here yet",
+
+  "orderActive": "Active Order",
+  "orderCompleted": "Order Completed",
+  "orderCancelled": "Order Cancelled",
+  "orderHistory": "Order history",
+  "orderItemCount": "{count, plural, =0{No products} =1{1 product} other{{count} products}}",
+  "@orderItemCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "profileTitle": "Profile",
+  "settingsLanguage": "Language",
+  "settingsTheme": "Theme",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
+  "settingsThemeSystem": "System",
+
+  "errorServer": "Something went wrong. Please try again.",
+  "errorNetwork": "No internet connection.",
+  "errorTimeout": "The request took too long.",
+  "errorUnauthorized": "Please sign in to continue.",
+  "errorNotFound": "We couldn't find what you were looking for.",
+  "errorCache": "Could not read saved data.",
+  "errorUnknown": "Unexpected error."
+}

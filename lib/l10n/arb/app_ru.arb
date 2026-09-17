@@ -1,0 +1,43 @@
+{
+  "@@locale": "ru",
+  "appName": "Elyeter",
+  "navHome": "Главная",
+  "navCategory": "Категории",
+  "navCart": "Корзина",
+  "navFavorite": "Избранное",
+  "navProfile": "Профиль",
+  "commonRetry": "Повторить",
+  "commonCancel": "Отмена",
+  "commonSave": "Сохранить",
+  "commonSearch": "Поиск",
+  "commonSeeAll": "Все",
+  "commonAddToCart": "В корзину",
+  "commonCheckout": "Оформить",
+  "commonTotal": "Итого",
+  "commonEmpty": "Здесь пока пусто",
+  "orderActive": "Активный заказ",
+  "orderCompleted": "Заказ выполнен",
+  "orderCancelled": "Заказ отменён",
+  "orderHistory": "История заказов",
+  "orderItemCount": "{count, plural, =0{Нет товаров} one{{count} товар} few{{count} товара} other{{count} товаров}}",
+  "@orderItemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileTitle": "Профиль",
+  "settingsLanguage": "Язык",
+  "settingsTheme": "Тема",
+  "settingsThemeLight": "Светлая",
+  "settingsThemeDark": "Тёмная",
+  "settingsThemeSystem": "Системная",
+  "errorServer": "Что-то пошло не так. Попробуйте ещё раз.",
+  "errorNetwork": "Нет подключения к интернету.",
+  "errorTimeout": "Запрос занял слишком много времени.",
+  "errorUnauthorized": "Войдите, чтобы продолжить.",
+  "errorNotFound": "Ничего не найдено.",
+  "errorCache": "Не удалось прочитать сохранённые данные.",
+  "errorUnknown": "Неизвестная ошибка."
+}

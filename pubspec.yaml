@@ -1,0 +1,102 @@
+name: elyeter
+description: "Elyeter e-commerce app."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # ---------------------------------------------------------------- state --
+  # BLoC for feature state; equatable for value-equality in states/events;
+  # hydrated_bloc persists theme + locale across launches.
+  bloc: ^9.2.1
+  flutter_bloc: ^9.1.1
+  equatable: ^3.0.0
+  hydrated_bloc: ^11.0.0
+
+  # ------------------------------------------------- dependency injection --
+  get_it: ^9.2.1
+
+  # ------------------------------------------------------------ navigation --
+  go_router: ^17.5.0
+
+  # --------------------------------------------------------------- network --
+  dio: ^5.11.1
+  pretty_dio_logger: ^1.4.0
+  connectivity_plus: ^7.3.1
+
+  # --------------------------------------------------------------- storage --
+  shared_preferences: ^2.5.5
+  flutter_secure_storage: ^11.2.0
+  path_provider: ^2.1.6
+
+  # ---------------------------------------------------------- localization --
+  intl: ^0.20.2
+
+  # -------------------------------------------------------------------- ui --
+  cupertino_icons: ^1.0.8
+  hugeicons: ^1.1.7
+  cached_network_image: ^3.4.1
+  flutter_svg: ^2.3.0
+  shimmer: ^3.0.0
+
+  # ------------------------------------------------------------- utilities --
+  logger: ^2.8.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # ------------------------------------------------------------------ lint --
+  flutter_lints: ^6.0.0
+
+  # ------------------------------------------------------------------ test --
+  bloc_test: ^10.0.0
+  mocktail: ^1.0.4
+
+flutter:
+  uses-material-design: true
+
+  # Generates lib/l10n/app_localizations.dart from lib/l10n/arb/*.arb
+  # (config lives in l10n.yaml at the project root).
+  generate: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+
+  fonts:
+    # Display cut — tighter spacing, for headlines and small UI labels.
+    - family: InterDisplay
+      fonts:
+        - asset: assets/fonts/InterDisplay-Light.ttf
+          weight: 300
+        - asset: assets/fonts/InterDisplay-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/InterDisplay-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/InterDisplay-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/InterDisplay-Bold.ttf
+          weight: 700
+
+    # Text cut (18pt optical) — body copy, the app default.
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter_18pt-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Inter_18pt-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter_18pt-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter_18pt-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter_18pt-Bold.ttf
+          weight: 700
