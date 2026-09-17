@@ -2,6 +2,9 @@
 abstract final class AppConstants {
   static const appName = 'Elyeter';
 
+  /// Shown on the profile page. Keep in step with `version:` in pubspec.yaml.
+  static const appVersion = '1.0.0';
+
   // Currency — the designs price everything in Turkmen manat.
   static const currencyCode = 'TMT';
   static const currencySymbol = 'TMT';

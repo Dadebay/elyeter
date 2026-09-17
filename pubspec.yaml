@@ -47,8 +47,21 @@ dependencies:
   flutter_svg: ^2.3.0
   shimmer: ^3.0.0
 
+  # ---------------------------------------------------------------- media --
+  # Visual search: `camera` drives the in-app capture screen, `image_picker`
+  # is only used for the "pick from gallery" shortcut on that screen.
+  camera: ^0.12.0+2
+  image_picker: ^1.2.3
+
   # ------------------------------------------------------------- utilities --
   logger: ^2.8.0
+
+  # Opens the support line, the socials and WhatsApp in the
+  # platform's own apps.
+  url_launcher: ^6.3.2
+
+  # System share sheet for the product share button.
+  share_plus: ^13.3.0
 
 dev_dependencies:
   flutter_test:
@@ -70,10 +83,21 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/magazynes/
+    - assets/images/category/
+    - assets/images/banners/
+    - assets/images/logos/
+    - assets/images/products/
+    - assets/images/subcategory/
     - assets/icons/
 
   fonts:
-    # Display cut — tighter spacing, for headlines and small UI labels.
+    # Display face used for the brand wordmark only (shimmer placeholders).
+    - family: Qurova
+      fonts:
+        - asset: assets/fonts/QurovaDEMO-Medium.otf
+          weight: 500
+
     - family: InterDisplay
       fonts:
         - asset: assets/fonts/InterDisplay-Light.ttf
@@ -85,18 +109,4 @@ flutter:
         - asset: assets/fonts/InterDisplay-SemiBold.ttf
           weight: 600
         - asset: assets/fonts/InterDisplay-Bold.ttf
-          weight: 700
-
-    # Text cut (18pt optical) — body copy, the app default.
-    - family: Inter
-      fonts:
-        - asset: assets/fonts/Inter_18pt-Light.ttf
-          weight: 300
-        - asset: assets/fonts/Inter_18pt-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/Inter_18pt-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Inter_18pt-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Inter_18pt-Bold.ttf
           weight: 700

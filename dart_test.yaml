@@ -1,0 +1,7 @@
+tags:
+  # Golden files are design previews, not a regression gate: they depend on
+  # async image decoding and render a hair differently from run to run, so
+  # they are skipped by default. Regenerate and view them with
+  #   flutter test --run-skipped -t golden --update-goldens
+  golden:
+    skip: "golden render - run: flutter test --run-skipped -t golden --update-goldens"

@@ -1,0 +1,305 @@
+{
+  "@@locale": "tk",
+  "appName": "Elyeter",
+  "navHome": "Baş sahypa",
+  "navCategory": "Bölümler",
+  "navCart": "Sebet",
+  "navFavorite": "Halanlarym",
+  "favoriteTitle": "Halanlarym",
+  "navProfile": "Profil",
+  "commonRetry": "Gaýtadan synanyş",
+  "commonCancel": "Ýatyr",
+  "commonClose": "Ýap",
+  "commonSave": "Ýatda sakla",
+  "commonSearch": "Gözleg",
+  "homeSearchHint": "Haryt gözle",
+  "locationTitle": "Eltip bermek salgysy",
+  "locationSearchHint": "Etrap ýa-da köçe gözle",
+  "locationEmpty": "Salgy tapylmady",
+  "visualSearchTitle": "Surat boýunça gözleg",
+  "visualSearchHint": "Skanirlemek üçin harydy çarçuwa ýerleşdiriň",
+  "visualSearchCamera": "Surat al",
+  "visualSearchRetake": "Täzeden al",
+  "visualSearchUse": "Suraty ulan",
+  "visualSearchGallery": "Galereýadan saýla",
+  "visualSearchNoCamera": "Bu enjamda kamera ýok.",
+  "visualSearchDenied": "Surat boýunça gözlemek üçin Elyeter-e kamera rugsady gerek. Sazlamalardan rugsat beriň.",
+  "visualSearchReady": "Surat taýýar — surat boýunça gözleg tiz wagtda.",
+  "commonOpenFailed": "{target} açyp bolmady",
+  "@commonOpenFailed": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "orderActiveTitle": "Işjeň sargyt",
+  "orderNumber": "Sargyt № {number}",
+  "@orderNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "orderRepeat": "Sargydy gaýtala",
+  "orderQuestions": "Soraglar",
+  "orderCancel": "Ýatyr",
+  "orderProgress": "Eltip berişiň barşy",
+  "orderStepPlaced": "Sargyt kabul edildi",
+  "orderStepWarehouse": "Hytaý ammaryna geldi",
+  "orderStepShipped": "Türkmenistana ugradyldy",
+  "orderStepArrived": "Türkmenistana geldi",
+  "orderStepDelivered": "Eltildi",
+  "orderProducts": "Eltilýän harytlar",
+  "orderItemSummary": "{count, plural, =1{1 haryt {total}} other{{count} haryt {total}}}",
+  "@orderItemSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "orderPickupPoint": "Almak nokady",
+  "orderRecipient": "Alyjy",
+  "orderTime": "Sargyt wagty",
+  "orderPayment": "Töleg usuly",
+  "orderPaymentCard": "Kart bilen / Kart tölegi",
+  "orderTotalTitle": "Sargydyň jemi",
+  "orderProductsTotal": "Harytlaryň jemi",
+  "orderDeliveryLabel": "Eltip berme",
+  "orderDeliveryFree": "Mugt",
+  "orderCargo": "Kargo",
+  "orderDiscount": "Arzanladyş",
+  "orderDownloadCheck": "Çeki ýükle",
+  "categoryFilterMaterial": "Material",
+  "categoryFilterColor": "Reňk",
+  "categoryFilterBrand": "Marka",
+  "categorySearch": "Gözleg",
+  "categoryFilters": "Süzgüçler",
+  "categorySortTitle": "Tertipleme",
+  "categorySortPopular": "Meşhur",
+  "categorySortPriceAsc": "Baha: arzandan gymmada",
+  "categorySortPriceDesc": "Baha: gymmatdan arzana",
+  "categorySortDiscount": "Iň uly arzanladyş",
+  "categoryApply": "Ulan",
+  "categoryReset": "Arassala",
+  "categoryNoResults": "Bu süzgüçlere hiç zat gabat gelmedi",
+  "categoryNoResultsHint": "Birini aýryp görüň.",
+  "categoryFacetSearch": "Gözleg: {facet}",
+  "@categoryFacetSearch": {
+    "placeholders": {
+      "facet": {
+        "type": "String"
+      }
+    }
+  },
+  "categorySelectedCount": "{count} saýlandy",
+  "@categorySelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchTitle": "Gözleg",
+  "commonSeeAll": "Hemmesi",
+  "commonAddToCart": "Sebede goş",
+  "commonAdded": "Goşuldy",
+  "cartDelete": "Poz",
+  "cartSelectAll": "Hemmesini saýla",
+  "cartProductCount": "{count, plural, =1{1 haryt} other{{count} haryt}}",
+  "@cartProductCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commonCheckout": "Sargyt et",
+  "commonTotal": "Jemi",
+  "commonEmpty": "Bu ýerde entek hiç zat ýok",
+  "productReviewCount": "{count, plural, =1{1 teswir} other{{count} teswir}}",
+  "@productReviewCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productOrderCount": "{count} sargyt",
+  "@productOrderCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productColor": "Reňk: {name}",
+  "@productColor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productSize": "Ýüzük ölçegi: {size}",
+  "@productSize": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "productArticle": "Haryt kody:",
+  "productCopy": "Göçür",
+  "productCopied": "Haryt kody göçürildi",
+  "productShared": "Haryt salgysy göçürildi",
+  "productDescription": "Beýany",
+  "productReadMore": "Dowamyny oka",
+  "productReadLess": "Gysgalt",
+  "productCharacteristics": "Häsiýetleri",
+  "productAllCharacteristics": "Ähli häsiýetleri",
+  "productReviews": "Teswirler",
+  "productRatingCount": "{count} baha",
+  "@productRatingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productReadAllReviews": "Ähli teswirleri oka",
+  "orderActive": "Işjeň sargyt",
+  "orderCompleted": "Sargyt tamamlandy",
+  "orderCancelled": "Sargyt ýatyryldy",
+  "orderHistory": "Sargytlaryň taryhy",
+  "orderItemCount": "{count, plural, =0{Haryt ýok} =1{1 haryt} other{{count} haryt}}",
+  "@orderItemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileTitle": "Profil",
+  "settingsLanguage": "Dil",
+  "settingsTheme": "Tema",
+  "settingsThemeLight": "Açyk",
+  "settingsThemeDark": "Garaňky",
+  "settingsThemeSystem": "Ulgam",
+  "errorServer": "Bir zat ýalňyş boldy. Gaýtadan synanyşyň.",
+  "errorNetwork": "Internet birikmesi ýok.",
+  "errorTimeout": "Haýyş juda uzaga çekdi.",
+  "errorUnauthorized": "Dowam etmek üçin ulgama giriň.",
+  "errorNotFound": "Gözlän zadyňyz tapylmady.",
+  "errorCache": "Saklanan maglumat okalmady.",
+  "errorUnknown": "Näbelli ýalňyşlyk.",
+  "profileEditProfile": "Profili üýtget",
+  "profileAllOrders": "Ähli sargytlar",
+  "profileOrderCount": "{count, plural, =0{Sargyt ýok} =1{1 sargyt} other{{count} sargyt}}",
+  "@profileOrderCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileSectionGeneral": "Umumy",
+  "profileSectionOther": "Beýleki",
+  "profileSectionContact": "Biz bilen habarlaşyň",
+  "profileNotifications": "Bildirişler",
+  "profileActiveOrders": "Işjeň sargytlar",
+  "profileSavedLocations": "Saklanan salgylarym",
+  "profileOrderHistory": "Sargytlaryň taryhy",
+  "profileAnnouncements": "Habarlar",
+  "profileDarkMode": "Garaňky tema",
+  "profileAboutApp": "Programma barada",
+  "profileFaq": "Sowal-jogap",
+  "profileTerms": "Ulanyş şertleri",
+  "profilePrivacy": "Gizlinlik syýasaty",
+  "profileWhatsapp": "WhatsApp",
+  "profileInstagram": "Instagram",
+  "profileTiktok": "TikTok",
+  "profileCallTitle": "Ähli soraglar üçin jaň ediň:",
+  "profileCallAction": "Operatora jaň et",
+  "profileCallHours": "Jaňlara jogap beriljek wagtlary: Hepde içi her gün sagat 09:00 - 19:00 aralygy",
+  "profileVersion": "Wersiýa {version}",
+  "@profileVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsLanguageEnglish": "Iňlisçe",
+  "settingsLanguageTurkmen": "Türkmençe",
+  "settingsLanguageRussian": "Rusça",
+  "editProfileTitle": "Profili üýtget",
+  "editProfileName": "Ady we familiýasy",
+  "editProfileNameHint": "Adyňyz",
+  "editProfilePhone": "Telefon belgisi",
+  "editProfilePhoneNote": "Belgiňizi üýtgetmek üçin goldaw bilen habarlaşyň",
+  "editProfilePhoto": "Suraty üýtget",
+  "editProfilePhotoCamera": "Surat al",
+  "editProfilePhotoGallery": "Galereýadan saýla",
+  "editProfilePhotoRemove": "Suraty aýyr",
+  "editProfileSaved": "Profil täzelendi",
+  "editProfileNameRequired": "Adyňyzy ýazyň",
+  "editProfilePhotoHint": "Üýtgetmek üçin surata basyň",
+  "editProfileNameCounter": "{count}/40",
+  "editProfileNothingChanged": "Ýatda saklamaga zat ýok",
+  "@editProfileNameCounter": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "aboutTagline": "Uly bazarlardaky ähli zat, Türkmenistana eltilýär.",
+  "legalUpdated": "Soňky täzelenme: {date}",
+  "@legalUpdated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "faqTitle": "Sowal-jogap",
+  "faqQ1": "Sargydy nädip edýärin?",
+  "faqA1": "Islän harydyňyzy sebede goşuň, Sebet bölümini açyň we Sargyt et düwmesine basyň. Tassyklamazdan öň eltip bermek bilen bilelikde jemi görkeziler.",
+  "faqQ2": "Eltip bermek näçe wagt alýar?",
+  "faqA2": "Ýerli ammardaky harytlar 1–3 günde gelýär. Hyzmatdaş bazarlardan sargytlar satyja görä 10–20 gün alýar.",
+  "faqQ3": "Sargydymy nädip yzarlaýaryn?",
+  "faqA3": "Profil → Işjeň sargytlar bölümini açyň. Tassyklanandan eltilýänçä ähli ädim şol ýerde.",
+  "faqQ4": "Sargydy ýatyryp bilerinmi?",
+  "faqA4": "Hawa, entek \"Tassyklandy\" ýagdaýyndaka. Ugradylandan soň operatora jaň ediň, kömek ederis.",
+  "faqQ5": "Haryt yzyna nädip gaýtarylýar?",
+  "faqA5": "Eltilenden soň 3 günüň içinde operatora jaň ediň. Ulanylmadyk we asyl gaby bilen harytlar kabul edilýär.",
+  "termsTitle": "Ulanyş şertleri",
+  "termsS1": "Programmany ulanmak",
+  "termsB1": "Elyeter-i ulanmak bilen bu şertleri kabul edýärsiňiz. Razy bolmasaňyz, programmany ulanmagy bes ediň.",
+  "termsS2": "Sargytlar we bahalar",
+  "termsB2": "Bahalar TMT-de görkezilýär we sargyt tassyklanýança üýtgäp biler. Hyzmatdaş bazarlardaky haryt gory biziň gözegçiligimizde däl.",
+  "termsS3": "Eltip bermek",
+  "termsB3": "Eltip bermek möhletleri çaklamadyr, kepillik däldir. Gümrük we satyjy gijikdirmeleri möhleti uzaldyp biler.",
+  "termsS4": "Yzyna gaýtarmak",
+  "termsB4": "Ulanylmadyk we asyl gabyndaky harytlar eltilenden soň 3 günüň içinde yzyna gaýtarylyp bilner. Sargyt boýunça ýasalan we şahsy ideg harytlary gaýtarylmaýar.",
+  "termsS5": "Hasabyňyz",
+  "termsB5": "Telefon belgiňiz hasabyňyzy kesgitleýär. Ony täze ýagdaýda saklaň — sargytlar we eltip bermek jaňlary şol belgä barýar.",
+  "privacyTitle": "Gizlinlik syýasaty",
+  "privacyS1": "Näme ýygnaýarys",
+  "privacyB1": "Adyňyz, telefon belgiňiz, eltip bermek salgyňyz we sargyt taryhyňyz. Elyeter-i ulanmak üçin başga zat gerek däl.",
+  "privacyS2": "Näme üçin ulanýarys",
+  "privacyB2": "Sargytlaryňyzy eltmek, olar barada habar bermek we goldawa ýüz tutanyňyzda jogap bermek üçin.",
+  "privacyS3": "Kim bilen paýlaşýarys",
+  "privacyB3": "Diňe kurýerler we töleg hyzmatlary bilen, diňe sargydyňyzy tamamlamak üçin gerek bölegi. Maglumatlaryňyzy hiç haçan satmaýarys.",
+  "privacyS4": "Näçe wagt saklaýarys",
+  "privacyB4": "Hasabyňyz bar wagty, şeýle hem tamamlanan sargytlar üçin hasabat kadalarynyň talap edýän möhletinde.",
+  "privacyS5": "Hukuklaryňyz",
+  "privacyB5": "Maglumatlaryňyzyň nusgasyny almak ýa-da hasabyňyzy pozdurmak üçin operatora jaň ediň.",
+  "categoryTitle": "Bölümler"
+}

@@ -8,8 +8,30 @@ abstract final class AppColors {
   static const primaryDark = Color(0xFFE2541F);
   static const primarySoft = Color(0xFFFFF1EA);
 
+  /// The pale end of the brand gradient — see `AppColors.primaryGradient`.
+  static const primaryFade = Color(0xFFFFBE93);
+
+  /// Runs down the surface: saturated at the top, pale at the bottom.
+  static const primaryGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [primary, primaryFade],
+  );
+
   // Neutrals
   static const black = Color(0xFF1A1A1A);
+
+  /// Design-system `ink`: label and title text.
+  static const ink = Color(0xFF171717);
+
+  /// Design-system `icon/soft-400`: the grey the row icons are drawn in.
+  static const iconSoft = Color(0xFFA3A3A3);
+
+  /// Design-system `text/disabled-300`: placeholder and disabled copy.
+  static const textDisabled = Color(0xFFD4D4D4);
+
+  /// Fill behind grouped rows and cards on a white page.
+  static const surfaceMuted = Color(0xFFF5F5F5);
   static const grey900 = Color(0xFF2B2B2B);
   static const grey700 = Color(0xFF5C5C5C);
   static const grey500 = Color(0xFF8E8E93);
@@ -27,5 +49,8 @@ abstract final class AppColors {
   static const success = Color(0xFF2ECC71);
   static const warning = Color(0xFFF5A623);
   static const error = Color(0xFFE74C3C);
+
+  /// Fill behind a destructive action — the swipe-to-delete panel.
+  static const errorSoft = Color(0xFFFDECEC);
   static const info = Color(0xFF2F80ED);
 }

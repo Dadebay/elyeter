@@ -5,16 +5,174 @@
   "navCategory": "Категории",
   "navCart": "Корзина",
   "navFavorite": "Избранное",
+  "favoriteTitle": "Избранное",
   "navProfile": "Профиль",
   "commonRetry": "Повторить",
   "commonCancel": "Отмена",
+  "commonClose": "Закрыть",
   "commonSave": "Сохранить",
   "commonSearch": "Поиск",
+  "homeSearchHint": "Поиск товара",
+  "locationTitle": "Адрес доставки",
+  "locationSearchHint": "Поиск района или улицы",
+  "locationEmpty": "Совпадений не найдено",
+  "visualSearchTitle": "Поиск по фото",
+  "visualSearchHint": "Поместите товар в рамку для сканирования",
+  "visualSearchCamera": "Сделать фото",
+  "visualSearchRetake": "Переснять",
+  "visualSearchUse": "Использовать",
+  "visualSearchGallery": "Выбрать из галереи",
+  "visualSearchNoCamera": "На этом устройстве нет камеры.",
+  "visualSearchDenied": "Для поиска по фото нужен доступ к камере. Разрешите его в настройках.",
+  "visualSearchReady": "Фото готово — поиск по фото скоро.",
+  "commonOpenFailed": "Не удалось открыть {target}",
+  "@commonOpenFailed": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "orderActiveTitle": "Активный заказ",
+  "orderNumber": "Заказ № {number}",
+  "@orderNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "orderRepeat": "Повторить заказ",
+  "orderQuestions": "Вопросы",
+  "orderCancel": "Отменить",
+  "orderProgress": "Ход доставки",
+  "orderStepPlaced": "Заказ оформлен",
+  "orderStepWarehouse": "Поступил на склад в Китае",
+  "orderStepShipped": "Отправлен в Туркменистан",
+  "orderStepArrived": "Прибыл в Туркменистан",
+  "orderStepDelivered": "Доставлен",
+  "orderProducts": "Товары в доставке",
+  "orderItemSummary": "{count, plural, one{{count} товар на {total}} few{{count} товара на {total}} other{{count} товаров на {total}}}",
+  "@orderItemSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "orderPickupPoint": "Пункт выдачи",
+  "orderRecipient": "Получатель",
+  "orderTime": "Время заказа",
+  "orderPayment": "Способ оплаты",
+  "orderPaymentCard": "Картой / Оплата картой",
+  "orderTotalTitle": "Сумма заказа",
+  "orderProductsTotal": "Сумма товаров",
+  "orderDeliveryLabel": "Доставка",
+  "orderDeliveryFree": "Бесплатно",
+  "orderCargo": "Карго",
+  "orderDiscount": "Скидка",
+  "orderDownloadCheck": "Скачать чек",
+  "categoryFilterMaterial": "Материал",
+  "categoryFilterColor": "Цвет",
+  "categoryFilterBrand": "Бренд",
+  "categorySearch": "Поиск",
+  "categoryFilters": "Фильтры",
+  "categorySortTitle": "Сортировка",
+  "categorySortPopular": "Популярные",
+  "categorySortPriceAsc": "Цена: по возрастанию",
+  "categorySortPriceDesc": "Цена: по убыванию",
+  "categorySortDiscount": "Больше скидка",
+  "categoryApply": "Применить",
+  "categoryReset": "Сбросить",
+  "categoryNoResults": "Ничего не найдено по этим фильтрам",
+  "categoryNoResultsHint": "Попробуйте убрать один из них.",
+  "categoryFacetSearch": "Поиск: {facet}",
+  "@categoryFacetSearch": {
+    "placeholders": {
+      "facet": {
+        "type": "String"
+      }
+    }
+  },
+  "categorySelectedCount": "Выбрано: {count}",
+  "@categorySelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchTitle": "Поиск",
   "commonSeeAll": "Все",
   "commonAddToCart": "В корзину",
+  "commonAdded": "Добавлено",
+  "cartDelete": "Удалить",
+  "cartSelectAll": "Выбрать все",
+  "cartProductCount": "{count, plural, =1{1 товар} other{{count} товара}}",
+  "@cartProductCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "commonCheckout": "Оформить",
   "commonTotal": "Итого",
   "commonEmpty": "Здесь пока пусто",
+  "productReviewCount": "{count, plural, =1{1 отзыв} other{{count} отзывов}}",
+  "@productReviewCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productOrderCount": "{count} заказов",
+  "@productOrderCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productColor": "Цвет: {name}",
+  "@productColor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productSize": "Размер: {size}",
+  "@productSize": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "productArticle": "Артикул:",
+  "productCopy": "Копировать",
+  "productCopied": "Артикул скопирован",
+  "productShared": "Ссылка на товар скопирована",
+  "productDescription": "Описание",
+  "productReadMore": "Читать далее",
+  "productReadLess": "Свернуть",
+  "productCharacteristics": "Характеристики",
+  "productAllCharacteristics": "Все характеристики",
+  "productReviews": "Отзывы",
+  "productRatingCount": "{count} оценок",
+  "@productRatingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productReadAllReviews": "Читать все отзывы",
   "orderActive": "Активный заказ",
   "orderCompleted": "Заказ выполнен",
   "orderCancelled": "Заказ отменён",
@@ -39,5 +197,109 @@
   "errorUnauthorized": "Войдите, чтобы продолжить.",
   "errorNotFound": "Ничего не найдено.",
   "errorCache": "Не удалось прочитать сохранённые данные.",
-  "errorUnknown": "Неизвестная ошибка."
+  "errorUnknown": "Неизвестная ошибка.",
+  "profileEditProfile": "Изменить профиль",
+  "profileAllOrders": "Все заказы",
+  "profileOrderCount": "{count, plural, =0{Нет заказов} one{{count} заказ} few{{count} заказа} other{{count} заказов}}",
+  "@profileOrderCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileSectionGeneral": "Основное",
+  "profileSectionOther": "Другое",
+  "profileSectionContact": "Связаться с нами",
+  "profileNotifications": "Уведомления",
+  "profileActiveOrders": "Активные заказы",
+  "profileSavedLocations": "Мои адреса",
+  "profileOrderHistory": "История заказов",
+  "profileAnnouncements": "Объявления",
+  "profileDarkMode": "Тёмная тема",
+  "profileAboutApp": "О приложении",
+  "profileFaq": "Вопросы и ответы",
+  "profileTerms": "Условия использования",
+  "profilePrivacy": "Политика конфиденциальности",
+  "profileWhatsapp": "WhatsApp",
+  "profileInstagram": "Instagram",
+  "profileTiktok": "TikTok",
+  "profileCallTitle": "Звоните по любым вопросам:",
+  "profileCallAction": "Позвонить",
+  "profileCallHours": "Звонки принимаем каждый день недели, 09:00 - 19:00",
+  "profileVersion": "Версия {version}",
+  "@profileVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsLanguageEnglish": "Английский",
+  "settingsLanguageTurkmen": "Туркменский",
+  "settingsLanguageRussian": "Русский",
+  "editProfileTitle": "Изменить профиль",
+  "editProfileName": "Имя и фамилия",
+  "editProfileNameHint": "Ваше имя",
+  "editProfilePhone": "Номер телефона",
+  "editProfilePhoneNote": "Чтобы изменить номер, обратитесь в поддержку",
+  "editProfilePhoto": "Изменить фото",
+  "editProfilePhotoCamera": "Сделать фото",
+  "editProfilePhotoGallery": "Выбрать из галереи",
+  "editProfilePhotoRemove": "Удалить фото",
+  "editProfileSaved": "Профиль обновлён",
+  "editProfileNameRequired": "Введите ваше имя",
+  "editProfilePhotoHint": "Нажмите на фото, чтобы изменить",
+  "editProfileNameCounter": "{count}/40",
+  "editProfileNothingChanged": "Пока нечего сохранять",
+  "@editProfileNameCounter": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "aboutTagline": "Всё с крупных маркетплейсов — с доставкой по Туркменистану.",
+  "legalUpdated": "Обновлено: {date}",
+  "@legalUpdated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "faqTitle": "Вопросы и ответы",
+  "faqQ1": "Как оформить заказ?",
+  "faqA1": "Добавьте товары в корзину, откройте вкладку «Корзина» и нажмите «Оформить». Итог с доставкой показан до подтверждения.",
+  "faqQ2": "Сколько идёт доставка?",
+  "faqA2": "Товары со склада приходят за 1–3 дня. Заказы с партнёрских площадок — 10–20 дней, в зависимости от продавца.",
+  "faqQ3": "Как отследить заказ?",
+  "faqA3": "Откройте Профиль → Активные заказы. Там виден каждый этап от подтверждения до доставки.",
+  "faqQ4": "Можно ли отменить заказ?",
+  "faqA4": "Да, пока он в статусе «Подтверждён». После отправки позвоните оператору — поможем.",
+  "faqQ5": "Как вернуть товар?",
+  "faqA5": "Позвоните оператору в течение 3 дней после доставки. Принимаем неиспользованный товар в оригинальной упаковке.",
+  "termsTitle": "Условия использования",
+  "termsS1": "Использование приложения",
+  "termsB1": "Пользуясь Elyeter, вы принимаете эти условия. Если вы не согласны, прекратите использование приложения.",
+  "termsS2": "Заказы и цены",
+  "termsB2": "Цены указаны в TMT и могут измениться до подтверждения заказа. Наличие на партнёрских площадках от нас не зависит.",
+  "termsS3": "Доставка",
+  "termsB3": "Сроки доставки — ориентир, а не гарантия. Таможня и задержки продавца могут их увеличить.",
+  "termsS4": "Возврат",
+  "termsB4": "Неиспользованный товар в оригинальной упаковке можно вернуть в течение 3 дней. Товары под заказ и средства личной гигиены возврату не подлежат.",
+  "termsS5": "Ваш аккаунт",
+  "termsB5": "Ваш номер телефона — идентификатор аккаунта. Держите его актуальным: заказы и звонки курьера идут на него.",
+  "privacyTitle": "Политика конфиденциальности",
+  "privacyS1": "Какие данные мы собираем",
+  "privacyB1": "Имя, номер телефона, адрес доставки и историю заказов. Больше ничего для работы Elyeter не нужно.",
+  "privacyS2": "Зачем мы их используем",
+  "privacyB2": "Чтобы доставлять заказы, сообщать об их статусе и отвечать вам в поддержке.",
+  "privacyS3": "Кому мы их передаём",
+  "privacyB3": "Только курьерам и платёжным сервисам — и только то, что нужно для выполнения заказа. Мы не продаём ваши данные.",
+  "privacyS4": "Сколько мы их храним",
+  "privacyB4": "Пока существует ваш аккаунт, плюс срок, требуемый правилами учёта для завершённых заказов.",
+  "privacyS5": "Ваши права",
+  "privacyB5": "Позвоните оператору, чтобы получить копию данных или удалить аккаунт.",
+  "categoryTitle": "Категории"
 }

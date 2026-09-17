@@ -46,6 +46,39 @@ profile, search, settings, notification, address`.
    `AppSpacing`, `AppRadius`, `context.l10n`.
 5. **One registration point.** Everything is wired in `core/di/injector.dart`,
    one `_registerX()` per feature.
+6. **Pushed pages use the shared header.** See below.
+
+## Page headers and the back button
+
+Every page pushed on top of another — order history, addresses, edit profile,
+all reviews — takes `AppPageAppBar` from `core/widgets/`:
+
+```dart
+appBar: AppPageAppBar(title: l10n.productReviews),
+```
+
+It supplies the centred bold title and, more importantly, `AppBackButton` —
+the app's own back control, sized and inset to the page margin. Material's
+default leading is a bare platform arrow at a different offset, so a page
+that writes a plain `appBar: AppBar(...)` drifts out of step with the rest
+of the app. Pass `onBack` only to intercept the pop; left alone the button
+pops the route.
+
+A page that needs more than a title — its own actions, a search field, a
+collapsing header — builds its own `AppBar` but still carries the shared
+button, which needs both lines or it is squeezed into Material's 56pt slot:
+
+```dart
+leadingWidth: AppBackButton.leadingWidth,
+leading: const AppBackButton.appBarLeading(),
+```
+
+Brand, category, marketplace and product detail are on this second form. The
+bare `AppBackButton` constructor is for a back control floating in a `Stack`
+over artwork, where there is no app bar to hang it on.
+
+The tab roots (home, category, cart, favourites, profile) are not pushed and
+have nothing to go back to, so they build their own headers.
 
 ## Adding a feature
 
@@ -100,3 +133,32 @@ flutter gen-l10n
 
 To add Turkmen, copy `app_en.arb` to `app_tk.arb`, translate the values, and
 rerun the command — `supportedLocales` picks it up automatically.
+
+## Design renders (goldens)
+
+Two golden tests render the bottom navigation bar and the home page to PNG so
+a layout change can be reviewed without a device. They depend on async image
+decoding and are a hair non-deterministic, so `dart_test.yaml` skips them in
+the normal run. Regenerate and inspect them with:
+
+```sh
+flutter test --run-skipped -t golden --update-goldens
+```
+
+Output lands in `test/**/goldens/`.
+
+## Category artwork
+
+`assets/images/category/` holds the category icons exactly as supplied and
+the app points at those files (`AppAssets.category*`).
+
+They paint their bitmap through an SVG `<pattern>` fill, which flutter_svg
+cannot draw — the vector_graphics compiler parses such a file to zero paths
+and zero images. `AppAssetImage` handles this: for an SVG containing a
+`<pattern>`, it reads the embedded base64 bitmap out of the file and draws
+that instead, decoded down to the size it is displayed at and cached per
+asset. Plain vector SVGs still go straight to `SvgPicture`.
+
+The cost is that each of these files is 2–9 MB in the bundle and is parsed
+as a string on first use. A re-export that places the bitmap as a direct
+`<image>` element (no pattern) would render through the normal SVG path.

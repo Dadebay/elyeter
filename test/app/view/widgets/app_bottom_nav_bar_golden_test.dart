@@ -1,3 +1,6 @@
+@Tags(['golden'])
+library;
+
 import 'package:elyeter/app/view/widgets/app_bottom_nav_bar.dart';
 import 'package:elyeter/core/constants/app_assets.dart';
 import 'package:elyeter/core/theme/app_theme.dart';
@@ -7,12 +10,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 Future<void> _loadFonts() async {
   const families = {
-    'Inter': [
-      'assets/fonts/Inter_18pt-Regular.ttf',
-      'assets/fonts/Inter_18pt-Medium.ttf',
-      'assets/fonts/Inter_18pt-SemiBold.ttf',
-      'assets/fonts/Inter_18pt-Bold.ttf',
-    ],
     'InterDisplay': [
       'assets/fonts/InterDisplay-Regular.ttf',
       'assets/fonts/InterDisplay-Medium.ttf',

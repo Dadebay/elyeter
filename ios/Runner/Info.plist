@@ -2,6 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- Support line, socials and WhatsApp: canLaunchUrl only reports true
+	     for schemes listed here. -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+		<string>https</string>
+	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Elyeter uses the camera so you can search for products by taking a photo.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Elyeter needs access to your photos so you can search for products with a picture you already have.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

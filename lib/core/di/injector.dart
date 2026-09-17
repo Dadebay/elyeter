@@ -7,6 +7,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/cubit/locale_cubit.dart';
 import '../../app/cubit/theme_cubit.dart';
+import '../../features/cart/presentation/cubit/cart_cubit.dart';
+import '../../features/favorite/presentation/cubit/favorite_cubit.dart';
+import '../../features/profile/presentation/cubit/profile_cubit.dart';
 import '../constants/app_environment.dart';
 import '../network/api_client.dart';
 import '../network/interceptors/auth_interceptor.dart';
@@ -72,6 +75,13 @@ void _registerGlobalCubits() {
 }
 
 void _registerFeatures() {
+  // Favourites and the cart are read and written from several tabs, so these
+  // cubits outlive any one page — singletons rather than per-page factories.
+  getIt
+    ..registerLazySingleton<FavoriteCubit>(FavoriteCubit.new)
+    ..registerLazySingleton<CartCubit>(CartCubit.new)
+    ..registerLazySingleton<ProfileCubit>(ProfileCubit.new);
+
   // Each feature registers its data source -> repository -> bloc chain here.
   //
   // Template:

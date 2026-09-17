@@ -4,7 +4,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../core/constants/app_constants.dart';
 import '../core/di/injector.dart';
+import '../core/localization/fallback_localizations.dart';
 import '../core/theme/app_theme.dart';
+import '../features/cart/presentation/cubit/cart_cubit.dart';
+import '../features/favorite/presentation/cubit/favorite_cubit.dart';
+import '../features/profile/presentation/cubit/profile_cubit.dart';
 import '../l10n/app_localizations.dart';
 import 'cubit/locale_cubit.dart';
 import 'cubit/theme_cubit.dart';
@@ -20,6 +24,9 @@ class App extends StatelessWidget {
       providers: [
         BlocProvider<ThemeCubit>.value(value: getIt<ThemeCubit>()),
         BlocProvider<LocaleCubit>.value(value: getIt<LocaleCubit>()),
+        BlocProvider<FavoriteCubit>.value(value: getIt<FavoriteCubit>()),
+        BlocProvider<CartCubit>.value(value: getIt<CartCubit>()),
+        BlocProvider<ProfileCubit>.value(value: getIt<ProfileCubit>()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, themeMode) {
@@ -39,6 +46,9 @@ class App extends StatelessWidget {
                   GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate,
+                  // Last: catches the locales the global ones do not ship,
+                  // which is Turkmen. See [FallbackLocalizations].
+                  ...FallbackLocalizations.delegates,
                 ],
               );
             },

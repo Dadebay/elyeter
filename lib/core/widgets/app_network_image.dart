@@ -13,6 +13,7 @@ class AppNetworkImage extends StatelessWidget {
     this.width,
     this.height,
     this.fit = BoxFit.cover,
+    this.alignment = Alignment.center,
     this.radius = AppRadius.md,
   });
 
@@ -20,6 +21,10 @@ class AppNetworkImage extends StatelessWidget {
   final double? width;
   final double? height;
   final BoxFit fit;
+
+  /// Which part of the image survives when [fit] has to crop.
+  final Alignment alignment;
+
   final double radius;
 
   @override
@@ -31,6 +36,7 @@ class AppNetworkImage extends StatelessWidget {
             width: width,
             height: height,
             fit: fit,
+            alignment: alignment,
             placeholder: (_, _) => _shimmer(),
             errorWidget: (_, _, _) => _fallback(),
           );

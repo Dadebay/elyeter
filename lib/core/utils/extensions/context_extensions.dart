@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../theme/app_spacing.dart';
 
 /// Shorthands that cut the boilerplate in every widget build method.
 extension BuildContextX on BuildContext {
@@ -13,4 +14,9 @@ extension BuildContextX on BuildContext {
   MediaQueryData get mq => MediaQuery.of(this);
   Size get screenSize => MediaQuery.sizeOf(this);
   bool get isDark => Theme.of(this).brightness == Brightness.dark;
+
+  /// Room the floating nav bar takes at the bottom of the screen. Pages
+  /// that draw over it, or scroll under it, measure their clearance here.
+  double get navBarHeight =>
+      AppNavBar.heightFor(MediaQuery.viewPaddingOf(this).bottom);
 }

@@ -13,6 +13,14 @@ abstract final class CurrencyFormatter {
     return '${formatter.format(amount).trim()} ${AppConstants.currencySymbol}';
   }
 
+  /// Just the number, for layouts that style the currency separately:
+  /// `7 526`.
+  static String amount(num value, {String? locale, int decimals = 0}) =>
+      NumberFormat.currency(locale: locale, symbol: '', decimalDigits: decimals)
+          .format(value)
+          .trim()
+          .replaceAll(',', '\u2009');
+
   /// Compact form for badges and chips: `1.2K TMT`.
   static String compact(num amount, {String? locale}) =>
       '${NumberFormat.compact(locale: locale).format(amount)} '

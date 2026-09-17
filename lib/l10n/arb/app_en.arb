@@ -1,45 +1,305 @@
 {
   "@@locale": "en",
-
   "appName": "Elyeter",
-
   "navHome": "Home",
   "navCategory": "Category",
   "navCart": "Cart",
   "navFavorite": "Favorite",
+  "favoriteTitle": "Favorites",
   "navProfile": "Profile",
-
   "commonRetry": "Retry",
   "commonCancel": "Cancel",
+  "commonClose": "Close",
   "commonSave": "Save",
   "commonSearch": "Search",
+  "homeSearchHint": "Search product",
+  "locationTitle": "Delivery address",
+  "locationSearchHint": "Search area or street",
+  "locationEmpty": "No matching address",
+  "visualSearchTitle": "Search by photo",
+  "visualSearchHint": "Place the product in the frame to scan",
+  "visualSearchCamera": "Take a photo",
+  "visualSearchRetake": "Retake",
+  "visualSearchUse": "Use photo",
+  "visualSearchGallery": "Choose from gallery",
+  "visualSearchNoCamera": "No camera is available on this device.",
+  "visualSearchDenied": "Elyeter needs camera access to search by photo. Allow it in Settings.",
+  "visualSearchReady": "Photo ready — visual search is coming soon.",
+  "commonOpenFailed": "Could not open {target}",
+  "@commonOpenFailed": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "orderActiveTitle": "Active Order",
+  "orderNumber": "Order No. {number}",
+  "@orderNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "orderRepeat": "Repeat order",
+  "orderQuestions": "Questions",
+  "orderCancel": "Cancel",
+  "orderProgress": "Delivery Progress",
+  "orderStepPlaced": "Order Placed",
+  "orderStepWarehouse": "Arrived at China Warehouse",
+  "orderStepShipped": "Shipped to Turkmenistan",
+  "orderStepArrived": "Arrived in Turkmenistan",
+  "orderStepDelivered": "Delivered",
+  "orderProducts": "Delivery Products",
+  "orderItemSummary": "{count, plural, =1{1 item for {total}} other{{count} items for {total}}}",
+  "@orderItemSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "orderPickupPoint": "Pick-up point",
+  "orderRecipient": "Recipient",
+  "orderTime": "Order Time",
+  "orderPayment": "Payment Method",
+  "orderPaymentCard": "By card / Card payment",
+  "orderTotalTitle": "Order Total",
+  "orderProductsTotal": "Products Total",
+  "orderDeliveryLabel": "Delivery",
+  "orderDeliveryFree": "Free",
+  "orderCargo": "Cargo",
+  "orderDiscount": "Discount",
+  "orderDownloadCheck": "Download Check",
+  "categoryFilterMaterial": "Material",
+  "categoryFilterColor": "Color",
+  "categoryFilterBrand": "Brand",
+  "categorySearch": "Search",
+  "categoryFilters": "Filters",
+  "categorySortTitle": "Sort by",
+  "categorySortPopular": "Popular",
+  "categorySortPriceAsc": "Price: low to high",
+  "categorySortPriceDesc": "Price: high to low",
+  "categorySortDiscount": "Biggest discount",
+  "categoryApply": "Apply",
+  "categoryReset": "Reset",
+  "categoryNoResults": "Nothing matches these filters",
+  "categoryNoResultsHint": "Try removing one of them.",
+  "categoryFacetSearch": "Search {facet}",
+  "@categoryFacetSearch": {
+    "placeholders": {
+      "facet": {
+        "type": "String"
+      }
+    }
+  },
+  "categorySelectedCount": "{count} selected",
+  "@categorySelectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchTitle": "Search",
   "commonSeeAll": "See all",
-  "commonAddToCart": "Add to cart",
+  "commonAddToCart": "Add to Card",
+  "commonAdded": "Added",
+  "cartDelete": "Delete",
+  "cartSelectAll": "Select All",
+  "cartProductCount": "{count, plural, =1{1 Product} other{{count} Product}}",
+  "@cartProductCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "commonCheckout": "Checkout",
   "commonTotal": "Total",
   "commonEmpty": "Nothing here yet",
-
+  "productReviewCount": "{count, plural, =1{1 review} other{{count} reviews}}",
+  "@productReviewCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productOrderCount": "{count} order",
+  "@productOrderCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productColor": "Color: {name}",
+  "@productColor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productSize": "Ring size: {size}",
+  "@productSize": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "productArticle": "Item Article:",
+  "productCopy": "Copy",
+  "productCopied": "Article copied",
+  "productShared": "Product link copied",
+  "productDescription": "Description",
+  "productReadMore": "Read More",
+  "productReadLess": "Show less",
+  "productCharacteristics": "Characteristics",
+  "productAllCharacteristics": "All characteristics",
+  "productReviews": "Reviews",
+  "productRatingCount": "{count} ratings",
+  "@productRatingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productReadAllReviews": "Read all reviews",
   "orderActive": "Active Order",
   "orderCompleted": "Order Completed",
   "orderCancelled": "Order Cancelled",
   "orderHistory": "Order history",
   "orderItemCount": "{count, plural, =0{No products} =1{1 product} other{{count} products}}",
   "@orderItemCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "profileTitle": "Profile",
   "settingsLanguage": "Language",
   "settingsTheme": "Theme",
   "settingsThemeLight": "Light",
   "settingsThemeDark": "Dark",
   "settingsThemeSystem": "System",
-
   "errorServer": "Something went wrong. Please try again.",
   "errorNetwork": "No internet connection.",
   "errorTimeout": "The request took too long.",
   "errorUnauthorized": "Please sign in to continue.",
   "errorNotFound": "We couldn't find what you were looking for.",
   "errorCache": "Could not read saved data.",
-  "errorUnknown": "Unexpected error."
+  "errorUnknown": "Unexpected error.",
+  "profileEditProfile": "Edit profile",
+  "profileAllOrders": "All Orders",
+  "profileOrderCount": "{count, plural, =0{No orders} =1{1 Order} other{{count} Orders}}",
+  "@profileOrderCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "profileSectionGeneral": "General",
+  "profileSectionOther": "Other",
+  "profileSectionContact": "Contact Us",
+  "profileNotifications": "Notifications",
+  "profileActiveOrders": "Active orders",
+  "profileSavedLocations": "My saved locations",
+  "profileOrderHistory": "Order history",
+  "profileAnnouncements": "Announcements",
+  "profileDarkMode": "Dark mode",
+  "profileAboutApp": "About the app",
+  "profileFaq": "FAQ",
+  "profileTerms": "Terms of use",
+  "profilePrivacy": "Privacy policy",
+  "profileWhatsapp": "WhatsApp",
+  "profileInstagram": "Instagram",
+  "profileTiktok": "TikTok",
+  "profileCallTitle": "Call us with any question:",
+  "profileCallAction": "Call operator",
+  "profileCallHours": "Calls are answered every day of the week, 09:00 - 19:00",
+  "profileVersion": "Version {version}",
+  "@profileVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsLanguageEnglish": "English",
+  "settingsLanguageTurkmen": "Türkmençe",
+  "settingsLanguageRussian": "Русский",
+  "editProfileTitle": "Edit profile",
+  "editProfileName": "Full name",
+  "editProfileNameHint": "Your name",
+  "editProfilePhone": "Phone number",
+  "editProfilePhoneNote": "Contact support to change your number",
+  "editProfilePhoto": "Change photo",
+  "editProfilePhotoCamera": "Take a photo",
+  "editProfilePhotoGallery": "Choose from gallery",
+  "editProfilePhotoRemove": "Remove photo",
+  "editProfileSaved": "Profile updated",
+  "editProfileNameRequired": "Please enter your name",
+  "editProfilePhotoHint": "Tap the photo to change it",
+  "editProfileNameCounter": "{count}/40",
+  "editProfileNothingChanged": "Nothing to save yet",
+  "@editProfileNameCounter": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "aboutTagline": "Everything from the big marketplaces, delivered to Turkmenistan.",
+  "legalUpdated": "Last updated: {date}",
+  "@legalUpdated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "faqTitle": "FAQ",
+  "faqQ1": "How do I place an order?",
+  "faqA1": "Add what you want to the cart, open the Cart tab and tap Checkout. The total, including delivery, is shown before you confirm.",
+  "faqQ2": "How long does delivery take?",
+  "faqA2": "Items in local stock arrive in 1–3 days. Orders from partner marketplaces take 10–20 days, depending on the seller.",
+  "faqQ3": "How do I track my order?",
+  "faqA3": "Open Profile → Active orders. Every step from confirmation to delivery is listed there.",
+  "faqQ4": "Can I cancel an order?",
+  "faqA4": "Yes, while it is still marked Confirmed. Once it has shipped, call the operator and we will help.",
+  "faqQ5": "How do returns work?",
+  "faqA5": "Call the operator within 3 days of delivery. Unused items in their original packaging are accepted.",
+  "termsTitle": "Terms of use",
+  "termsS1": "Using the app",
+  "termsB1": "By using Elyeter you accept these terms. If you do not agree with them, please stop using the app.",
+  "termsS2": "Orders and prices",
+  "termsB2": "Prices are shown in TMT and may change until an order is confirmed. Availability at partner marketplaces is outside our control.",
+  "termsS3": "Delivery",
+  "termsB3": "Delivery times are estimates, not guarantees. Customs and seller delays can extend them.",
+  "termsS4": "Returns",
+  "termsB4": "Unused items in original packaging can be returned within 3 days of delivery. Made-to-order and personal-care items cannot.",
+  "termsS5": "Your account",
+  "termsB5": "Your phone number identifies your account. Keep it up to date — orders and delivery calls go to it.",
+  "privacyTitle": "Privacy policy",
+  "privacyS1": "What we collect",
+  "privacyB1": "Your name, phone number, delivery address and order history. Nothing else is required to use Elyeter.",
+  "privacyS2": "Why we use it",
+  "privacyB2": "To deliver your orders, keep you updated about them and answer you when you contact support.",
+  "privacyS3": "Who we share it with",
+  "privacyB3": "Only couriers and payment providers, and only the part they need to complete your order. We never sell your data.",
+  "privacyS4": "How long we keep it",
+  "privacyB4": "While your account exists, plus the period accounting rules require for completed orders.",
+  "privacyS5": "Your rights",
+  "privacyB5": "Call the operator to get a copy of your data or ask for your account to be deleted.",
+  "categoryTitle": "Categories"
 }

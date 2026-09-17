@@ -25,16 +25,25 @@ abstract final class AppTheme {
 
     final onSurface = isLight ? AppColors.black : AppColors.white;
 
+    // Every component sub-theme below must use this, not
+    // AppTypography.textTheme: an explicit TextStyle does not inherit
+    // ThemeData.fontFamily, so styles without a family render in the
+    // platform default font.
+    final textTheme = AppTypography.textTheme.apply(
+      fontFamily: AppTypography.fontFamily,
+      bodyColor: onSurface,
+      displayColor: onSurface,
+    );
+
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
       fontFamily: AppTypography.fontFamily,
-      textTheme: AppTypography.textTheme.apply(
-        bodyColor: onSurface,
-        displayColor: onSurface,
-      ),
-      scaffoldBackgroundColor:
-          isLight ? AppColors.background : AppColors.backgroundDark,
+      textTheme: textTheme,
+      // Widgets that read primaryTextTheme (some app bars, banners) would
+      // otherwise fall back to the platform font.
+      primaryTextTheme: textTheme,
+      scaffoldBackgroundColor: isLight ? AppColors.white : AppColors.backgroundDark,
       splashFactory: InkSparkle.splashFactory,
       appBarTheme: AppBarTheme(
         backgroundColor: isLight ? AppColors.surface : AppColors.surfaceDark,
@@ -42,9 +51,7 @@ abstract final class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0.5,
         centerTitle: false,
-        titleTextStyle: AppTypography.textTheme.titleLarge?.copyWith(
-          color: onSurface,
-        ),
+        titleTextStyle: textTheme.titleLarge,
         systemOverlayStyle:
             isLight ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
       ),
@@ -61,7 +68,7 @@ abstract final class AppTheme {
           minimumSize: const Size.fromHeight(52),
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.white,
-          textStyle: AppTypography.textTheme.labelLarge,
+          textStyle: textTheme.labelLarge,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.pill),
           ),
@@ -72,7 +79,7 @@ abstract final class AppTheme {
           minimumSize: const Size.fromHeight(52),
           foregroundColor: AppColors.primary,
           side: const BorderSide(color: AppColors.primary),
-          textStyle: AppTypography.textTheme.labelLarge,
+          textStyle: textTheme.labelLarge,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.pill),
           ),
@@ -81,7 +88,7 @@ abstract final class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
-          textStyle: AppTypography.textTheme.labelLarge,
+          textStyle: textTheme.labelLarge,
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -91,9 +98,7 @@ abstract final class AppTheme {
           horizontal: AppSpacing.lg,
           vertical: AppSpacing.lg,
         ),
-        hintStyle: AppTypography.textTheme.bodyMedium?.copyWith(
-          color: AppColors.grey500,
-        ),
+        hintStyle: textTheme.bodyMedium?.copyWith(color: AppColors.grey500),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
           borderSide: BorderSide.none,
@@ -114,7 +119,7 @@ abstract final class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: isLight ? AppColors.grey100 : AppColors.surfaceDark,
         selectedColor: AppColors.primarySoft,
-        labelStyle: AppTypography.textTheme.labelMedium,
+        labelStyle: textTheme.labelMedium,
         side: BorderSide.none,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.pill),
