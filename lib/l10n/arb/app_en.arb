@@ -301,5 +301,17 @@
   "privacyB4": "While your account exists, plus the period accounting rules require for completed orders.",
   "privacyS5": "Your rights",
   "privacyB5": "Call the operator to get a copy of your data or ask for your account to be deleted.",
-  "categoryTitle": "Categories"
+  "categoryTitle": "Categories",
+  "errorOtpRateLimited": "Please wait before asking for a new code.",
+  "errorOtpInvalid": "That code is not right.",
+  "errorOtpTooManyAttempts": "Too many attempts. Request a new code.",
+  "errorOtpExpired": "The code has expired. Request a new one.",
+  "errorUserBlocked": "This account has been blocked.",
+  "errorVariantRequired": "Choose an option before ordering.",
+  "errorItemsUnavailable": "Some items are no longer available.",
+  "errorPriceChanged": "The total has changed. Please check it again.",
+  "errorSupplierUnavailable": "The supplier is not responding. Try again in a couple of minutes.",
+  "errorCannotCancel": "This order can no longer be cancelled.",
+  "errorTooManyRequests": "Too many requests. Please slow down.",
+  "errorValidation": "Please check the details you entered."
 }

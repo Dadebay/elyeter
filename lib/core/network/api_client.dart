@@ -3,8 +3,11 @@ import 'package:dio/dio.dart';
 import '../constants/app_constants.dart';
 import '../constants/app_environment.dart';
 import '../error/exceptions.dart';
+import 'api_response.dart';
 
-/// Dio wrapper that returns decoded JSON and throws [AppException]s.
+/// Dio wrapper that returns the envelope's `data` and throws [AppException]s
+/// carrying the backend's own error `code`.
+///
 /// Data sources depend on this, never on Dio directly.
 class ApiClient {
   ApiClient(this._dio);
@@ -16,6 +19,8 @@ class ApiClient {
       BaseOptions(
         baseUrl: AppEnvironment.apiBaseUrl,
         connectTimeout: AppConstants.connectTimeout,
+        // The two pre-order endpoints call AliExpress live, so they are
+        // seconds rather than milliseconds — see [AppConstants].
         receiveTimeout: AppConstants.receiveTimeout,
         headers: const {'Accept': 'application/json'},
         responseType: ResponseType.json,
@@ -32,7 +37,9 @@ class ApiClient {
   }) => _request(
     () => _dio.get<dynamic>(
       path,
-      queryParameters: queryParameters,
+      // The API rejects unknown query params, so nulls are stripped rather
+      // than sent as empty values.
+      queryParameters: _clean(queryParameters),
       cancelToken: cancelToken,
     ),
   );
@@ -42,12 +49,16 @@ class ApiClient {
     Object? data,
     Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
+    Duration? receiveTimeout,
   }) => _request(
     () => _dio.post<dynamic>(
       path,
       data: data,
-      queryParameters: queryParameters,
+      queryParameters: _clean(queryParameters),
       cancelToken: cancelToken,
+      options: receiveTimeout == null
+          ? null
+          : Options(receiveTimeout: receiveTimeout),
     ),
   );
 
@@ -69,18 +80,31 @@ class ApiClient {
     () => _dio.delete<dynamic>(path, data: data, cancelToken: cancelToken),
   );
 
+  Map<String, dynamic>? _clean(Map<String, dynamic>? params) {
+    if (params == null) return null;
+    final cleaned = <String, dynamic>{
+      for (final entry in params.entries)
+        if (entry.value != null) entry.key: entry.value,
+    };
+    return cleaned.isEmpty ? null : cleaned;
+  }
+
   Future<dynamic> _request(Future<Response<dynamic>> Function() send) async {
     try {
       final response = await send();
-      return response.data;
+      return ApiEnvelope.unwrap(response.data);
     } on DioException catch (e) {
       throw _mapDioException(e);
     }
   }
 
   AppException _mapDioException(DioException e) {
+    final body = e.response?.data;
     final status = e.response?.statusCode;
-    final serverMessage = _extractMessage(e.response?.data);
+    final message = _extractMessage(body) ?? e.message ?? 'Unexpected error';
+    final code = _extractString(body, 'code');
+    final details = _extractMap(body, 'details');
+    final errors = _extractErrors(body);
 
     return switch (e.type) {
       DioExceptionType.connectionTimeout ||
@@ -88,23 +112,58 @@ class ApiClient {
       DioExceptionType.receiveTimeout => const TimeoutException(),
       DioExceptionType.connectionError => const NetworkException(),
       DioExceptionType.badResponse => switch (status) {
-        401 || 403 => UnauthorizedException(serverMessage ?? 'Unauthorized'),
-        404 => NotFoundException(serverMessage ?? 'Not found'),
+        400 => ValidationException(
+          message,
+          errors: errors,
+          code: code,
+          details: details,
+        ),
+        401 => UnauthorizedException(message),
+        403 => ForbiddenException(message, code: code, details: details),
+        404 => NotFoundException(message, code: code, details: details),
+        409 => ConflictException(message, code: code, details: details),
+        429 => RateLimitException(message, code: code, details: details),
+        503 => ServiceUnavailableException(
+          message,
+          code: code,
+          details: details,
+        ),
         _ => ServerException(
-          serverMessage ?? 'Server error',
+          message,
           statusCode: status,
+          code: code,
+          details: details,
         ),
       },
+      DioExceptionType.cancel => const NetworkException('Request cancelled'),
       _ => ServerException(
-        serverMessage ?? e.message ?? 'Unexpected error',
+        message,
         statusCode: status,
+        code: code,
+        details: details,
       ),
     };
   }
 
-  String? _extractMessage(dynamic data) {
-    if (data is Map && data['message'] is String) return data['message'] as String;
-    if (data is Map && data['error'] is String) return data['error'] as String;
+  String? _extractMessage(dynamic data) =>
+      _extractString(data, 'message') ?? _extractString(data, 'error');
+
+  String? _extractString(dynamic data, String key) {
+    if (data is Map && data[key] is String) return data[key] as String;
     return null;
+  }
+
+  Map<String, dynamic>? _extractMap(dynamic data, String key) {
+    if (data is Map && data[key] is Map) {
+      return Map<String, dynamic>.from(data[key] as Map);
+    }
+    return null;
+  }
+
+  List<String> _extractErrors(dynamic data) {
+    if (data is Map && data['errors'] is List) {
+      return (data['errors'] as List).whereType<String>().toList();
+    }
+    return const [];
   }
 }

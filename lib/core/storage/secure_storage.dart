@@ -2,11 +2,13 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'storage_keys.dart';
 
-/// Keychain / EncryptedSharedPreferences — tokens only.
+/// Keychain / EncryptedSharedPreferences — the access token only.
+///
+/// The API issues no refresh token: the access token lives for 30 days and a
+/// 401 means running the SMS login again.
 abstract interface class SecureStorage {
   Future<String?> readAccessToken();
-  Future<String?> readRefreshToken();
-  Future<void> saveTokens({required String access, required String refresh});
+  Future<void> saveAccessToken(String token);
   Future<void> clear();
 }
 
@@ -20,17 +22,8 @@ class SecureStorageImpl implements SecureStorage {
       _storage.read(key: StorageKeys.accessToken);
 
   @override
-  Future<String?> readRefreshToken() =>
-      _storage.read(key: StorageKeys.refreshToken);
-
-  @override
-  Future<void> saveTokens({
-    required String access,
-    required String refresh,
-  }) async {
-    await _storage.write(key: StorageKeys.accessToken, value: access);
-    await _storage.write(key: StorageKeys.refreshToken, value: refresh);
-  }
+  Future<void> saveAccessToken(String token) =>
+      _storage.write(key: StorageKeys.accessToken, value: token);
 
   @override
   Future<void> clear() => _storage.deleteAll();

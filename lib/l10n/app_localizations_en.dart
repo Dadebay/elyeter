@@ -650,4 +650,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryTitle => 'Categories';
+
+  @override
+  String get errorOtpRateLimited => 'Please wait before asking for a new code.';
+
+  @override
+  String get errorOtpInvalid => 'That code is not right.';
+
+  @override
+  String get errorOtpTooManyAttempts =>
+      'Too many attempts. Request a new code.';
+
+  @override
+  String get errorOtpExpired => 'The code has expired. Request a new one.';
+
+  @override
+  String get errorUserBlocked => 'This account has been blocked.';
+
+  @override
+  String get errorVariantRequired => 'Choose an option before ordering.';
+
+  @override
+  String get errorItemsUnavailable => 'Some items are no longer available.';
+
+  @override
+  String get errorPriceChanged =>
+      'The total has changed. Please check it again.';
+
+  @override
+  String get errorSupplierUnavailable =>
+      'The supplier is not responding. Try again in a couple of minutes.';
+
+  @override
+  String get errorCannotCancel => 'This order can no longer be cancelled.';
+
+  @override
+  String get errorTooManyRequests => 'Too many requests. Please slow down.';
+
+  @override
+  String get errorValidation => 'Please check the details you entered.';
 }

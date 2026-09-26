@@ -301,5 +301,17 @@
   "privacyB4": "Hasabyňyz bar wagty, şeýle hem tamamlanan sargytlar üçin hasabat kadalarynyň talap edýän möhletinde.",
   "privacyS5": "Hukuklaryňyz",
   "privacyB5": "Maglumatlaryňyzyň nusgasyny almak ýa-da hasabyňyzy pozdurmak üçin operatora jaň ediň.",
-  "categoryTitle": "Bölümler"
+  "categoryTitle": "Bölümler",
+  "errorOtpRateLimited": "Täze kod soramazdan öň biraz garaşyň.",
+  "errorOtpInvalid": "Kod nädogry.",
+  "errorOtpTooManyAttempts": "Synanyşyk köp boldy. Täze kod soraň.",
+  "errorOtpExpired": "Kodyň möhleti geçdi. Täzesini soraň.",
+  "errorUserBlocked": "Bu hasap petiklendi.",
+  "errorVariantRequired": "Sargyt etmezden öň görnüşi saýlaň.",
+  "errorItemsUnavailable": "Käbir harytlar indi elýeterli däl.",
+  "errorPriceChanged": "Jemi bahasy üýtgedi. Ýene bir gezek serediň.",
+  "errorSupplierUnavailable": "Üpjün ediji jogap bermeýär. Birnäçe minutdan synanyşyň.",
+  "errorCannotCancel": "Bu sargydy indi ýatyryp bolmaýar.",
+  "errorTooManyRequests": "Haýyş köp iberildi. Biraz haýallaň.",
+  "errorValidation": "Giren maglumatlaryňyzy barlaň."
 }

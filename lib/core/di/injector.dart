@@ -7,12 +7,33 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/cubit/locale_cubit.dart';
 import '../../app/cubit/theme_cubit.dart';
+import '../../features/auth/data/datasources/auth_remote_data_source.dart';
+import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/presentation/cubit/auth_cubit.dart';
+import '../../features/auth/presentation/cubit/login_cubit.dart';
+import '../../features/brand/data/datasources/brand_remote_data_source.dart';
+import '../../features/brand/data/repositories/brand_repository_impl.dart';
+import '../../features/brand/domain/repositories/brand_repository.dart';
 import '../../features/cart/presentation/cubit/cart_cubit.dart';
+import '../../features/category/data/datasources/category_remote_data_source.dart';
+import '../../features/category/data/repositories/category_repository_impl.dart';
+import '../../features/category/domain/repositories/category_repository.dart';
 import '../../features/favorite/presentation/cubit/favorite_cubit.dart';
+import '../../features/order/data/datasources/pre_order_remote_data_source.dart';
+import '../../features/order/data/repositories/pre_order_repository_impl.dart';
+import '../../features/order/domain/repositories/pre_order_repository.dart';
+import '../../features/product/data/datasources/product_remote_data_source.dart';
+import '../../features/product/data/repositories/product_repository_impl.dart';
+import '../../features/product/domain/repositories/product_repository.dart';
 import '../../features/profile/presentation/cubit/profile_cubit.dart';
+import '../../features/search/data/datasources/search_remote_data_source.dart';
+import '../../features/search/data/repositories/search_repository_impl.dart';
+import '../../features/search/domain/repositories/search_repository.dart';
 import '../constants/app_environment.dart';
 import '../network/api_client.dart';
 import '../network/interceptors/auth_interceptor.dart';
+import '../network/interceptors/language_interceptor.dart';
 import '../network/network_info.dart';
 import '../storage/local_storage.dart';
 import '../storage/secure_storage.dart';
@@ -59,7 +80,14 @@ void _registerCore() {
     ..registerLazySingleton<Dio>(
       () => ApiClient.createDio(
         interceptors: [
-          AuthInterceptor(getIt<SecureStorage>()),
+          AuthInterceptor(
+            getIt<SecureStorage>(),
+            // Looked up lazily: the cubit is registered after Dio, and a
+            // token is only ever refused once a request is in flight.
+            onUnauthorized: (failure) =>
+                getIt<AuthCubit>().onSessionExpired(failure),
+          ),
+          LanguageInterceptor(getIt<LocalStorage>()),
           if (AppEnvironment.enableLogging)
             PrettyDioLogger(requestBody: true, compact: true),
         ],
@@ -82,15 +110,71 @@ void _registerFeatures() {
     ..registerLazySingleton<CartCubit>(CartCubit.new)
     ..registerLazySingleton<ProfileCubit>(ProfileCubit.new);
 
-  // Each feature registers its data source -> repository -> bloc chain here.
-  //
-  // Template:
-  //   getIt
-  //     ..registerLazySingleton<HomeRemoteDataSource>(
-  //       () => HomeRemoteDataSourceImpl(getIt<ApiClient>()),
-  //     )
-  //     ..registerLazySingleton<HomeRepository>(
-  //       () => HomeRepositoryImpl(getIt<HomeRemoteDataSource>()),
-  //     )
-  //     ..registerFactory<HomeBloc>(() => HomeBloc(getIt<HomeRepository>()));
+  _registerAuth();
+  _registerCatalog();
+  _registerPreOrders();
+}
+
+/// SMS login, the session and the account endpoints.
+void _registerAuth() {
+  getIt
+    ..registerLazySingleton<AuthRemoteDataSource>(
+      () => AuthRemoteDataSourceImpl(getIt<ApiClient>()),
+    )
+    ..registerLazySingleton<AuthRepository>(
+      () => AuthRepositoryImpl(
+        getIt<AuthRemoteDataSource>(),
+        getIt<SecureStorage>(),
+      ),
+    )
+    // One session for the whole app; the interceptor reaches for it too.
+    ..registerLazySingleton<AuthCubit>(() => AuthCubit(getIt<AuthRepository>()))
+    // One per login screen: it owns a resend countdown.
+    ..registerFactory<LoginCubit>(
+      () => LoginCubit(getIt<AuthRepository>(), getIt<AuthCubit>()),
+    );
+}
+
+/// Categories, products, brands and the type-ahead search.
+void _registerCatalog() {
+  getIt
+    ..registerLazySingleton<CategoryRemoteDataSource>(
+      () => CategoryRemoteDataSourceImpl(getIt<ApiClient>()),
+    )
+    ..registerLazySingleton<CategoryRepository>(
+      () => CategoryRepositoryImpl(getIt<CategoryRemoteDataSource>()),
+    )
+    ..registerLazySingleton<ProductRemoteDataSource>(
+      () => ProductRemoteDataSourceImpl(getIt<ApiClient>()),
+    )
+    ..registerLazySingleton<ProductRepository>(
+      () => ProductRepositoryImpl(getIt<ProductRemoteDataSource>()),
+    )
+    ..registerLazySingleton<BrandRemoteDataSource>(
+      () => BrandRemoteDataSourceImpl(getIt<ApiClient>()),
+    )
+    ..registerLazySingleton<BrandRepository>(
+      () => BrandRepositoryImpl(getIt<BrandRemoteDataSource>()),
+    )
+    ..registerLazySingleton<SearchRemoteDataSource>(
+      () => SearchRemoteDataSourceImpl(getIt<ApiClient>()),
+    )
+    ..registerLazySingleton<SearchRepository>(
+      () => SearchRepositoryImpl(
+        getIt<SearchRemoteDataSource>(),
+        getIt<LocalStorage>(),
+      ),
+    );
+}
+
+/// The cart lives on the device; these are the two supplier-backed calls
+/// and the order history behind them.
+void _registerPreOrders() {
+  getIt
+    ..registerLazySingleton<PreOrderRemoteDataSource>(
+      () => PreOrderRemoteDataSourceImpl(getIt<ApiClient>()),
+    )
+    ..registerLazySingleton<PreOrderRepository>(
+      () => PreOrderRepositoryImpl(getIt<PreOrderRemoteDataSource>()),
+    );
 }

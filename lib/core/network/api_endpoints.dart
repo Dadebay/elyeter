@@ -1,34 +1,31 @@
 /// Every backend path in one place — no raw strings inside data sources.
+///
+/// Mirrors `elyeter-mobile-api.md`; paths are relative to
+/// [AppEnvironment.apiBaseUrl].
 abstract final class ApiEndpoints {
-  // Auth
-  static const login = '/auth/login';
-  static const register = '/auth/register';
-  static const refreshToken = '/auth/refresh';
-  static const logout = '/auth/logout';
+  // ------------------------------------------------------------- auth --
+  static const sendCode = '/auth/send-code';
+  static const verifyCode = '/auth/verify-code';
+  static const me = '/auth/me';
+  static const fcmToken = '/auth/fcm-token';
 
-  // Catalog
-  static const banners = '/banners';
-  static const categories = '/categories';
+  // ---------------------------------------------------------- catalog --
+  static const categoriesTree = '/categories/tree';
+  static String category(String slug) => '/categories/$slug';
+
   static const products = '/products';
-  static String product(String id) => '/products/$id';
-  static String productReviews(String id) => '/products/$id/reviews';
-  static const search = '/products/search';
+  static String product(String slug) => '/products/$slug';
+  static String productVariants(int id) => '/products/$id/variants';
 
-  // Cart
-  static const cart = '/cart';
-  static String cartItem(String id) => '/cart/items/$id';
+  static const searchSuggest = '/search/suggest';
 
-  // Favorites
-  static const favorites = '/favorites';
-  static String favorite(String id) => '/favorites/$id';
+  // ----------------------------------------------------------- brands --
+  static const brands = '/brands';
+  static String brand(String slug) => '/brands/$slug';
 
-  // Orders
-  static const orders = '/orders';
-  static String order(String id) => '/orders/$id';
-  static String cancelOrder(String id) => '/orders/$id/cancel';
-
-  // Profile
-  static const profile = '/profile';
-  static const addresses = '/profile/addresses';
-  static const notifications = '/notifications';
+  // ------------------------------------------------------- pre-orders --
+  static const preOrders = '/pre-orders';
+  static const preOrderCheck = '/pre-orders/check';
+  static String preOrder(int id) => '/pre-orders/$id';
+  static String cancelPreOrder(int id) => '/pre-orders/$id/cancel';
 }

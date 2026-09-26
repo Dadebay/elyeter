@@ -654,4 +654,43 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get categoryTitle => 'Категории';
+
+  @override
+  String get errorOtpRateLimited =>
+      'Подождите, прежде чем запрашивать новый код.';
+
+  @override
+  String get errorOtpInvalid => 'Неверный код.';
+
+  @override
+  String get errorOtpTooManyAttempts =>
+      'Слишком много попыток. Запросите новый код.';
+
+  @override
+  String get errorOtpExpired => 'Срок действия кода истёк. Запросите новый.';
+
+  @override
+  String get errorUserBlocked => 'Этот аккаунт заблокирован.';
+
+  @override
+  String get errorVariantRequired => 'Выберите вариант перед заказом.';
+
+  @override
+  String get errorItemsUnavailable => 'Некоторых товаров больше нет в наличии.';
+
+  @override
+  String get errorPriceChanged => 'Сумма изменилась. Проверьте её ещё раз.';
+
+  @override
+  String get errorSupplierUnavailable =>
+      'Поставщик не отвечает. Попробуйте через пару минут.';
+
+  @override
+  String get errorCannotCancel => 'Этот заказ уже нельзя отменить.';
+
+  @override
+  String get errorTooManyRequests => 'Слишком много запросов. Повторите позже.';
+
+  @override
+  String get errorValidation => 'Проверьте введённые данные.';
 }

@@ -1221,6 +1221,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Categories'**
   String get categoryTitle;
+
+  /// No description provided for @errorOtpRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait before asking for a new code.'**
+  String get errorOtpRateLimited;
+
+  /// No description provided for @errorOtpInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is not right.'**
+  String get errorOtpInvalid;
+
+  /// No description provided for @errorOtpTooManyAttempts.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Request a new code.'**
+  String get errorOtpTooManyAttempts;
+
+  /// No description provided for @errorOtpExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'The code has expired. Request a new one.'**
+  String get errorOtpExpired;
+
+  /// No description provided for @errorUserBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'This account has been blocked.'**
+  String get errorUserBlocked;
+
+  /// No description provided for @errorVariantRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an option before ordering.'**
+  String get errorVariantRequired;
+
+  /// No description provided for @errorItemsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Some items are no longer available.'**
+  String get errorItemsUnavailable;
+
+  /// No description provided for @errorPriceChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'The total has changed. Please check it again.'**
+  String get errorPriceChanged;
+
+  /// No description provided for @errorSupplierUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The supplier is not responding. Try again in a couple of minutes.'**
+  String get errorSupplierUnavailable;
+
+  /// No description provided for @errorCannotCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'This order can no longer be cancelled.'**
+  String get errorCannotCancel;
+
+  /// No description provided for @errorTooManyRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests. Please slow down.'**
+  String get errorTooManyRequests;
+
+  /// No description provided for @errorValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check the details you entered.'**
+  String get errorValidation;
 }
 
 class _AppLocalizationsDelegate

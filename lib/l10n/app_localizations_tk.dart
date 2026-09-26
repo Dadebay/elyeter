@@ -652,4 +652,42 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get categoryTitle => 'Bölümler';
+
+  @override
+  String get errorOtpRateLimited => 'Täze kod soramazdan öň biraz garaşyň.';
+
+  @override
+  String get errorOtpInvalid => 'Kod nädogry.';
+
+  @override
+  String get errorOtpTooManyAttempts => 'Synanyşyk köp boldy. Täze kod soraň.';
+
+  @override
+  String get errorOtpExpired => 'Kodyň möhleti geçdi. Täzesini soraň.';
+
+  @override
+  String get errorUserBlocked => 'Bu hasap petiklendi.';
+
+  @override
+  String get errorVariantRequired => 'Sargyt etmezden öň görnüşi saýlaň.';
+
+  @override
+  String get errorItemsUnavailable => 'Käbir harytlar indi elýeterli däl.';
+
+  @override
+  String get errorPriceChanged =>
+      'Jemi bahasy üýtgedi. Ýene bir gezek serediň.';
+
+  @override
+  String get errorSupplierUnavailable =>
+      'Üpjün ediji jogap bermeýär. Birnäçe minutdan synanyşyň.';
+
+  @override
+  String get errorCannotCancel => 'Bu sargydy indi ýatyryp bolmaýar.';
+
+  @override
+  String get errorTooManyRequests => 'Haýyş köp iberildi. Biraz haýallaň.';
+
+  @override
+  String get errorValidation => 'Giren maglumatlaryňyzy barlaň.';
 }
