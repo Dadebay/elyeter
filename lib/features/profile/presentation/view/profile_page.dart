@@ -12,14 +12,15 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
+import '../../../../core/utils/formatters/phone_formatter.dart';
 import '../../../../core/utils/media_url.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/widgets/sign_in_required_dialog.dart';
+import '../../../favorite/presentation/cubit/favorite_cubit.dart';
 import '../cubit/profile_cubit.dart';
 import '../widgets/about_app_dialog.dart';
-import '../widgets/guest_summary_card.dart';
 import '../widgets/language_dialog.dart';
-import '../widgets/profile_summary_cards.dart';
+import '../widgets/profile_hero_card.dart';
 import '../widgets/settings_section.dart';
 import '../widgets/settings_tile.dart';
 import '../widgets/sign_out_card.dart';
@@ -69,6 +70,7 @@ class _ProfileView extends StatelessWidget {
     final profile = context.watch<ProfileCubit>().state;
     final locale = context.watch<LocaleCubit>().state;
     final auth = context.watch<AuthCubit>().state;
+    final favorites = context.watch<FavoriteCubit>().state.length;
     final signedIn = auth.isAuthenticated;
 
     return Scaffold(
@@ -85,25 +87,32 @@ class _ProfileView extends StatelessWidget {
         ),
         children: [
           if (signedIn)
-            ProfileSummaryCards(
+            AccountHeroCard(
               // The account's own name wins; the locally edited one stands
               // in until `PATCH /auth/me` is wired up.
               name: auth.user?.displayName ?? profile.name,
+              phone: PhoneFormatter.display(auth.user?.phone ?? profile.phone),
               avatarUrl: MediaUrl.resolve(auth.user?.image),
               avatarPath: profile.avatarPath,
               editLabel: l10n.profileEditProfile,
-              ordersTitle: l10n.profileAllOrders,
-              ordersSubtitle: l10n.profileOrderCount(ProfilePlaceholderData.orderCount),
+              ordersValue: '${ProfilePlaceholderData.orderCount}',
+              ordersLabel: l10n.profileStatOrders,
+              favoritesValue: '$favorites',
+              favoritesLabel: l10n.favoriteTitle,
               onEditProfile: () => context.pushNamed(AppRoutes.editProfile.name),
               onOrders: () => context.pushNamed(AppRoutes.orders.name),
+              // A tab, not a pushed page: go rather than push, so the
+              // favourites branch keeps the stack it already had.
+              onFavorites: () => context.goNamed(AppRoutes.favorite.name),
             )
           else
-            GuestSummaryCard(
+            GuestHeroCard(
               title: l10n.profileGuestTitle,
               message: l10n.profileGuestMessage,
               actionLabel: l10n.authSignIn,
               onSignIn: () => context.pushNamed(AppRoutes.login.name),
             ),
+          const SizedBox(height: AppSpacing.xs),
           SettingsSection(
             title: l10n.profileSectionGeneral,
             children: [

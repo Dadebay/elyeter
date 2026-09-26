@@ -476,6 +476,9 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get profileStatOrders => 'Заказы';
+
+  @override
   String get profileSignOut => 'Выйти';
 
   @override

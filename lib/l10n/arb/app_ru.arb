@@ -235,6 +235,7 @@
       }
     }
   },
+  "profileStatOrders": "Заказы",
   "profileSignOut": "Выйти",
   "profileSignOutTitle": "Выйти из аккаунта?",
   "profileSignOutMessage": "Чтобы войти снова, понадобится номер телефона.",

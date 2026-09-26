@@ -474,6 +474,9 @@ class AppLocalizationsTk extends AppLocalizations {
   }
 
   @override
+  String get profileStatOrders => 'Sargytlar';
+
+  @override
   String get profileSignOut => 'Çykmak';
 
   @override

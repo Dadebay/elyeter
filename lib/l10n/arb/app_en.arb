@@ -235,6 +235,7 @@
       }
     }
   },
+  "profileStatOrders": "Orders",
   "profileSignOut": "Sign out",
   "profileSignOutTitle": "Sign out?",
   "profileSignOutMessage": "You will need your phone number to sign in again.",

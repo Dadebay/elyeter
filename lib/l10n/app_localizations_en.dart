@@ -473,6 +473,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get profileStatOrders => 'Orders';
+
+  @override
   String get profileSignOut => 'Sign out';
 
   @override

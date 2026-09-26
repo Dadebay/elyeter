@@ -53,7 +53,9 @@ class SettingsTile extends StatelessWidget {
     final labelColor = isDark ? AppColors.white : AppColors.ink;
 
     return Ink(
-      color: Color(0xfff5f5f5),
+      // Matches the group's own fill, so the rows do not stay light grey
+      // on a dark page.
+      color: isDark ? AppColors.surfaceDark : AppColors.surfaceMuted,
       child: InkWell(
         onTap: switch (trailing) {
           TileSwitch(:final value, :final onChanged) => () => onChanged(!value),

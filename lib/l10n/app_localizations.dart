@@ -904,6 +904,12 @@ abstract class AppLocalizations {
   /// **'Version {version}'**
   String profileVersion(String version);
 
+  /// No description provided for @profileStatOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get profileStatOrders;
+
   /// No description provided for @profileSignOut.
   ///
   /// In en, this message translates to:
