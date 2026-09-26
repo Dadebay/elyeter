@@ -12,18 +12,55 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
+import '../../../../core/utils/media_url.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../auth/presentation/widgets/sign_in_required_dialog.dart';
 import '../cubit/profile_cubit.dart';
 import '../widgets/about_app_dialog.dart';
+import '../widgets/guest_summary_card.dart';
 import '../widgets/language_dialog.dart';
 import '../widgets/profile_summary_cards.dart';
 import '../widgets/settings_section.dart';
 import '../widgets/settings_tile.dart';
+import '../widgets/sign_out_card.dart';
 import '../widgets/support_call_card.dart';
 import 'profile_placeholder_data.dart';
 
 /// Account page: identity, app settings and support.
+///
+/// It draws the same list in two states. Signed in, the header shows the
+/// account and the page ends with a way out of it; signed out, the header
+/// invites the customer in and the account-only rows ask them to sign in
+/// before they open. Everything that works without an account — the
+/// language, the theme, the legal pages, support — stays reachable either
+/// way, so the tab is never a dead end.
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<AuthCubit, AuthState>(
+      // Keeps the editable profile in step with the session: it takes the
+      // account's number on sign-in and is wiped on sign-out, so the next
+      // person to use the phone does not meet someone else's name.
+      listenWhen: (previous, current) =>
+          previous.status != current.status || previous.user != current.user,
+      listener: (context, state) {
+        final cubit = context.read<ProfileCubit>();
+        final user = state.user;
+        if (state.isAuthenticated && user != null) {
+          cubit.adoptAccount(phone: user.phone, name: user.username);
+        } else if (state.status == AuthStatus.unauthenticated) {
+          cubit.clear();
+        }
+      },
+      child: const _ProfileView(),
+    );
+  }
+}
+
+class _ProfileView extends StatelessWidget {
+  const _ProfileView();
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +68,12 @@ class ProfilePage extends StatelessWidget {
     final themeMode = context.watch<ThemeCubit>().state;
     final profile = context.watch<ProfileCubit>().state;
     final locale = context.watch<LocaleCubit>().state;
+    final auth = context.watch<AuthCubit>().state;
+    final signedIn = auth.isAuthenticated;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.l10n.profileTitle, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+        title: Text(l10n.profileTitle, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
@@ -45,23 +84,35 @@ class ProfilePage extends StatelessWidget {
           120,
         ),
         children: [
-          ProfileSummaryCards(
-            name: profile.name,
-            avatarPath: profile.avatarPath,
-            editLabel: l10n.profileEditProfile,
-            ordersTitle: l10n.profileAllOrders,
-            ordersSubtitle: l10n.profileOrderCount(ProfilePlaceholderData.orderCount),
-            onEditProfile: () => context.pushNamed(AppRoutes.editProfile.name),
-            onOrders: () => context.pushNamed(AppRoutes.orders.name),
-          ),
+          if (signedIn)
+            ProfileSummaryCards(
+              // The account's own name wins; the locally edited one stands
+              // in until `PATCH /auth/me` is wired up.
+              name: auth.user?.displayName ?? profile.name,
+              avatarUrl: MediaUrl.resolve(auth.user?.image),
+              avatarPath: profile.avatarPath,
+              editLabel: l10n.profileEditProfile,
+              ordersTitle: l10n.profileAllOrders,
+              ordersSubtitle: l10n.profileOrderCount(ProfilePlaceholderData.orderCount),
+              onEditProfile: () => context.pushNamed(AppRoutes.editProfile.name),
+              onOrders: () => context.pushNamed(AppRoutes.orders.name),
+            )
+          else
+            GuestSummaryCard(
+              title: l10n.profileGuestTitle,
+              message: l10n.profileGuestMessage,
+              actionLabel: l10n.authSignIn,
+              onSignIn: () => context.pushNamed(AppRoutes.login.name),
+            ),
           SettingsSection(
             title: l10n.profileSectionGeneral,
             children: [
-              SettingsTile(icon: AppAssets.iconBell, label: l10n.profileNotifications, onTap: () => context.pushNamed(AppRoutes.notifications.name)),
-              SettingsTile(icon: AppAssets.iconCubic, label: l10n.profileActiveOrders, onTap: () => context.pushNamed(AppRoutes.orders.name)),
-              SettingsTile(icon: AppAssets.iconPinLocation, label: l10n.profileSavedLocations, onTap: () => context.pushNamed(AppRoutes.addresses.name)),
-              SettingsTile(icon: AppAssets.iconClock, label: l10n.profileOrderHistory, onTap: () => context.pushNamed(AppRoutes.orders.name)),
-              SettingsTile(icon: AppAssets.iconNews, label: l10n.profileAnnouncements, onTap: () => context.pushNamed(AppRoutes.notifications.name)),
+              SettingsTile(icon: AppAssets.iconBell, label: l10n.profileNotifications, onTap: () => _openAccountPage(context, signedIn, AppRoutes.notifications.name)),
+              SettingsTile(icon: AppAssets.iconCubic, label: l10n.profileActiveOrders, onTap: () => _openAccountPage(context, signedIn, AppRoutes.activeOrders.name)),
+              SettingsTile(icon: AppAssets.iconPinLocation, label: l10n.profileSavedLocations, onTap: () => _openAccountPage(context, signedIn, AppRoutes.addresses.name)),
+              SettingsTile(icon: AppAssets.iconClock, label: l10n.profileOrderHistory, onTap: () => _openAccountPage(context, signedIn, AppRoutes.orders.name)),
+              // Announcements read the same for everyone — no account needed.
+              SettingsTile(icon: AppAssets.iconNews, label: l10n.profileAnnouncements, onTap: () => context.pushNamed(AppRoutes.announcements.name)),
               SettingsTile(icon: AppAssets.iconGlobe, label: l10n.settingsLanguage, trailing: TileValue(_languageLabel(context, locale)), onTap: () => _pickLanguage(context)),
               SettingsTile(
                 icon: AppAssets.iconMoon,
@@ -96,6 +147,13 @@ class ProfilePage extends StatelessWidget {
             actionLabel: l10n.profileCallAction,
             onCall: () => _open(context, 'tel:${ProfilePlaceholderData.supportPhone}'),
           ),
+          if (signedIn) ...[
+            const SizedBox(height: AppSpacing.xl),
+            SignOutCard(
+              label: l10n.profileSignOut,
+              onPressed: () => _signOut(context),
+            ),
+          ],
           const SizedBox(height: AppSpacing.xl),
           Center(
             child: Text(l10n.profileVersion(AppConstants.appVersion), style: context.textTheme.bodySmall?.copyWith(color: AppColors.grey500)),
@@ -131,6 +189,49 @@ class ProfilePage extends StatelessWidget {
       current: cubit.state?.languageCode,
     );
     if (picked != null) cubit.setLanguageCode(picked);
+  }
+
+  /// Orders, addresses and notifications all describe one account, so a
+  /// signed-out tap asks for the account first and then carries on to the
+  /// page that was tapped.
+  Future<void> _openAccountPage(
+    BuildContext context,
+    bool signedIn,
+    String routeName,
+  ) async {
+    if (signedIn) {
+      await context.pushNamed(routeName);
+      return;
+    }
+    if (await promptSignIn(context) && context.mounted) {
+      await context.pushNamed(routeName);
+    }
+  }
+
+  Future<void> _signOut(BuildContext context) async {
+    final l10n = context.l10n;
+    final auth = context.read<AuthCubit>();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.profileSignOutTitle),
+        content: Text(l10n.profileSignOutMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.commonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: Text(l10n.profileSignOut),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed ?? false) await auth.signOut();
   }
 
   /// Hands [url] to the platform: `tel:` opens the dialler with the support

@@ -476,6 +476,75 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get profileSignOut => 'Выйти';
+
+  @override
+  String get profileSignOutTitle => 'Выйти из аккаунта?';
+
+  @override
+  String get profileSignOutMessage => 'Чтобы войти снова, понадобится номер телефона.';
+
+  @override
+  String get profileGuestTitle => 'Вы не вошли в аккаунт';
+
+  @override
+  String get profileGuestMessage => 'Войдите, чтобы отслеживать заказы, сохранять адреса и избранное.';
+
+  @override
+  String get authSignIn => 'Войти';
+
+  @override
+  String get authSignInRequiredTitle => 'Требуется вход';
+
+  @override
+  String get authSignInRequiredMessage => 'Войдите, чтобы пользоваться этим разделом.';
+
+  @override
+  String get loginTitle => 'Вход';
+
+  @override
+  String get loginPhoneTitle => 'Введите номер телефона';
+
+  @override
+  String get loginPhoneMessage => 'Мы отправим код подтверждения в SMS.';
+
+  @override
+  String get loginPhoneLabel => 'Номер телефона';
+
+  @override
+  String get loginPhoneHint => '+993 6X XXXXXX';
+
+  @override
+  String get loginSendCode => 'Отправить код';
+
+  @override
+  String get loginCodeTitle => 'Введите код';
+
+  @override
+  String loginCodeMessage(String phone) {
+    return 'Код отправлен на $phone';
+  }
+
+  @override
+  String get loginCodeLabel => 'Код подтверждения';
+
+  @override
+  String get loginVerify => 'Продолжить';
+
+  @override
+  String get loginResend => 'Отправить код ещё раз';
+
+  @override
+  String loginResendIn(int seconds) {
+    return 'Повторно через $seconds с';
+  }
+
+  @override
+  String get loginChangePhone => 'Изменить номер';
+
+  @override
+  String get loginSignedIn => 'Вы вошли в аккаунт';
+  @override
   String get settingsLanguageEnglish => 'Английский';
 
   @override

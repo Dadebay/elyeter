@@ -235,6 +235,42 @@
       }
     }
   },
+  "profileSignOut": "Sign out",
+  "profileSignOutTitle": "Sign out?",
+  "profileSignOutMessage": "You will need your phone number to sign in again.",
+  "profileGuestTitle": "You are not signed in",
+  "profileGuestMessage": "Sign in to track your orders, save addresses and keep your favourites.",
+  "authSignIn": "Sign in",
+  "authSignInRequiredTitle": "Sign in required",
+  "authSignInRequiredMessage": "Sign in to use this part of the app.",
+  "loginTitle": "Sign in",
+  "loginPhoneTitle": "Enter your phone number",
+  "loginPhoneMessage": "We will text you a confirmation code.",
+  "loginPhoneLabel": "Phone number",
+  "loginPhoneHint": "+993 6X XXXXXX",
+  "loginSendCode": "Send code",
+  "loginCodeTitle": "Enter the code",
+  "loginCodeMessage": "Code sent to {phone}",
+  "@loginCodeMessage": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "loginCodeLabel": "Confirmation code",
+  "loginVerify": "Continue",
+  "loginResend": "Resend code",
+  "loginResendIn": "Resend in {seconds} s",
+  "@loginResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "loginChangePhone": "Change number",
+  "loginSignedIn": "You are signed in",
   "settingsLanguageEnglish": "English",
   "settingsLanguageTurkmen": "Türkmençe",
   "settingsLanguageRussian": "Русский",

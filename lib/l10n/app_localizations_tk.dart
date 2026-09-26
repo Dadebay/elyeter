@@ -474,6 +474,75 @@ class AppLocalizationsTk extends AppLocalizations {
   }
 
   @override
+  String get profileSignOut => 'Çykmak';
+
+  @override
+  String get profileSignOutTitle => 'Hasapdan çykmalymy?';
+
+  @override
+  String get profileSignOutMessage => 'Täzeden girmek üçin telefon belgiňiz gerek bolar.';
+
+  @override
+  String get profileGuestTitle => 'Siz ulgama girmediňiz';
+
+  @override
+  String get profileGuestMessage => 'Sargytlaryňyzy yzarlamak, salgylary we halanlaryňyzy saklamak üçin giriň.';
+
+  @override
+  String get authSignIn => 'Gir';
+
+  @override
+  String get authSignInRequiredTitle => 'Girmek talap edilýär';
+
+  @override
+  String get authSignInRequiredMessage => 'Bu bölümi ulanmak üçin ulgama giriň.';
+
+  @override
+  String get loginTitle => 'Ulgama giriş';
+
+  @override
+  String get loginPhoneTitle => 'Telefon belgiňizi giriziň';
+
+  @override
+  String get loginPhoneMessage => 'Tassyklaýyş kody SMS arkaly iberiler.';
+
+  @override
+  String get loginPhoneLabel => 'Telefon belgisi';
+
+  @override
+  String get loginPhoneHint => '+993 6X XXXXXX';
+
+  @override
+  String get loginSendCode => 'Kod iber';
+
+  @override
+  String get loginCodeTitle => 'Kody giriziň';
+
+  @override
+  String loginCodeMessage(String phone) {
+    return 'Kod $phone belgä iberildi';
+  }
+
+  @override
+  String get loginCodeLabel => 'Tassyklaýyş kody';
+
+  @override
+  String get loginVerify => 'Dowam et';
+
+  @override
+  String get loginResend => 'Kody gaýtadan iber';
+
+  @override
+  String loginResendIn(int seconds) {
+    return '$seconds sekuntdan gaýtadan';
+  }
+
+  @override
+  String get loginChangePhone => 'Belgini üýtget';
+
+  @override
+  String get loginSignedIn => 'Ulgama girdiňiz';
+  @override
   String get settingsLanguageEnglish => 'Iňlisçe';
 
   @override
