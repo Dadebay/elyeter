@@ -57,7 +57,10 @@ class ProfileCubit extends HydratedCubit<ProfileState> {
 
   /// Signing out must not leave the next person looking at someone else's
   /// name and photo.
-  void clear() {
+  ///
+  /// Named for the account rather than `clear()`, which [HydratedMixin]
+  /// already defines as the way to drop the persisted record.
+  void clearAccount() {
     if (state == ProfileState.initial()) return;
     emit(ProfileState.initial());
   }

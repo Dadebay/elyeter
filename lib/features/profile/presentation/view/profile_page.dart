@@ -51,7 +51,7 @@ class ProfilePage extends StatelessWidget {
         if (state.isAuthenticated && user != null) {
           cubit.adoptAccount(phone: user.phone, name: user.username);
         } else if (state.status == AuthStatus.unauthenticated) {
-          cubit.clear();
+          cubit.clearAccount();
         }
       },
       child: const _ProfileView(),
