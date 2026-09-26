@@ -1,0 +1,920 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-09-26T14:13:40.000Z",
+  "__export_source": "elyeter-mobile-api.md",
+  "resources": [
+    {
+      "_id": "wrk_elyeter",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "Elyeter — Mobile API",
+      "description": "Every endpoint the Elyeter mobile app uses, from elyeter-mobile-api.md.\n\nGetting a token:\n1. Run \"Send code\" (the test number +99362123456 is already in the environment).\n2. Run \"Verify code\" with code 1111.\n3. Copy data.access_token from the response into the access_token environment variable. Every locked request reads it from there.\n\nThe token is good for 30 days; there is no refresh token, so a 401 means running steps 1-3 again.\n\nKnown backend limitations: AliExpress authorization has expired, so both pre-order endpoints answer 503 pre-order-availability-check-failed until an operator re-runs OAuth. SMS only works for the test number. Error messages come back in Russian whatever Content-Language says.",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "parentId": "wrk_elyeter",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "https://elyeter-backend.sanlyadim.com/api",
+        "file_url": "https://elyeter-backend.sanlyadim.com/public",
+        "lang": "tk",
+        "access_token": "",
+        "test_phone": "+99362123456",
+        "test_code": "1111",
+        "category_slug": "elektronika",
+        "product_slug": "gozgalamy",
+        "product_id": "1",
+        "brand_slug": "zyxuaqir",
+        "pre_order_id": "1"
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "base_url",
+          "file_url",
+          "lang",
+          "access_token",
+          "test_phone",
+          "test_code",
+          "category_slug",
+          "product_slug",
+          "product_id",
+          "brand_slug",
+          "pre_order_id"
+        ]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1
+    },
+    {
+      "_id": "fld_auth",
+      "_type": "request_group",
+      "parentId": "wrk_elyeter",
+      "name": "1 · Auth",
+      "description": "SMS login and the account endpoints. No passwords: the account is created on the first successful verify.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1000
+    },
+    {
+      "_id": "req_send_code",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Send code",
+      "description": "Turkmen numbers only, exactly +993XXXXXXXX.\n\ndata: { expires_in, resend_after } — seconds. Keep Resend disabled until resend_after elapses, or the next call answers 400 otp-rate-limited.\n\nErrors: 400 otp-rate-limited, 403 user-blocked, 400 validation.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/send-code",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"phone\": \"{{ _.test_phone }}\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1000,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_verify_code",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Verify code",
+      "description": "Exchanges the code for a 30-day access token. The code is single-use.\n\nCopy data.access_token into the access_token environment variable — every locked request below reads it from there.\n\ndata.is_new tells you the account was just created, which is the moment to ask for a name.\n\nErrors: 400 otp-invalid, 400 otp-too-many-attempts (5 wrong tries burn the code), 404 otp-expired, 403 user-blocked.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/verify-code",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"phone\": \"{{ _.test_phone }}\",\n  \"code\": \"{{ _.test_code }}\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -900,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_me",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Me",
+      "description": "The signed-in account — the same object the login response carries.\n\n401 here is how you find out a stored token has expired.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/auth/me",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}",
+        "prefix": "",
+        "disabled": false
+      },
+      "metaSortKey": -800,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_me_patch",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Update profile",
+      "description": "Name and avatar. username is capped at 120 characters. Both fields are optional; send only what changed.",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/auth/me",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"username\": \"Aman\",\n  \"image\": null\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}",
+        "prefix": "",
+        "disabled": false
+      },
+      "metaSortKey": -700,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_fcm",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Register FCM token",
+      "description": "Stored but unused — push delivery is not implemented on the backend yet. Max 512 characters.",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/auth/fcm-token",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"fcm_token\": \"example-device-token\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}",
+        "prefix": "",
+        "disabled": false
+      },
+      "metaSortKey": -600,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_me_delete",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Delete account",
+      "description": "Deletes the account for good. There is no undo, so keep this one behind a confirmation in the app.",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/auth/me",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}",
+        "prefix": "",
+        "disabled": false
+      },
+      "metaSortKey": -500,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "fld_catalog",
+      "_type": "request_group",
+      "parentId": "wrk_elyeter",
+      "name": "2 · Catalog",
+      "description": "Categories, products and the type-ahead search. The token is optional here and changes nothing today.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -900
+    },
+    {
+      "_id": "req_categories_tree",
+      "_type": "request",
+      "parentId": "fld_catalog",
+      "name": "Category tree",
+      "description": "Every active category, nested. products_count counts published products in that exact category, not its descendants.\n\nimage_large and image_small may be a storage path rather than a URL: anything not starting with http gets the file server prefix.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/categories/tree",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1000,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_category",
+      "_type": "request",
+      "parentId": "fld_catalog",
+      "name": "Category by slug",
+      "description": "One category plus breadcrumbs, ordered root to current.\n\n404 category-not-found when the slug is unknown or the category is hidden.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/categories/{{ _.category_slug }}",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -900,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_products",
+      "_type": "request",
+      "parentId": "fld_catalog",
+      "name": "Products — newest",
+      "description": "page and size are both required; size is capped at 100. Omitting either, or sending any query param not in the documented list, answers 400.\n\nsort: new (default), price_asc, price_desc, popular.\n\nstock is a snapshot from the last supplier sync, not a live figure — real availability is only confirmed by the pre-order check.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/products",
+      "body": {},
+      "parameters": [
+        {
+          "id": null,
+          "name": "page",
+          "value": "1",
+          "description": "",
+          "disabled": false
+        },
+        {
+          "id": null,
+          "name": "size",
+          "value": "20",
+          "description": "",
+          "disabled": false
+        },
+        {
+          "id": null,
+          "name": "sort",
+          "value": "new",
+          "description": "",
+          "disabled": false
+        }
+      ],
+      "headers": [
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -800,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_products_featured",
+      "_type": "request",
+      "parentId": "fld_catalog",
+      "name": "Products — featured (home)",
+      "description": "What the home screen shows.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/products",
+      "body": {},
+      "parameters": [
+        {
+          "id": null,
+          "name": "page",
+          "value": "1",
+          "description": "",
+          "disabled": false
+        },
+        {
+          "id": null,
+          "name": "size",
+          "value": "10",
+          "description": "",
+          "disabled": false
+        },
+        {
+          "id": null,
+          "name": "only_featured",
+          "value": "true",
+          "description": "",
+          "disabled": false
+        }
+      ],
+      "headers": [
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -700,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_products_filtered",
+      "_type": "request",
+      "parentId": "fld_catalog",
+      "name": "Products — filtered",
+      "description": "category_slug covers the category and all of its subcategories. search matches the product name in both languages and the SKU.\n\nThe disabled params are the rest of the documented filters — enable what you need, and delete rather than blank the ones you do not, since an unknown or empty param is a 400.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/products",
+      "body": {},
+      "parameters": [
+        {
+          "id": null,
+          "name": "page",
+          "value": "1",
+          "description": "",
+          "disabled": false
+        },
+        {
+          "id": null,
+          "name": "size",
+          "value": "20",
+          "description": "",
+          "disabled": false
+        },
+        {
+          "id": null,
+          "name": "category_slug",
+          "value": "{{ _.category_slug }}",
+          "description": "",
+          "disabled": false
+        },
+        {
+          "id": null,
+          "name": "brand_slug",
+          "value": "{{ _.brand_slug }}",
+          "description": "",
+          "disabled": true
+        },
+        {
+          "id": null,
+          "name": "search",
+          "value": "kabel",
+          "description": "",
+          "disabled": true
+        },
+        {
+          "id": null,
+          "name": "min_price",
+          "value": "10",
+          "description": "",
+          "disabled": true
+        },
+        {
+          "id": null,
+          "name": "max_price",
+          "value": "500",
+          "description": "",
+          "disabled": true
+        },
+        {
+          "id": null,
+          "name": "sort",
+          "value": "price_asc",
+          "description": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -600,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_product",
+      "_type": "request",
+      "parentId": "fld_catalog",
+      "name": "Product by slug",
+      "description": "Full detail: HTML description, images, variants, spec attributes and breadcrumbs.\n\nWhen has_variants is true a variant_id is mandatory at checkout, and the variant's own price and stock override the product-level ones.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/products/{{ _.product_slug }}",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -500,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_variants",
+      "_type": "request",
+      "parentId": "fld_catalog",
+      "name": "Product variants",
+      "description": "Note this one takes the numeric id, while the detail endpoint above takes the slug.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/products/{{ _.product_id }}/variants",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -400,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_suggest",
+      "_type": "request",
+      "parentId": "fld_catalog",
+      "name": "Search suggestions",
+      "description": "Type-ahead for the search bar; returns products and categories. Debounce by about 300 ms on the client.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/search/suggest",
+      "body": {},
+      "parameters": [
+        {
+          "id": null,
+          "name": "q",
+          "value": "kabel",
+          "description": "",
+          "disabled": false
+        },
+        {
+          "id": null,
+          "name": "limit",
+          "value": "5",
+          "description": "",
+          "disabled": false
+        }
+      ],
+      "headers": [
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -300,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "fld_brands",
+      "_type": "request_group",
+      "parentId": "wrk_elyeter",
+      "name": "3 · Brands",
+      "description": "Brands for the filter UI. Only brands that actually have published products come back.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -800
+    },
+    {
+      "_id": "req_brands",
+      "_type": "request",
+      "parentId": "fld_brands",
+      "name": "Brands",
+      "description": "Not paginated — the full list comes back alphabetically.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/brands",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1000,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_brands_search",
+      "_type": "request",
+      "parentId": "fld_brands",
+      "name": "Brands — search",
+      "description": "",
+      "method": "GET",
+      "url": "{{ _.base_url }}/brands",
+      "body": {},
+      "parameters": [
+        {
+          "id": null,
+          "name": "search",
+          "value": "zyx",
+          "description": "",
+          "disabled": false
+        }
+      ],
+      "headers": [
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -900,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_brand",
+      "_type": "request",
+      "parentId": "fld_brands",
+      "name": "Brand by slug",
+      "description": "For the header of a brand page. List its products with /products?brand_slug=…&page=1&size=20.\n\n404 if unknown or hidden.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/brands/{{ _.brand_slug }}",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -800,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "fld_preorders",
+      "_type": "request_group",
+      "parentId": "wrk_elyeter",
+      "name": "4 · Pre-orders",
+      "description": "No payment in the app: the customer submits a pre-order and a manager calls back. The cart lives on the device and is only sent here.\n\nBoth write endpoints call AliExpress live, so they take a few seconds — and they currently answer 503 pre-order-availability-check-failed, because the supplier authorization has expired. That path is worth building against now; the happy path becomes testable once an operator re-runs OAuth.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -700
+    },
+    {
+      "_id": "req_check",
+      "_type": "request",
+      "parentId": "fld_preorders",
+      "name": "Check availability",
+      "description": "Validation only — nothing is created, and an unavailable line is a normal 200, not an error.\n\nUp to 30 lines, quantity 1-99, duplicates merged server-side. variant_id is required when the product has has_variants: true.\n\nitems[].status: available, insufficient_stock, out_of_stock, unavailable, not_found. items[].message is ready to display in the requested language.\n\nErrors: 400 variant-required (details.product_id names the line), 503 pre-order-availability-check-failed (supplier silent — do not clear the cart), 429 too-many-requests (20/min per user).",
+      "method": "POST",
+      "url": "{{ _.base_url }}/pre-orders/check",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 2\n    },\n    {\n      \"product_id\": 3,\n      \"variant_id\": 2,\n      \"quantity\": 1\n    }\n  ]\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}",
+        "prefix": "",
+        "disabled": false
+      },
+      "metaSortKey": -1000,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_create",
+      "_type": "request",
+      "parentId": "fld_preorders",
+      "name": "Create pre-order",
+      "description": "201 on success. The phone number comes from the token — do not send it.\n\nexpected_total is optional but worth sending: it is what stops a silently higher total. If the re-check disagrees, the order is rejected with 409 pre-order-price-changed rather than created.\n\nThe availability check is always redone here from scratch, whatever an earlier /check said. If anything is missing or short, nothing is created at all — the order is never partially accepted.\n\nBoth 409 bodies carry a /check-shaped details object, so one rendering function can handle check results and checkout rejections alike.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/pre-orders",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 2\n    },\n    {\n      \"product_id\": 3,\n      \"variant_id\": 2,\n      \"quantity\": 1\n    }\n  ],\n  \"customer_name\": \"Aman\",\n  \"address\": \"Aşgabat, Bitarap Türkmenistan 12\",\n  \"comment\": \"Agşam jaň ediň\",\n  \"expected_total\": 500\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}",
+        "prefix": "",
+        "disabled": false
+      },
+      "metaSortKey": -900,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_preorders",
+      "_type": "request",
+      "parentId": "fld_preorders",
+      "name": "My pre-orders",
+      "description": "Newest first. status is an optional filter: NEW, CONFIRMED, ORDERED, COMPLETED, CANCELLED.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/pre-orders",
+      "body": {},
+      "parameters": [
+        {
+          "id": null,
+          "name": "page",
+          "value": "1",
+          "description": "",
+          "disabled": false
+        },
+        {
+          "id": null,
+          "name": "size",
+          "value": "20",
+          "description": "",
+          "disabled": false
+        },
+        {
+          "id": null,
+          "name": "status",
+          "value": "NEW",
+          "description": "",
+          "disabled": true
+        }
+      ],
+      "headers": [
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}",
+        "prefix": "",
+        "disabled": false
+      },
+      "metaSortKey": -800,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_preorder",
+      "_type": "request",
+      "parentId": "fld_preorders",
+      "name": "Pre-order by id",
+      "description": "404 if it does not exist or belongs to someone else.\n\nItems are a snapshot taken at checkout: name and price stay frozen even if the product is repriced later, so never re-fetch them from the catalog.",
+      "method": "GET",
+      "url": "{{ _.base_url }}/pre-orders/{{ _.pre_order_id }}",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}",
+        "prefix": "",
+        "disabled": false
+      },
+      "metaSortKey": -700,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    },
+    {
+      "_id": "req_cancel",
+      "_type": "request",
+      "parentId": "fld_preorders",
+      "name": "Cancel pre-order",
+      "description": "Only while can_cancel is true, which means status NEW. Otherwise 409 invalid-pre-order-transition — at that point the customer has to call support.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/pre-orders/{{ _.pre_order_id }}/cancel",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Language",
+          "value": "{{ _.lang }}",
+          "description": "tk or ru; absent means tk"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}",
+        "prefix": "",
+        "disabled": false
+      },
+      "metaSortKey": -600,
+      "isPrivateBase": false,
+      "settingsStoreCookies": true,
+      "settingsSendCookies": true,
+      "settingsDisableRenderRequestBody": false,
+      "settingsEncodeUrl": true,
+      "settingsRebuildPath": true,
+      "settingsFollowRedirects": "global"
+    }
+  ]
+}
