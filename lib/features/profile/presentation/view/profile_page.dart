@@ -14,6 +14,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../../../../core/utils/formatters/phone_formatter.dart';
 import '../../../../core/utils/media_url.dart';
+import '../../../../core/widgets/app_confirm_dialog.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/widgets/sign_in_required_dialog.dart';
 import '../../../favorite/presentation/cubit/favorite_cubit.dart';
@@ -221,26 +222,21 @@ class _ProfileView extends StatelessWidget {
     final l10n = context.l10n;
     final auth = context.read<AuthCubit>();
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.profileSignOutTitle),
-        content: Text(l10n.profileSignOutMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(l10n.commonCancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: Text(l10n.profileSignOut),
-          ),
-        ],
+    final confirmed = await showAppConfirmDialog(
+      context,
+      icon: const Icon(
+        Icons.logout_rounded,
+        size: 26,
+        color: AppColors.error,
       ),
+      title: l10n.profileSignOutTitle,
+      message: l10n.profileSignOutMessage,
+      confirmLabel: l10n.profileSignOut,
+      cancelLabel: l10n.commonCancel,
+      destructive: true,
     );
 
-    if (confirmed ?? false) await auth.signOut();
+    if (confirmed) await auth.signOut();
   }
 
   /// Hands [url] to the platform: `tel:` opens the dialler with the support
