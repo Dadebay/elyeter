@@ -34,6 +34,37 @@ class ProfileCubit extends HydratedCubit<ProfileState> {
     ProfileState(name: name, phone: state.phone, avatarPath: avatarPath),
   );
 
+  /// Takes what the signed-in account knows about the customer: always the
+  /// number, since that is the account's identity, and the name only while
+  /// the local one is still the untouched placeholder — an edit made here
+  /// must not be undone by the next `/auth/me`.
+  void adoptAccount({required String phone, String? name}) {
+    final accountName = name?.trim() ?? '';
+    final nextName =
+        state.name == ProfilePlaceholderData.userName && accountName.isNotEmpty
+        ? accountName
+        : state.name;
+
+    if (state.phone == phone && state.name == nextName) return;
+    emit(
+      ProfileState(
+        name: nextName,
+        phone: phone,
+        avatarPath: state.avatarPath,
+      ),
+    );
+  }
+
+  /// Signing out must not leave the next person looking at someone else's
+  /// name and photo.
+  ///
+  /// Named for the account rather than `clear()`, which [HydratedMixin]
+  /// already defines as the way to drop the persisted record.
+  void clearAccount() {
+    if (state == ProfileState.initial()) return;
+    emit(ProfileState.initial());
+  }
+
   @override
   ProfileState? fromJson(Map<String, dynamic> json) => ProfileState(
     name: json['name'] as String? ?? ProfilePlaceholderData.userName,

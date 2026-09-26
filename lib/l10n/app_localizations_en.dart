@@ -473,6 +473,78 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get profileStatOrders => 'Orders';
+
+  @override
+  String get profileSignOut => 'Sign out';
+
+  @override
+  String get profileSignOutTitle => 'Sign out?';
+
+  @override
+  String get profileSignOutMessage => 'You will need your phone number to sign in again.';
+
+  @override
+  String get profileGuestTitle => 'You are not signed in';
+
+  @override
+  String get profileGuestMessage => 'Sign in to track your orders, save addresses and keep your favourites.';
+
+  @override
+  String get authSignIn => 'Sign in';
+
+  @override
+  String get authSignInRequiredTitle => 'Sign in required';
+
+  @override
+  String get authSignInRequiredMessage => 'Sign in to use this part of the app.';
+
+  @override
+  String get loginTitle => 'Sign in';
+
+  @override
+  String get loginPhoneTitle => 'Enter your phone number';
+
+  @override
+  String get loginPhoneMessage => 'We will text you a confirmation code.';
+
+  @override
+  String get loginPhoneLabel => 'Phone number';
+
+  @override
+  String get loginPhoneHint => '+993 6X XXXXXX';
+
+  @override
+  String get loginSendCode => 'Send code';
+
+  @override
+  String get loginCodeTitle => 'Enter the code';
+
+  @override
+  String loginCodeMessage(String phone) {
+    return 'Code sent to $phone';
+  }
+
+  @override
+  String get loginCodeLabel => 'Confirmation code';
+
+  @override
+  String get loginVerify => 'Continue';
+
+  @override
+  String get loginResend => 'Resend code';
+
+  @override
+  String loginResendIn(int seconds) {
+    return 'Resend in $seconds s';
+  }
+
+  @override
+  String get loginChangePhone => 'Change number';
+
+  @override
+  String get loginSignedIn => 'You are signed in';
+  @override
   String get settingsLanguageEnglish => 'English';
 
   @override

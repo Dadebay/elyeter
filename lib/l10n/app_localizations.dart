@@ -904,6 +904,143 @@ abstract class AppLocalizations {
   /// **'Version {version}'**
   String profileVersion(String version);
 
+  /// No description provided for @profileStatOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get profileStatOrders;
+
+  /// No description provided for @profileSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get profileSignOut;
+
+  /// No description provided for @profileSignOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out?'**
+  String get profileSignOutTitle;
+
+  /// No description provided for @profileSignOutMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You will need your phone number to sign in again.'**
+  String get profileSignOutMessage;
+
+  /// No description provided for @profileGuestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not signed in'**
+  String get profileGuestTitle;
+
+  /// No description provided for @profileGuestMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to track your orders, save addresses and keep your favourites.'**
+  String get profileGuestMessage;
+
+  /// No description provided for @authSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get authSignIn;
+
+  /// No description provided for @authSignInRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in required'**
+  String get authSignInRequiredTitle;
+
+  /// No description provided for @authSignInRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to use this part of the app.'**
+  String get authSignInRequiredMessage;
+
+  /// No description provided for @loginTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get loginTitle;
+
+  /// No description provided for @loginPhoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your phone number'**
+  String get loginPhoneTitle;
+
+  /// No description provided for @loginPhoneMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'We will text you a confirmation code.'**
+  String get loginPhoneMessage;
+
+  /// No description provided for @loginPhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number'**
+  String get loginPhoneLabel;
+
+  /// No description provided for @loginPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'+993 6X XXXXXX'**
+  String get loginPhoneHint;
+
+  /// No description provided for @loginSendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get loginSendCode;
+
+  /// No description provided for @loginCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code'**
+  String get loginCodeTitle;
+
+  /// No description provided for @loginCodeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Code sent to {phone}'**
+  String loginCodeMessage(String phone);
+
+  /// No description provided for @loginCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmation code'**
+  String get loginCodeLabel;
+
+  /// No description provided for @loginVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get loginVerify;
+
+  /// No description provided for @loginResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get loginResend;
+
+  /// No description provided for @loginResendIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend in {seconds} s'**
+  String loginResendIn(int seconds);
+
+  /// No description provided for @loginChangePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Change number'**
+  String get loginChangePhone;
+
+  /// No description provided for @loginSignedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'You are signed in'**
+  String get loginSignedIn;
   /// No description provided for @settingsLanguageEnglish.
   ///
   /// In en, this message translates to:

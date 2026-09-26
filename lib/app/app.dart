@@ -6,6 +6,7 @@ import '../core/constants/app_constants.dart';
 import '../core/di/injector.dart';
 import '../core/localization/fallback_localizations.dart';
 import '../core/theme/app_theme.dart';
+import '../features/auth/presentation/cubit/auth_cubit.dart';
 import '../features/cart/presentation/cubit/cart_cubit.dart';
 import '../features/favorite/presentation/cubit/favorite_cubit.dart';
 import '../features/profile/presentation/cubit/profile_cubit.dart';
@@ -22,6 +23,8 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        // Who is signed in: the profile page and every gated row read it.
+        BlocProvider<AuthCubit>.value(value: getIt<AuthCubit>()),
         BlocProvider<ThemeCubit>.value(value: getIt<ThemeCubit>()),
         BlocProvider<LocaleCubit>.value(value: getIt<LocaleCubit>()),
         BlocProvider<FavoriteCubit>.value(value: getIt<FavoriteCubit>()),
