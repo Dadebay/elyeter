@@ -5,6 +5,7 @@ import '../error/failure.dart';
 import '../localization/failure_localizer.dart';
 import '../theme/app_spacing.dart';
 import '../utils/extensions/context_extensions.dart';
+import '../constants/app_icons.dart';
 
 /// Standard failure state — one look for every screen.
 class AppErrorView extends StatelessWidget {
@@ -23,8 +24,8 @@ class AppErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: .min,
           children: [
-            Icon(
-              Icons.error_outline_rounded,
+            HugeIcon(
+              icon: AppIcons.error,
               size: 48,
               color: context.colors.error,
             ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// Blue support panel at the bottom of the profile page.
 class SupportCallCard extends StatelessWidget {
@@ -57,7 +57,7 @@ class SupportCallCard extends StatelessWidget {
                 ),
                 child: const Center(
                   child: HugeIcon(
-                    icon: HugeIcons.strokeRoundedCustomerService01,
+                    icon: AppIcons.support,
                     color: AppColors.info,
                     size: 20,
                   ),

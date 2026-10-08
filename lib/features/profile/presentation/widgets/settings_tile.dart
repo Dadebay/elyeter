@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_asset_image.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// What sits at the end of a settings row.
 sealed class TileTrailing {
@@ -74,13 +75,13 @@ class SettingsTile extends StatelessWidget {
                 ),
               ),
               switch (trailing) {
-                TileChevron() => Icon(Icons.chevron_right_rounded, color: chevronColor),
-                TileExternal() => Icon(Icons.north_east_rounded, size: 18, color: chevronColor),
+                TileChevron() => HugeIcon(icon: AppIcons.chevronRight, color: chevronColor),
+                TileExternal() => HugeIcon(icon: AppIcons.external, size: 18, color: chevronColor),
                 TileValue(:final value) => Row(
                   children: [
                     Text(value, style: theme.textTheme.bodyMedium?.copyWith(color: labelColor)),
                     const SizedBox(width: AppSpacing.xs),
-                    Icon(Icons.unfold_more_rounded, size: 18, color: chevronColor),
+                    HugeIcon(icon: AppIcons.unfold, size: 18, color: chevronColor),
                   ],
                 ),
                 // iOS-style on every platform, as the design shows it.

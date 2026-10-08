@@ -247,7 +247,7 @@
   "loginPhoneTitle": "Telefon belgiňizi giriziň",
   "loginPhoneMessage": "Tassyklaýyş kody SMS arkaly iberiler.",
   "loginPhoneLabel": "Telefon belgisi",
-  "loginPhoneHint": "+993 6X XXXXXX",
+  "loginPhoneHint": "6X XXXXXX",
   "loginSendCode": "Kod iber",
   "loginCodeTitle": "Kody giriziň",
   "loginCodeMessage": "Kod {phone} belgä iberildi",
@@ -335,5 +335,22 @@
   "errorSupplierUnavailable": "Üpjün ediji jogap bermeýär. Birnäçe minutdan synanyşyň.",
   "errorCannotCancel": "Bu sargydy indi ýatyryp bolmaýar.",
   "errorTooManyRequests": "Haýyş köp iberildi. Biraz haýallaň.",
-  "errorValidation": "Giren maglumatlaryňyzy barlaň."
+  "errorValidation": "Giren maglumatlaryňyzy barlaň.",
+  "profileDeleteAccount": "Hasaby pozmak",
+  "profileDeleteTitle": "Hasabyňyzy pozmalymy?",
+  "profileDeleteMessage": "Bu hemişelik. Hasabyňyz we ondaky ähli zat Elyeter-den aýrylar, yzyna gaýtaryp bolmaýar.",
+  "profileDeleteLossOrders": "Sargyt taryhyňyz",
+  "profileDeleteLossProfile": "Adyňyz, suratyňyz we ýatda saklanan maglumatlaryňyz",
+  "profileDeleteLossAccess": "Şu belgidäki hasaba girmek mümkinçiligi",
+  "profileDeleteAccountOn": "Hasap: {phone}",
+  "@profileDeleteAccountOn": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "profileDeleteKeep": "Hasabymy saklaýaryn",
+  "profileDeleteConfirm": "Hemişelik poz",
+  "profileDeleteDone": "Hasabyňyz pozuldy."
 }

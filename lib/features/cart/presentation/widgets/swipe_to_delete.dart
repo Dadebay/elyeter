@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
-import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// Drags [child] aside to uncover a Delete panel, the way the design draws a
 /// swiped cart line.
@@ -198,7 +198,7 @@ class _DeletePanel extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const HugeIcon(
-                    icon: HugeIcons.strokeRoundedDelete02,
+                    icon: AppIcons.delete,
                     color: AppColors.error,
                     size: 26,
                   ),

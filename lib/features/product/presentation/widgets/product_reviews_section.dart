@@ -5,6 +5,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../model/product_detail_data.dart';
 import 'product_section_card.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// Score, the per-star bars and a strip of the most recent reviews.
 class ProductReviewsSection extends StatelessWidget {
@@ -298,10 +299,14 @@ class ProductStars extends StatelessWidget {
     mainAxisSize: MainAxisSize.min,
     children: [
       for (var i = 1; i <= 5; i++)
-        Icon(
-          Icons.star_rounded,
+        // Hugeicons' free set is stroke-only, so an earned star cannot be
+        // filled in. Colour alone would read as a faint tint next to the
+        // grey ones, so the earned stars are drawn heavier as well.
+        HugeIcon(
+          icon: AppIcons.star,
           size: size,
           color: i <= rating.round() ? AppColors.primary : AppColors.grey300,
+          strokeWidth: i <= rating.round() ? 2.4 : 1.5,
         ),
     ],
   );

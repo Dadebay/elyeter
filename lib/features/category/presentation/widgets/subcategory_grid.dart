@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// One tile across the top of a category.
 class SubcategoryItem {
@@ -172,8 +173,8 @@ class _SubcategoryTile extends StatelessWidget {
                       color: AppColors.background,
                       borderRadius: BorderRadius.circular(AppRadius.lg),
                     ),
-                    child: const Icon(
-                      Icons.image_outlined,
+                    child: const HugeIcon(
+                      icon: AppIcons.image,
                       color: AppColors.grey500,
                     ),
                   )

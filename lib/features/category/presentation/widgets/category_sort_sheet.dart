@@ -5,6 +5,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../model/category_filters.dart';
 import 'category_sheet.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// Picks how the list is ordered.
 ///
@@ -88,8 +89,8 @@ class _Option extends StatelessWidget {
               ),
             ),
             if (selected)
-              const Icon(
-                Icons.check_rounded,
+              const HugeIcon(
+                icon: AppIcons.check,
                 size: 20,
                 color: AppColors.primary,
               ),

@@ -7,6 +7,7 @@ import '../../../../core/utils/extensions/context_extensions.dart';
 import '../../../../core/utils/formatters/currency_formatter.dart';
 import '../../../../core/widgets/favorite_button.dart';
 import '../../../product/presentation/widgets/product_card.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// One line of the cart: photo, title and specs, a quantity stepper, the line
 /// price and the tick that keeps it in the total.
@@ -127,7 +128,7 @@ class _Photo extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppRadius.lg),
               ),
               child: image == null
-                  ? const Icon(Icons.image_outlined, color: AppColors.grey500)
+                  ? const HugeIcon(icon: AppIcons.image, color: AppColors.grey500)
                   : Padding(
                       padding: const EdgeInsets.all(AppSpacing.sm),
                       child: Image.asset(image, fit: BoxFit.contain),
@@ -174,7 +175,7 @@ class _Stepper extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _StepButton(icon: Icons.remove_rounded, onTap: onDecrease),
+          _StepButton(icon: AppIcons.minus, onTap: onDecrease),
           // Fixed width so the pill does not resize between 9 and 10.
           SizedBox(
             width: 34,
@@ -187,7 +188,7 @@ class _Stepper extends StatelessWidget {
               ),
             ),
           ),
-          _StepButton(icon: Icons.add_rounded, onTap: onIncrease),
+          _StepButton(icon: AppIcons.add, onTap: onIncrease),
         ],
       ),
     );
@@ -202,7 +203,8 @@ class _StepButton extends StatelessWidget {
   /// Rounded square rather than a disc, as the design draws it.
   static const _radius = AppRadius.md;
 
-  final IconData icon;
+  /// A `AppIcons.*` constant — the package supplies glyphs as data.
+  final AppIconData icon;
   final VoidCallback onTap;
 
   @override
@@ -218,7 +220,7 @@ class _StepButton extends StatelessWidget {
         child: SizedBox(
           width: _size,
           height: _size,
-          child: Icon(icon, size: 18, color: AppColors.grey700),
+          child: HugeIcon(icon: icon, size: 18, color: AppColors.grey700),
         ),
       ),
     );
@@ -314,7 +316,7 @@ class _Tick extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRadius.xs),
           border: Border.all(color: value ? AppColors.black : AppColors.grey300, width: 1.5),
         ),
-        child: value ? const Icon(Icons.check_rounded, size: 16, color: AppColors.white) : null,
+        child: value ? const HugeIcon(icon: AppIcons.check, size: 16, color: AppColors.white) : null,
       ),
     );
   }

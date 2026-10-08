@@ -247,7 +247,7 @@
   "loginPhoneTitle": "Enter your phone number",
   "loginPhoneMessage": "We will text you a confirmation code.",
   "loginPhoneLabel": "Phone number",
-  "loginPhoneHint": "+993 6X XXXXXX",
+  "loginPhoneHint": "6X XXXXXX",
   "loginSendCode": "Send code",
   "loginCodeTitle": "Enter the code",
   "loginCodeMessage": "Code sent to {phone}",
@@ -349,5 +349,22 @@
   "errorSupplierUnavailable": "The supplier is not responding. Try again in a couple of minutes.",
   "errorCannotCancel": "This order can no longer be cancelled.",
   "errorTooManyRequests": "Too many requests. Please slow down.",
-  "errorValidation": "Please check the details you entered."
+  "errorValidation": "Please check the details you entered.",
+  "profileDeleteAccount": "Delete account",
+  "profileDeleteTitle": "Delete your account?",
+  "profileDeleteMessage": "This is permanent. Your account and everything in it is removed from Elyeter and cannot be restored.",
+  "profileDeleteLossOrders": "Your order history",
+  "profileDeleteLossProfile": "Your name, photo and saved details",
+  "profileDeleteLossAccess": "Access to the account on this number",
+  "profileDeleteAccountOn": "Account: {phone}",
+  "@profileDeleteAccountOn": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "profileDeleteKeep": "Keep my account",
+  "profileDeleteConfirm": "Delete permanently",
+  "profileDeleteDone": "Your account has been deleted."
 }

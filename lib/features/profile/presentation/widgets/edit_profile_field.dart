@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// Label above a filled box — the shared shape of every edit-profile row.
 class EditProfileField extends StatelessWidget {
@@ -168,8 +169,8 @@ class EditProfilePickerField extends StatelessWidget {
                 ),
               ),
             ),
-            const Icon(
-              Icons.keyboard_arrow_down_rounded,
+            const HugeIcon(
+              icon: AppIcons.chevronDown,
               color: AppColors.iconSoft,
             ),
           ],

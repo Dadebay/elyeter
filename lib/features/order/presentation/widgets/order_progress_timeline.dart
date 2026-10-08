@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../model/order_detail_data.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// The stages of the order down a rail: reached ones in the brand colour,
 /// the rest greyed out as what is still to come.
@@ -232,6 +233,6 @@ class _CurrentBadge extends StatelessWidget {
       color: AppColors.primary,
       shape: BoxShape.circle,
     ),
-    child: const Icon(Icons.check_rounded, size: 14, color: AppColors.white),
+    child: const HugeIcon(icon: AppIcons.check, size: 14, color: AppColors.white),
   );
 }

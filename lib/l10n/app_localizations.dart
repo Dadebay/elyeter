@@ -979,7 +979,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginPhoneHint.
   ///
   /// In en, this message translates to:
-  /// **'+993 6X XXXXXX'**
+  /// **'6X XXXXXX'**
   String get loginPhoneHint;
 
   /// No description provided for @loginSendCode.
@@ -1035,6 +1035,7 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You are signed in'**
   String get loginSignedIn;
+
   /// No description provided for @settingsLanguageEnglish.
   ///
   /// In en, this message translates to:
@@ -1424,6 +1425,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please check the details you entered.'**
   String get errorValidation;
+
+  /// No description provided for @profileDeleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get profileDeleteAccount;
+
+  /// No description provided for @profileDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your account?'**
+  String get profileDeleteTitle;
+
+  /// No description provided for @profileDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This is permanent. Your account and everything in it is removed from Elyeter and cannot be restored.'**
+  String get profileDeleteMessage;
+
+  /// No description provided for @profileDeleteLossOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order history'**
+  String get profileDeleteLossOrders;
+
+  /// No description provided for @profileDeleteLossProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name, photo and saved details'**
+  String get profileDeleteLossProfile;
+
+  /// No description provided for @profileDeleteLossAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Access to the account on this number'**
+  String get profileDeleteLossAccess;
+
+  /// No description provided for @profileDeleteAccountOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Account: {phone}'**
+  String profileDeleteAccountOn(String phone);
+
+  /// No description provided for @profileDeleteKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep my account'**
+  String get profileDeleteKeep;
+
+  /// No description provided for @profileDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete permanently'**
+  String get profileDeleteConfirm;
+
+  /// No description provided for @profileDeleteDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been deleted.'**
+  String get profileDeleteDone;
 }
 
 class _AppLocalizationsDelegate

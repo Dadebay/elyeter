@@ -28,6 +28,7 @@ import '../widgets/product_option_picker.dart';
 import '../widgets/product_reviews_section.dart';
 import '../widgets/product_outline_button.dart';
 import '../widgets/product_section_card.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// A product's own page: photos, options, price, description, specification
 /// and reviews, with a sticky add-to-cart bar.
@@ -59,7 +60,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       return Scaffold(
         backgroundColor: AppColors.white,
         appBar: AppBar(),
-        body: const AppEmptyView(icon: Icons.search_off_rounded),
+        body: const AppEmptyView(icon: AppIcons.searchEmpty),
       );
     }
 
@@ -235,7 +236,7 @@ class _AppBar extends StatelessWidget implements PreferredSizeWidget {
 
     await Clipboard.setData(ClipboardData(text: text));
     if (!context.mounted) return;
-    messenger.showSnackBar(SnackBar(content: Text(l10n.productShared)));
+    messenger.showSnackBar(AppSnackBar.build(l10n.productShared));
   }
 }
 
@@ -342,7 +343,7 @@ class _Price extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded, color: AppColors.grey500, size: 22),
+          const HugeIcon(icon: AppIcons.chevronRight, color: AppColors.grey500, size: 22),
         ],
       ),
     );
@@ -413,7 +414,7 @@ class _CopyButton extends StatelessWidget {
                 style: context.textTheme.labelLarge?.copyWith(color: AppColors.black),
               ),
               const SizedBox(width: AppSpacing.sm),
-              const Icon(Icons.copy_rounded, size: 16, color: AppColors.black),
+              const HugeIcon(icon: AppIcons.copy, size: 16, color: AppColors.black),
             ],
           ),
         ),
@@ -714,7 +715,7 @@ class _StickyAddToCart extends StatelessWidget {
                       SizedBox(
                         width: _iconSlot,
                         height: _iconSlot,
-                        child: Icon(Icons.check_rounded, size: 20, color: foreground),
+                        child: HugeIcon(icon: AppIcons.check, size: 20, color: foreground),
                       ),
                       const SizedBox(width: AppSpacing.sm),
                     ],

@@ -11,6 +11,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_page_app_bar.dart';
 import '../cubit/login_cubit.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
 
 /// The SMS login: a phone number, then the code that number receives.
 ///
@@ -36,7 +37,15 @@ class _LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<_LoginView> {
-  final _phone = TextEditingController(text: '+993');
+  /// A Turkmen subscriber number is exactly 8 digits. `+993` is drawn as a
+  /// fixed prefix rather than typed into the field, so it cannot be deleted,
+  /// doubled or replaced with another country's code.
+  static const _phoneDigits = 8;
+
+  /// The SMS code is 4 digits.
+  static const _codeDigits = 4;
+
+  final _phone = TextEditingController();
   final _code = TextEditingController();
 
   @override
@@ -69,9 +78,7 @@ class _LoginViewState extends State<_LoginView> {
           if (state.step == LoginStep.phone) _code.clear();
 
           if (state.signedIn) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(l10n.loginSignedIn)));
+            AppSnackBar.show(context, l10n.loginSignedIn);
             Navigator.of(context).pop(true);
           }
         },
@@ -108,21 +115,39 @@ class _LoginViewState extends State<_LoginView> {
         controller: _phone,
         keyboardType: TextInputType.phone,
         autofocus: true,
-        // `+` plus digits is everything the API accepts; the cubit
-        // normalizes whatever spacing is typed around them.
+        // Digits only, and never more than a Turkmen number holds: the
+        // country code is the prefix below, not something to type.
         inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp(r'[\d+ ]')),
-          LengthLimitingTextInputFormatter(16),
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(_phoneDigits),
         ],
+        // The number reads as one string, so what is typed and the code in
+        // front of it are set at the same size rather than the prefix being
+        // dropped to the smaller default.
+        style: context.textTheme.titleMedium,
         decoration: InputDecoration(
           labelText: l10n.loginPhoneLabel,
+          // Carries no country code of its own — the prefix below draws it.
           hintText: l10n.loginPhoneHint,
+          // Smaller than what gets typed: the placeholder is a shape to aim
+          // at, not something to read at the same weight as a real number.
+          hintStyle: context.textTheme.bodyMedium?.copyWith(
+            color: AppColors.grey500,
+          ),
+          prefixText: '+993 ',
+          prefixStyle: context.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+          counterText: '${_phone.text.length}/$_phoneDigits',
         ),
+        onChanged: (_) => setState(() {}),
         onSubmitted: (_) => _sendCode(context, state),
       ),
       const SizedBox(height: AppSpacing.xxl),
       FilledButton(
-        onPressed: state.submitting ? null : () => _sendCode(context, state),
+        onPressed: state.submitting || _phone.text.length < _phoneDigits
+            ? null
+            : () => _sendCode(context, state),
         child: state.submitting
             ? const _ButtonSpinner()
             : Text(l10n.loginSendCode),
@@ -149,15 +174,20 @@ class _LoginViewState extends State<_LoginView> {
         style: context.textTheme.headlineSmall?.copyWith(letterSpacing: 8),
         inputFormatters: [
           FilteringTextInputFormatter.digitsOnly,
-          LengthLimitingTextInputFormatter(6),
+          LengthLimitingTextInputFormatter(_codeDigits),
         ],
         decoration: InputDecoration(labelText: l10n.loginCodeLabel),
-        onChanged: (_) => setState(() {}),
+        onChanged: (value) {
+          setState(() {});
+          // The last digit is the whole code: nobody needs to reach for a
+          // button after typing it.
+          if (value.length == _codeDigits) _verify(context, state);
+        },
         onSubmitted: (_) => _verify(context, state),
       ),
       const SizedBox(height: AppSpacing.xxl),
       FilledButton(
-        onPressed: state.submitting || _code.text.length < 4
+        onPressed: state.submitting || _code.text.length < _codeDigits
             ? null
             : () => _verify(context, state),
         child: state.submitting
@@ -190,7 +220,7 @@ class _LoginViewState extends State<_LoginView> {
   }
 
   void _verify(BuildContext context, LoginState state) {
-    if (state.submitting || _code.text.length < 4) return;
+    if (state.submitting || _code.text.length < _codeDigits) return;
     unawaited(context.read<LoginCubit>().verify(_code.text));
   }
 }

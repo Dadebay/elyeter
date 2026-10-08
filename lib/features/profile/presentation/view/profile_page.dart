@@ -17,14 +17,17 @@ import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/widgets/sign_in_required_dialog.dart';
 import '../cubit/profile_cubit.dart';
 import '../widgets/about_app_dialog.dart';
+import '../widgets/delete_account_card.dart';
+import '../widgets/delete_account_dialog.dart';
 import '../widgets/guest_summary_card.dart';
 import '../widgets/language_dialog.dart';
 import '../widgets/profile_summary_cards.dart';
 import '../widgets/settings_section.dart';
 import '../widgets/settings_tile.dart';
-import '../widgets/sign_out_card.dart';
 import '../widgets/support_call_card.dart';
 import 'profile_placeholder_data.dart';
+import '../../../../core/constants/app_icons.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
 
 /// Account page: identity, app settings and support.
 ///
@@ -86,9 +89,12 @@ class _ProfileView extends StatelessWidget {
         children: [
           if (signedIn)
             ProfileSummaryCards(
-              // The account's own name wins; the locally edited one stands
-              // in until `PATCH /auth/me` is wired up.
-              name: auth.user?.displayName ?? profile.name,
+              // Whatever the account actually knows, in the order it is
+              // worth showing: the name typed here, then the one stored on
+              // the account, then the number the account is — never a
+              // stand-in person.
+              name: _accountName(profile, auth),
+              phone: auth.user?.phone ?? profile.phone,
               avatarUrl: MediaUrl.resolve(auth.user?.image),
               avatarPath: profile.avatarPath,
               editLabel: l10n.profileEditProfile,
@@ -149,9 +155,9 @@ class _ProfileView extends StatelessWidget {
           ),
           if (signedIn) ...[
             const SizedBox(height: AppSpacing.xl),
-            SignOutCard(
-              label: l10n.profileSignOut,
-              onPressed: () => _signOut(context),
+            DeleteAccountCard(
+              label: l10n.profileDeleteAccount,
+              onPressed: () => _deleteAccount(context, auth.user?.phone),
             ),
           ],
           const SizedBox(height: AppSpacing.xl),
@@ -161,6 +167,18 @@ class _ProfileView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// What the profile card puts above "edit profile".
+  ///
+  /// The phone number is the account's identity and is always known, so it
+  /// stands in for a name that has not been given — an empty header reads
+  /// as a page that failed to load rather than as an invitation.
+  String _accountName(ProfileState profile, AuthState auth) {
+    if (profile.hasName) return profile.name;
+    final username = auth.user?.username?.trim() ?? '';
+    if (username.isNotEmpty) return username;
+    return auth.user?.phone ?? profile.phone;
   }
 
   bool _isDark(BuildContext context, ThemeMode mode) => switch (mode) {
@@ -208,30 +226,21 @@ class _ProfileView extends StatelessWidget {
     }
   }
 
-  Future<void> _signOut(BuildContext context) async {
-    final l10n = context.l10n;
-    final auth = context.read<AuthCubit>();
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.profileSignOutTitle),
-        content: Text(l10n.profileSignOutMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(l10n.commonCancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: Text(l10n.profileSignOut),
-          ),
-        ],
-      ),
+  /// `DELETE /auth/me`, behind the confirmation dialog that owns the request
+  /// and reports its own failures. Nothing is done here on a refusal — the
+  /// dialog has already said why, and the account is untouched.
+  Future<void> _deleteAccount(BuildContext context, String? phone) async {
+    final deleted = await showDeleteAccountDialog(
+      context,
+      auth: context.read<AuthCubit>(),
+      phone: phone,
     );
 
-    if (confirmed ?? false) await auth.signOut();
+    // The session is already gone, so the page has swapped itself back to
+    // the guest header by now; this only confirms what happened.
+    if (deleted && context.mounted) {
+      AppSnackBar.show(context, context.l10n.profileDeleteDone, overNavBar: true);
+    }
   }
 
   /// Hands [url] to the platform: `tel:` opens the dialler with the support
@@ -240,7 +249,6 @@ class _ProfileView extends StatelessWidget {
   /// A phone that cannot take the link — a tablet with no dialler, a missing
   /// WhatsApp — says so rather than swallowing the tap.
   Future<void> _open(BuildContext context, String url) async {
-    final messenger = ScaffoldMessenger.of(context);
     final failed = context.l10n.commonOpenFailed(url);
 
     var launched = false;
@@ -255,8 +263,14 @@ class _ProfileView extends StatelessWidget {
       launched = false;
     }
 
-    if (!launched) {
-      messenger.showSnackBar(SnackBar(content: Text(failed)));
+    if (!launched && context.mounted) {
+      AppSnackBar.show(
+        context,
+        failed,
+        icon: AppIcons.error,
+        iconColor: AppColors.error,
+        overNavBar: true,
+      );
     }
   }
 }

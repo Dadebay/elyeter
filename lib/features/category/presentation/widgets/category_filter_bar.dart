@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// The strip under the subcategories: the two controls that act on the whole
 /// list, then one chip per facet.
@@ -39,12 +39,12 @@ class CategoryFilterBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
         children: [
           _IconButton(
-            icon: HugeIcons.strokeRoundedFilterHorizontal,
+            icon: AppIcons.filter,
             onTap: onFilter,
           ),
           const SizedBox(width: AppSpacing.sm),
           _IconButton(
-            icon: HugeIcons.strokeRoundedArrowUpDown,
+            icon: AppIcons.sort,
             onTap: onSort,
           ),
           const SizedBox(width: AppSpacing.sm),
@@ -143,8 +143,8 @@ class _FacetChip extends StatelessWidget {
                 _CountBadge(count: facet.selectedCount),
               ],
               const SizedBox(width: AppSpacing.xs),
-              Icon(
-                Icons.keyboard_arrow_down_rounded,
+              HugeIcon(
+                icon: AppIcons.chevronDown,
                 size: 18,
                 color: foreground,
               ),

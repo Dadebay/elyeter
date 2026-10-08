@@ -11,6 +11,7 @@ import '../../../cart/presentation/cubit/cart_state.dart';
 import '../../../home/presentation/view/home_placeholder_data.dart';
 import '../../../product/presentation/widgets/product_card.dart';
 import '../cubit/favorite_cubit.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// The products the customer has favourited.
 ///
@@ -30,7 +31,7 @@ class FavoritePage extends StatelessWidget {
           final products = HomePlaceholderData.catalog.where((product) => favorites.contains(product.id)).toList();
 
           if (products.isEmpty) {
-            return const AppEmptyView(icon: Icons.favorite_border_rounded);
+            return const AppEmptyView(icon: AppIcons.favorite);
           }
 
           return GridView.builder(

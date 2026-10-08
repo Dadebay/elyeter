@@ -15,6 +15,7 @@ import '../cubit/cart_state.dart';
 import '../widgets/cart_line_tile.dart';
 import '../widgets/cart_summary_bar.dart';
 import '../widgets/swipe_to_delete.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// The cart: one line per product, a running total over the list.
 ///
@@ -49,7 +50,7 @@ class CartPage extends StatelessWidget {
           // "Select All" tick are always in reach.
           appBar: _CartAppBar(count: lines.length, allSelected: cart.allSelected),
           body: lines.isEmpty
-              ? const AppEmptyView(icon: Icons.shopping_bag_outlined)
+              ? const AppEmptyView(icon: AppIcons.cart)
               : Stack(
                   children: [
                     ListView.separated(

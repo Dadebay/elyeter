@@ -480,13 +480,15 @@ class AppLocalizationsTk extends AppLocalizations {
   String get profileSignOutTitle => 'Hasapdan çykmalymy?';
 
   @override
-  String get profileSignOutMessage => 'Täzeden girmek üçin telefon belgiňiz gerek bolar.';
+  String get profileSignOutMessage =>
+      'Täzeden girmek üçin telefon belgiňiz gerek bolar.';
 
   @override
   String get profileGuestTitle => 'Siz ulgama girmediňiz';
 
   @override
-  String get profileGuestMessage => 'Sargytlaryňyzy yzarlamak, salgylary we halanlaryňyzy saklamak üçin giriň.';
+  String get profileGuestMessage =>
+      'Sargytlaryňyzy yzarlamak, salgylary we halanlaryňyzy saklamak üçin giriň.';
 
   @override
   String get authSignIn => 'Gir';
@@ -495,7 +497,8 @@ class AppLocalizationsTk extends AppLocalizations {
   String get authSignInRequiredTitle => 'Girmek talap edilýär';
 
   @override
-  String get authSignInRequiredMessage => 'Bu bölümi ulanmak üçin ulgama giriň.';
+  String get authSignInRequiredMessage =>
+      'Bu bölümi ulanmak üçin ulgama giriň.';
 
   @override
   String get loginTitle => 'Ulgama giriş';
@@ -510,7 +513,7 @@ class AppLocalizationsTk extends AppLocalizations {
   String get loginPhoneLabel => 'Telefon belgisi';
 
   @override
-  String get loginPhoneHint => '+993 6X XXXXXX';
+  String get loginPhoneHint => '6X XXXXXX';
 
   @override
   String get loginSendCode => 'Kod iber';
@@ -542,6 +545,7 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get loginSignedIn => 'Ulgama girdiňiz';
+
   @override
   String get settingsLanguageEnglish => 'Iňlisçe';
 
@@ -759,4 +763,39 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get errorValidation => 'Giren maglumatlaryňyzy barlaň.';
+
+  @override
+  String get profileDeleteAccount => 'Hasaby pozmak';
+
+  @override
+  String get profileDeleteTitle => 'Hasabyňyzy pozmalymy?';
+
+  @override
+  String get profileDeleteMessage =>
+      'Bu hemişelik. Hasabyňyz we ondaky ähli zat Elyeter-den aýrylar, yzyna gaýtaryp bolmaýar.';
+
+  @override
+  String get profileDeleteLossOrders => 'Sargyt taryhyňyz';
+
+  @override
+  String get profileDeleteLossProfile =>
+      'Adyňyz, suratyňyz we ýatda saklanan maglumatlaryňyz';
+
+  @override
+  String get profileDeleteLossAccess =>
+      'Şu belgidäki hasaba girmek mümkinçiligi';
+
+  @override
+  String profileDeleteAccountOn(String phone) {
+    return 'Hasap: $phone';
+  }
+
+  @override
+  String get profileDeleteKeep => 'Hasabymy saklaýaryn';
+
+  @override
+  String get profileDeleteConfirm => 'Hemişelik poz';
+
+  @override
+  String get profileDeleteDone => 'Hasabyňyz pozuldy.';
 }

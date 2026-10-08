@@ -482,13 +482,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileSignOutTitle => 'Выйти из аккаунта?';
 
   @override
-  String get profileSignOutMessage => 'Чтобы войти снова, понадобится номер телефона.';
+  String get profileSignOutMessage =>
+      'Чтобы войти снова, понадобится номер телефона.';
 
   @override
   String get profileGuestTitle => 'Вы не вошли в аккаунт';
 
   @override
-  String get profileGuestMessage => 'Войдите, чтобы отслеживать заказы, сохранять адреса и избранное.';
+  String get profileGuestMessage =>
+      'Войдите, чтобы отслеживать заказы, сохранять адреса и избранное.';
 
   @override
   String get authSignIn => 'Войти';
@@ -497,7 +499,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get authSignInRequiredTitle => 'Требуется вход';
 
   @override
-  String get authSignInRequiredMessage => 'Войдите, чтобы пользоваться этим разделом.';
+  String get authSignInRequiredMessage =>
+      'Войдите, чтобы пользоваться этим разделом.';
 
   @override
   String get loginTitle => 'Вход';
@@ -512,7 +515,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get loginPhoneLabel => 'Номер телефона';
 
   @override
-  String get loginPhoneHint => '+993 6X XXXXXX';
+  String get loginPhoneHint => '6X XXXXXX';
 
   @override
   String get loginSendCode => 'Отправить код';
@@ -544,6 +547,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get loginSignedIn => 'Вы вошли в аккаунт';
+
   @override
   String get settingsLanguageEnglish => 'Английский';
 
@@ -762,4 +766,37 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get errorValidation => 'Проверьте введённые данные.';
+
+  @override
+  String get profileDeleteAccount => 'Удалить аккаунт';
+
+  @override
+  String get profileDeleteTitle => 'Удалить ваш аккаунт?';
+
+  @override
+  String get profileDeleteMessage =>
+      'Это навсегда. Аккаунт и все его данные удаляются из Elyeter без возможности восстановления.';
+
+  @override
+  String get profileDeleteLossOrders => 'История заказов';
+
+  @override
+  String get profileDeleteLossProfile => 'Имя, фото и сохранённые данные';
+
+  @override
+  String get profileDeleteLossAccess => 'Доступ к аккаунту на этом номере';
+
+  @override
+  String profileDeleteAccountOn(String phone) {
+    return 'Аккаунт: $phone';
+  }
+
+  @override
+  String get profileDeleteKeep => 'Оставить аккаунт';
+
+  @override
+  String get profileDeleteConfirm => 'Удалить навсегда';
+
+  @override
+  String get profileDeleteDone => 'Ваш аккаунт удалён.';
 }

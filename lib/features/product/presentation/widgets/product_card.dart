@@ -10,6 +10,7 @@ import '../../../../core/utils/formatters/currency_formatter.dart';
 import '../../../../core/widgets/app_network_image.dart';
 import '../../../../core/widgets/cart_fly_animation.dart';
 import '../../../../core/widgets/favorite_button.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// Minimal shape a card needs to render. Swap for the real entity once the
 /// product API lands — only this type changes, not the layout.
@@ -392,7 +393,7 @@ class _AddToCartButton extends StatelessWidget {
                   height: _iconSlot,
                   child: Center(
                     child: added
-                        ? Icon(Icons.check_rounded, size: _iconSize, color: foreground)
+                        ? HugeIcon(icon: AppIcons.check, size: _iconSize, color: foreground)
                         : SvgPicture.asset(
                             AppAssets.iconCart,
                             width: _iconSize,

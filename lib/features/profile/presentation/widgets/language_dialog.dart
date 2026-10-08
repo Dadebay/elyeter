@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// One choice in [showLanguageDialog].
 class LanguageOption {
@@ -176,6 +177,6 @@ class _CheckDot extends StatelessWidget {
       color: AppColors.primary,
       shape: BoxShape.circle,
     ),
-    child: const Icon(Icons.check_rounded, size: 15, color: AppColors.white),
+    child: const HugeIcon(icon: AppIcons.check, size: 15, color: AppColors.white),
   );
 }

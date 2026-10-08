@@ -22,6 +22,7 @@ import '../widgets/category_filter_sheet.dart';
 import '../widgets/category_sort_sheet.dart';
 import '../widgets/subcategory_grid.dart';
 import 'category_placeholder_data.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// One category: its subcategories across the top, the facets that narrow it,
 /// then everything it lists.
@@ -192,8 +193,8 @@ class _NoResults extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Icon(
-            Icons.filter_alt_off_outlined,
+          const HugeIcon(
+            icon: AppIcons.filterOff,
             size: 44,
             color: AppColors.grey300,
           ),

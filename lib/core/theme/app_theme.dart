@@ -130,6 +130,33 @@ abstract final class AppTheme {
         thickness: 0.5,
         space: 1,
       ),
+      // Material's default bar is square-cornered and edge-to-edge along the
+      // very bottom of the window. Everything else in the app is a rounded
+      // surface inset from the page margin, so a plain `SnackBar(...)` — the
+      // form most call sites reach for — is themed to match [AppSnackBar]
+      // rather than each one having to remember to pass the same six
+      // arguments.
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: AppColors.grey900,
+        contentTextStyle: textTheme.bodyMedium?.copyWith(
+          color: AppColors.white,
+          fontWeight: FontWeight.w500,
+        ),
+        actionTextColor: AppColors.primary,
+        elevation: 6,
+        // Clear of both screen edges and of the home indicator, on the same
+        // grid as every page's own padding.
+        insetPadding: const EdgeInsets.fromLTRB(
+          AppSpacing.page,
+          0,
+          AppSpacing.page,
+          AppSpacing.lg,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
+      ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: colorScheme.surface,
         shape: const RoundedRectangleBorder(

@@ -479,13 +479,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileSignOutTitle => 'Sign out?';
 
   @override
-  String get profileSignOutMessage => 'You will need your phone number to sign in again.';
+  String get profileSignOutMessage =>
+      'You will need your phone number to sign in again.';
 
   @override
   String get profileGuestTitle => 'You are not signed in';
 
   @override
-  String get profileGuestMessage => 'Sign in to track your orders, save addresses and keep your favourites.';
+  String get profileGuestMessage =>
+      'Sign in to track your orders, save addresses and keep your favourites.';
 
   @override
   String get authSignIn => 'Sign in';
@@ -494,7 +496,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authSignInRequiredTitle => 'Sign in required';
 
   @override
-  String get authSignInRequiredMessage => 'Sign in to use this part of the app.';
+  String get authSignInRequiredMessage =>
+      'Sign in to use this part of the app.';
 
   @override
   String get loginTitle => 'Sign in';
@@ -509,7 +512,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginPhoneLabel => 'Phone number';
 
   @override
-  String get loginPhoneHint => '+993 6X XXXXXX';
+  String get loginPhoneHint => '6X XXXXXX';
 
   @override
   String get loginSendCode => 'Send code';
@@ -541,6 +544,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginSignedIn => 'You are signed in';
+
   @override
   String get settingsLanguageEnglish => 'English';
 
@@ -758,4 +762,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorValidation => 'Please check the details you entered.';
+
+  @override
+  String get profileDeleteAccount => 'Delete account';
+
+  @override
+  String get profileDeleteTitle => 'Delete your account?';
+
+  @override
+  String get profileDeleteMessage =>
+      'This is permanent. Your account and everything in it is removed from Elyeter and cannot be restored.';
+
+  @override
+  String get profileDeleteLossOrders => 'Your order history';
+
+  @override
+  String get profileDeleteLossProfile => 'Your name, photo and saved details';
+
+  @override
+  String get profileDeleteLossAccess => 'Access to the account on this number';
+
+  @override
+  String profileDeleteAccountOn(String phone) {
+    return 'Account: $phone';
+  }
+
+  @override
+  String get profileDeleteKeep => 'Keep my account';
+
+  @override
+  String get profileDeleteConfirm => 'Delete permanently';
+
+  @override
+  String get profileDeleteDone => 'Your account has been deleted.';
 }

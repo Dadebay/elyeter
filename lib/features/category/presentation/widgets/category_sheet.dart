@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// The chrome every filter sheet shares: a grab handle, a titled header with
 /// a way out, a scrolling body and a footer that stays put.
@@ -181,7 +182,7 @@ class _CloseButton extends StatelessWidget {
       child: const SizedBox(
         width: 32,
         height: 32,
-        child: Icon(Icons.close_rounded, size: 18, color: AppColors.grey700),
+        child: HugeIcon(icon: AppIcons.close, size: 18, color: AppColors.grey700),
       ),
     ),
   );

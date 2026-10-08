@@ -4,6 +4,7 @@ import 'package:shimmer/shimmer.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import '../constants/app_icons.dart';
 
 /// Cached product image with a shimmer placeholder and a safe fallback.
 class AppNetworkImage extends StatelessWidget {
@@ -57,6 +58,6 @@ class AppNetworkImage extends StatelessWidget {
     width: width,
     height: height,
     color: AppColors.grey100,
-    child: const Icon(Icons.image_outlined, color: AppColors.grey500),
+    child: const HugeIcon(icon: AppIcons.image, color: AppColors.grey500),
   );
 }

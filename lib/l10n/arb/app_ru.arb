@@ -247,7 +247,7 @@
   "loginPhoneTitle": "Введите номер телефона",
   "loginPhoneMessage": "Мы отправим код подтверждения в SMS.",
   "loginPhoneLabel": "Номер телефона",
-  "loginPhoneHint": "+993 6X XXXXXX",
+  "loginPhoneHint": "6X XXXXXX",
   "loginSendCode": "Отправить код",
   "loginCodeTitle": "Введите код",
   "loginCodeMessage": "Код отправлен на {phone}",
@@ -335,5 +335,22 @@
   "errorSupplierUnavailable": "Поставщик не отвечает. Попробуйте через пару минут.",
   "errorCannotCancel": "Этот заказ уже нельзя отменить.",
   "errorTooManyRequests": "Слишком много запросов. Повторите позже.",
-  "errorValidation": "Проверьте введённые данные."
+  "errorValidation": "Проверьте введённые данные.",
+  "profileDeleteAccount": "Удалить аккаунт",
+  "profileDeleteTitle": "Удалить ваш аккаунт?",
+  "profileDeleteMessage": "Это навсегда. Аккаунт и все его данные удаляются из Elyeter без возможности восстановления.",
+  "profileDeleteLossOrders": "История заказов",
+  "profileDeleteLossProfile": "Имя, фото и сохранённые данные",
+  "profileDeleteLossAccess": "Доступ к аккаунту на этом номере",
+  "profileDeleteAccountOn": "Аккаунт: {phone}",
+  "@profileDeleteAccountOn": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "profileDeleteKeep": "Оставить аккаунт",
+  "profileDeleteConfirm": "Удалить навсегда",
+  "profileDeleteDone": "Ваш аккаунт удалён."
 }

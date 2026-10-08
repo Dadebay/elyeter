@@ -2,6 +2,7 @@
     <!-- Visual search: the in-app camera screen. The device does not have to
          have a camera for the rest of the app to work. -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <application

@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../../../product/presentation/widgets/product_card.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// A row of thumbnails for what is in the order, with the overflow counted
 /// in a chip at the end rather than scrolled to.
@@ -74,7 +75,7 @@ class _Thumb extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.md),
       ),
       child: image == null
-          ? const Icon(Icons.image_outlined, color: AppColors.grey500, size: 20)
+          ? const HugeIcon(icon: AppIcons.image, color: AppColors.grey500, size: 20)
           : Image.asset(image, fit: BoxFit.contain),
     );
   }

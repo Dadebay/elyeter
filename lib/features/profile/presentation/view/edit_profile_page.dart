@@ -11,6 +11,9 @@ import '../../../../core/widgets/app_page_app_bar.dart';
 import '../cubit/profile_cubit.dart';
 import '../widgets/edit_profile_avatar.dart';
 import '../widgets/edit_profile_field.dart';
+import '../../../../core/constants/app_icons.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
+import '../../../../core/utils/image_compressor.dart';
 
 /// Two things a customer can change about their account: the photo and the
 /// display name. The phone number identifies the account, so it is shown
@@ -144,19 +147,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             const SizedBox(height: AppSpacing.sm),
             ListTile(
-              leading: const Icon(Icons.photo_camera_outlined),
+              leading: const HugeIcon(icon: AppIcons.camera),
               title: Text(l10n.editProfilePhotoCamera),
               onTap: () => Navigator.pop(sheetContext, _PhotoAction.camera),
             ),
             ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
+              leading: const HugeIcon(icon: AppIcons.gallery),
               title: Text(l10n.editProfilePhotoGallery),
               onTap: () => Navigator.pop(sheetContext, _PhotoAction.gallery),
             ),
             if (_avatarPath != null)
               ListTile(
-                leading: const Icon(
-                  Icons.delete_outline_rounded,
+                leading: const HugeIcon(
+                  icon: AppIcons.delete,
                   color: AppColors.error,
                 ),
                 title: Text(
@@ -181,14 +184,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
       source: action == _PhotoAction.camera
           ? ImageSource.camera
           : ImageSource.gallery,
-      // The avatar is never drawn larger than ~104pt; anything beyond this
-      // is bytes the phone carries for nothing.
-      maxWidth: 512,
-      maxHeight: 512,
-      imageQuality: 85,
+      // The avatar is never drawn larger than ~104pt, so the picker is asked
+      // for a quarter of what a camera would hand back, at 70% quality.
+      maxWidth: ImageCompressor.maxDimension.toDouble(),
+      maxHeight: ImageCompressor.maxDimension.toDouble(),
+      imageQuality: 70,
     );
     if (picked == null || !mounted) return;
-    setState(() => _avatarPath = picked.path);
+
+    // The picker's own limits are advisory — a gallery photo it cannot
+    // re-encode comes back untouched — so the file is measured and, if it
+    // is still over a megabyte, shrunk properly before it is kept.
+    final path = await ImageCompressor.shrink(picked.path);
+    if (!mounted) return;
+    setState(() => _avatarPath = path);
   }
 
   void _save() {
@@ -198,9 +207,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       name: _name.text.trim(),
       avatarPath: _avatarPath,
     );
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(context.l10n.editProfileSaved)));
+    AppSnackBar.show(context, context.l10n.editProfileSaved);
     Navigator.of(context).pop();
   }
 }
