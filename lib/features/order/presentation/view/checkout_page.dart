@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -53,13 +55,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     for (final slug in selectedSlugs) {
       final detail = (await getIt<ProductRepository>().bySlug(slug)).dataOrNull;
       if (detail == null) continue;
-      lines.add(
-        PreOrderLine(
-          productId: detail.product.id,
-          quantity: cart.quantityOf(slug),
-          variantId: cart.variants[slug],
-        ),
-      );
+      lines.add(PreOrderLine(productId: detail.product.id, quantity: cart.quantityOf(slug), variantId: cart.variants[slug]));
     }
     if (!mounted) return;
     if (context.read<AuthCubit>().state.isAuthenticated) {
@@ -81,8 +77,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       _lines = lines;
       _ready = true;
       if (lines.length != selectedSlugs.length) {
-        _error =
-            'A product is no longer available. Remove it from the cart before ordering.';
+        _error = 'A product is no longer available. Remove it from the cart before ordering.';
       }
     });
     if (lines.length == selectedSlugs.length && lines.isNotEmpty) {
@@ -91,9 +86,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Future<void> _verify() async {
-    if (_working ||
-        _lines.isEmpty ||
-        _error?.startsWith('A product is no longer') == true) {
+    if (_working || _lines.isEmpty || _error?.startsWith('A product is no longer') == true) {
       return;
     }
     if (!context.read<AuthCubit>().state.isAuthenticated) {
@@ -135,10 +128,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
       for (final slug in cart.state.selectedIds.toList()) {
         cart.remove(slug);
       }
-      context.goNamed(
-        AppRoutes.orderDetail.name,
-        pathParameters: {'id': order.id.toString()},
-      );
+      // The cart underneath, the order on top, so back from the order has
+      // somewhere to land.
+      context.goNamed(AppRoutes.cart.name);
+      unawaited(context.pushNamed(AppRoutes.orderDetail.name, pathParameters: {'id': order.id.toString()}));
       return;
     }
     setState(() {
@@ -190,20 +183,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   key: ValueKey(_selectedLocationId),
                   initialValue: _selectedLocationId,
                   decoration: const InputDecoration(labelText: 'Kayıtlı adres'),
-                  items: [
-                    for (final location in _savedLocations)
-                      DropdownMenuItem(
-                        value: location.id,
-                        child: Text(location.name),
-                      ),
-                  ],
+                  items: [for (final location in _savedLocations) DropdownMenuItem(value: location.id, child: Text(location.name))],
                   onChanged: _selectLocation,
                 ),
-              TextButton.icon(
-                onPressed: _openSavedLocations,
-                icon: const Icon(Icons.add_location_alt_outlined),
-                label: const Text('Haritadan adres ekle veya düzenle'),
-              ),
+              TextButton.icon(onPressed: _openSavedLocations, icon: const Icon(Icons.add_location_alt_outlined), label: const Text('Haritadan adres ekle veya düzenle')),
               TextField(
                 controller: _name,
                 decoration: const InputDecoration(labelText: 'Name'),
@@ -219,41 +202,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
               const SizedBox(height: 16),
               if (_working) const Center(child: CircularProgressIndicator()),
-              if (_error != null)
-                Text(_error!, style: const TextStyle(color: Colors.red)),
+              if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
               if (_check case final check?) ...[
                 for (final item in check.items)
                   ListTile(
                     title: Text(item.name ?? '#${item.productId}'),
-                    subtitle: Text(
-                      [
-                        if (item.variant != null) item.variant!,
-                        if (item.message != null) item.message!,
-                      ].join(' · '),
-                    ),
-                    trailing: Text(
-                      item.lineTotal == null
-                          ? item.status.name
-                          : '${item.lineTotal} TMT',
-                    ),
+                    subtitle: Text([if (item.variant != null) item.variant!, if (item.message != null) item.message!].join(' · ')),
+                    trailing: Text(item.lineTotal == null ? item.status.name : '${item.lineTotal} TMT'),
                   ),
                 const Divider(),
-                ListTile(
-                  title: Text(context.l10n.commonTotal),
-                  trailing: Text('${check.totalPrice} TMT'),
-                ),
+                ListTile(title: Text(context.l10n.commonTotal), trailing: Text('${check.totalPrice} TMT')),
               ],
               const SizedBox(height: 16),
-              OutlinedButton(
-                onPressed: _working || _lines.isEmpty ? null : _verify,
-                child: const Text('Check availability'),
-              ),
-              FilledButton(
-                onPressed: _working || _check?.available != true
-                    ? null
-                    : _place,
-                child: const Text('Place order'),
-              ),
+              OutlinedButton(onPressed: _working || _lines.isEmpty ? null : _verify, child: const Text('Check availability')),
+              FilledButton(onPressed: _working || _check?.available != true ? null : _place, child: const Text('Place order')),
             ],
           ),
   );

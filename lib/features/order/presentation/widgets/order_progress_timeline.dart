@@ -10,7 +10,11 @@ import '../../../../core/constants/app_icons.dart';
 /// The stages of the order down a rail: reached ones in the brand colour,
 /// the rest greyed out as what is still to come.
 class OrderProgressTimeline extends StatelessWidget {
-  const OrderProgressTimeline({super.key, required this.stages});
+  const OrderProgressTimeline({
+    super.key,
+    required this.stages,
+    this.badgeEveryDone = false,
+  });
 
   /// Width of the rail column — the ring plus the room around it.
   static const _railWidth = 28.0;
@@ -31,6 +35,10 @@ class OrderProgressTimeline extends StatelessWidget {
 
   final List<OrderStageEntry> stages;
 
+  /// Puts the tick on every stage reached, not just the latest — what a
+  /// finished order shows.
+  final bool badgeEveryDone;
+
   @override
   Widget build(BuildContext context) {
     final current = _currentIndex();
@@ -41,6 +49,7 @@ class OrderProgressTimeline extends StatelessWidget {
           _Row(
             entry: stages[i],
             isCurrent: i == current,
+            showBadge: i == current || (badgeEveryDone && stages[i].done),
             isLast: i == stages.length - 1,
             // The connector belongs to the gap below a dot, so the last row
             // ends the rail instead of trailing a line into nothing.
@@ -67,6 +76,7 @@ class _Row extends StatelessWidget {
   const _Row({
     required this.entry,
     required this.isCurrent,
+    required this.showBadge,
     required this.isLast,
     required this.hasConnector,
     required this.connectorDone,
@@ -74,6 +84,7 @@ class _Row extends StatelessWidget {
 
   final OrderStageEntry entry;
   final bool isCurrent;
+  final bool showBadge;
 
   /// The end of the route carries a dot inside its ring — the destination
   /// rather than one more stop on the way.
@@ -94,7 +105,12 @@ class _Row extends StatelessWidget {
             width: OrderProgressTimeline._railWidth,
             child: Column(
               children: [
-                _Ring(done: done, isCurrent: isCurrent, isLast: isLast),
+                _Ring(
+                  done: done,
+                  isCurrent: isCurrent,
+                  isLast: isLast,
+                  cancelled: entry.cancelled,
+                ),
                 if (hasConnector)
                   Expanded(
                     child: Center(
@@ -126,21 +142,39 @@ class _Row extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    DateFormat(
-                      'MMMM d, HH:mm',
-                      Localizations.localeOf(context).toString(),
-                    ).format(entry.at),
-                    style: context.textTheme.labelSmall?.copyWith(
-                      color: AppColors.grey500,
+                  // The line above the label: the time if the API gave one,
+                  // "Cancelled" in red where the order was called off, and
+                  // nothing otherwise — the label keeps its place either way.
+                  if (entry.cancelled)
+                    Text(
+                      context.l10n.orderStatusCancelled,
+                      style: context.textTheme.labelSmall?.copyWith(
+                        color: AppColors.error,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    )
+                  else if (entry.at case final at?)
+                    Text(
+                      DateFormat(
+                        'MMMM d, HH:mm',
+                        Localizations.localeOf(context).toString(),
+                      ).format(at),
+                      style: context.textTheme.labelSmall?.copyWith(
+                        color: AppColors.grey500,
+                      ),
                     ),
-                  ),
                   const SizedBox(height: AppSpacing.xxs),
                   Text(
                     _label(context, entry.stage),
                     style: context.textTheme.bodyMedium?.copyWith(
-                      color: done ? AppColors.black : AppColors.grey500,
-                      fontWeight: done ? FontWeight.w600 : FontWeight.w400,
+                      color: entry.cancelled
+                          ? AppColors.error
+                          : done
+                          ? AppColors.black
+                          : AppColors.grey500,
+                      fontWeight: done || entry.cancelled
+                          ? FontWeight.w600
+                          : FontWeight.w400,
                     ),
                   ),
                 ],
@@ -150,16 +184,13 @@ class _Row extends StatelessWidget {
           // The badge marks where the order stands right now. It centres on
           // the label block, not on the whole row — the row also carries the
           // gap that holds the connector, which would pull it downwards.
-          if (isCurrent)
+          if (showBadge)
             Padding(
               padding: EdgeInsets.only(
                 left: AppSpacing.sm,
                 bottom: hasConnector ? OrderProgressTimeline._rowGap : 0,
               ),
-              child: const Center(
-                widthFactor: 1,
-                child: _CurrentBadge(),
-              ),
+              child: const Center(widthFactor: 1, child: _CurrentBadge()),
             ),
         ],
       ),
@@ -181,15 +212,25 @@ class _Row extends StatelessWidget {
 /// A hollow ring on the rail: brand-coloured once the stage is reached,
 /// grey while it is still ahead.
 class _Ring extends StatelessWidget {
-  const _Ring({required this.done, required this.isCurrent, required this.isLast});
+  const _Ring({
+    required this.done,
+    required this.isCurrent,
+    required this.isLast,
+    this.cancelled = false,
+  });
 
   final bool done;
   final bool isCurrent;
   final bool isLast;
+  final bool cancelled;
 
   @override
   Widget build(BuildContext context) {
-    final color = done ? AppColors.primary : AppColors.grey300;
+    final color = cancelled
+        ? AppColors.error
+        : done
+        ? AppColors.primary
+        : AppColors.grey300;
 
     final ring = Container(
       width: OrderProgressTimeline._ringSize,
@@ -198,7 +239,10 @@ class _Ring extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         shape: BoxShape.circle,
-        border: Border.all(color: color, width: OrderProgressTimeline._ringStroke),
+        border: Border.all(
+          color: color,
+          width: OrderProgressTimeline._ringStroke,
+        ),
       ),
       child: isLast
           ? DecoratedBox(
@@ -215,7 +259,10 @@ class _Ring extends StatelessWidget {
       height: OrderProgressTimeline._haloSize,
       alignment: Alignment.center,
       decoration: isCurrent
-          ? const BoxDecoration(color: AppColors.primarySoft, shape: BoxShape.circle)
+          ? const BoxDecoration(
+              color: AppColors.primarySoft,
+              shape: BoxShape.circle,
+            )
           : null,
       child: ring,
     );
@@ -233,6 +280,15 @@ class _CurrentBadge extends StatelessWidget {
       color: AppColors.primary,
       shape: BoxShape.circle,
     ),
-    child: const HugeIcon(icon: AppIcons.check, size: 14, color: AppColors.white),
+    // Centred: a HugeIcon in a tight box stretches to fill it, which
+    // is what made the tick overflow its badge.
+    child: const Center(
+      child: HugeIcon(
+        icon: AppIcons.check,
+        size: 13,
+        strokeWidth: 2.4,
+        color: AppColors.white,
+      ),
+    ),
   );
 }

@@ -23,6 +23,7 @@ import '../widgets/category_search_button.dart';
 import '../widgets/category_search_results.dart';
 import '../widgets/category_search_title.dart';
 import '../widgets/subcategory_grid.dart';
+import '../widgets/subcategory_header.dart';
 
 class CategoryDetailPage extends StatefulWidget {
   const CategoryDetailPage({super.key, required this.id, this.title});
@@ -220,6 +221,16 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
   Widget build(BuildContext context) {
     final category = _category;
     final children = category?.children ?? const <Category>[];
+    // The header has to know its height up front to collapse smoothly: the
+    // grid's own, plus the padding around it below.
+    final subcategoriesExtent =
+        SubcategoryGrid.heightFor(
+          context,
+          width: MediaQuery.sizeOf(context).width - 2 * AppSpacing.page,
+          itemCount: children.length,
+        ) +
+        AppSpacing.md +
+        AppSpacing.lg;
     final subcategories = Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.page,
@@ -284,30 +295,45 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
             ? const Center(child: CircularProgressIndicator())
             : Stack(
                 children: [
-                  NestedScrollView(
-                    headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                      if (children.isNotEmpty)
-                        SliverToBoxAdapter(child: subcategories),
-                      SliverPersistentHeader(
-                        pinned: true,
-                        delegate: _FilterHeaderDelegate(
-                          onSort: _chooseSort,
-                          onFilter: _chooseFilter,
-                          sortActive: _sort != ProductSort.newest,
-                          filterActive:
-                              _minPrice != null ||
-                              _maxPrice != null ||
-                              _onlyFeatured,
-                          facets: _facets(context),
-                          facetsLoading: _brandsLoading,
-                          onFacetTap: (_) => _chooseBrand(),
+                  // No glow, stretch or bounce on the page's own scrolling: they
+                  // act on the whole nested view, so every fling at the end of
+                  // the list made the pinned filter bar above it shudder.
+                  ScrollConfiguration(
+                    behavior: ScrollConfiguration.of(context).copyWith(
+                      overscroll: false,
+                      physics: const ClampingScrollPhysics(),
+                    ),
+                    child: NestedScrollView(
+                      headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                        if (children.isNotEmpty)
+                          SliverPersistentHeader(
+                            delegate: SubcategoryHeaderDelegate(
+                              extent: subcategoriesExtent,
+                              child: subcategories,
+                            ),
+                          ),
+                        SliverPersistentHeader(
+                          pinned: true,
+                          delegate: _FilterHeaderDelegate(
+                            onSort: _chooseSort,
+                            onFilter: _chooseFilter,
+                            sortActive: _sort != ProductSort.newest,
+                            filterActive:
+                                _minPrice != null ||
+                                _maxPrice != null ||
+                                _onlyFeatured,
+                            facets: _facets(context),
+                            facetsLoading: _brandsLoading,
+                            onFacetTap: (_) => _chooseBrand(),
+                          ),
                         ),
-                      ),
-                    ],
-                    body: CatalogProductGrid(
-                      query: _query(),
-                      emptyState: CategoryProductsEmpty(
-                        filtered: _filtersActive,
+                      ],
+                      body: CatalogProductGrid(
+                        query: _query(),
+                        pageSize: 10,
+                        emptyState: CategoryProductsEmpty(
+                          filtered: _filtersActive,
+                        ),
                       ),
                     ),
                   ),
@@ -342,6 +368,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                             Expanded(
                               child: CatalogProductGrid(
                                 query: _query(search: _search),
+                                pageSize: 10,
                                 emptyState: CategoryProductsEmpty(
                                   filtered:
                                       _filtersActive || _search.isNotEmpty,

@@ -18,6 +18,7 @@ import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../cart/presentation/cubit/cart_state.dart';
 import '../../../product/domain/entities/product.dart';
 import '../../../product/presentation/widgets/product_card.dart';
+import '../../../product/presentation/widgets/product_card_actions.dart';
 import '../cubit/favorite_cubit.dart';
 
 class FavoritePage extends StatefulWidget {
@@ -122,9 +123,9 @@ class _FavoritePageState extends State<FavoritePage> {
               ),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                mainAxisSpacing: AppSpacing.xl,
-                crossAxisSpacing: AppSpacing.md,
-                childAspectRatio: 0.58,
+                mainAxisSpacing: AppSpacing.md,
+                crossAxisSpacing: AppSpacing.sm,
+                childAspectRatio: 0.57,
               ),
               itemCount: items.length + ((_page?.hasMore(20) ?? false) ? 1 : 0),
               itemBuilder: (context, index) {
@@ -156,12 +157,7 @@ class _FavoritePageState extends State<FavoritePage> {
                               unawaited(_load());
                             }
                           },
-                          onAddToCart: () => data.hasVariants
-                              ? context.pushNamed(
-                                  AppRoutes.productDetail.name,
-                                  pathParameters: {'id': data.id},
-                                )
-                              : context.read<CartCubit>().toggle(data.id),
+                          onAddToCart: () => toggleCartFromCard(context, data),
                         ),
                       ),
                 );

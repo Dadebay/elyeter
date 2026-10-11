@@ -9,6 +9,8 @@ class ProductImageView extends StatelessWidget {
     required this.source,
     this.fit = BoxFit.contain,
     this.wordmarkPlaceholder = false,
+    this.wordmarkSize = 24,
+    this.fallbackIconSize,
   });
 
   final String source;
@@ -16,6 +18,13 @@ class ProductImageView extends StatelessWidget {
 
   /// Shows the sweeping brand wordmark while a remote photo loads.
   final bool wordmarkPlaceholder;
+
+  /// Size of the wordmark in that placeholder; smaller for a small tile.
+  final double wordmarkSize;
+
+  /// Size of the glyph drawn when the photo is missing or fails to load.
+  /// Null keeps the glyph filling its box.
+  final double? fallbackIconSize;
 
   @override
   Widget build(BuildContext context) => source.startsWith('assets/')
@@ -25,6 +34,7 @@ class ProductImageView extends StatelessWidget {
           fit: fit,
           radius: 0,
           wordmarkPlaceholder: wordmarkPlaceholder,
-          wordmarkSize: 24,
+          wordmarkSize: wordmarkSize,
+          fallbackIconSize: fallbackIconSize,
         );
 }

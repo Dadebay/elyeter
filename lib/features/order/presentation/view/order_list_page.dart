@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/network/api_response.dart';
+import '../../../../core/constants/app_icons.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
+import '../../../../core/utils/formatters/currency_formatter.dart';
 import '../../../../core/widgets/app_page_app_bar.dart';
+import '../../../product/presentation/widgets/product_image_view.dart';
 import '../../domain/entities/pre_order.dart';
 import '../../domain/repositories/pre_order_repository.dart';
+import '../widgets/order_card.dart';
 
 class OrderListPage extends StatefulWidget {
   const OrderListPage({
@@ -57,12 +63,25 @@ class _OrderListPageState extends State<OrderListPage> {
     });
   }
 
+  /// Half a page from the end, the next one is asked for — the list simply
+  /// keeps going, with no button to press.
+  static const _prefetch = 6;
+
+  void _prefetchWhenVisible(int index, int count) {
+    if (index < count - _prefetch || _loading || _error != null) return;
+    if (!(_page?.hasMore(20) ?? false)) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && !_loading && _error == null) _load(more: true);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final items = (_page?.items ?? const <PreOrder>[])
         .where((o) => !widget.activeOnly || o.status.isActive)
         .toList();
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppPageAppBar(title: widget.title),
       body: _page == null && _loading
           ? const Center(child: CircularProgressIndicator())
@@ -78,51 +97,228 @@ class _OrderListPageState extends State<OrderListPage> {
                         physics: const AlwaysScrollableScrollPhysics(),
                         children: [
                           SizedBox(
-                            height:
-                                constraints.maxHeight -
-                                ((_page?.hasMore(20) ?? false) ? 48 : 0),
+                            height: constraints.maxHeight,
                             child: _EmptyOrders(activeOnly: widget.activeOnly),
                           ),
-                          if (_page?.hasMore(20) ?? false)
-                            Center(
-                              child: TextButton(
-                                onPressed: _loading
-                                    ? null
-                                    : () => _load(more: true),
-                                child: Text(_loading ? '…' : 'More'),
-                              ),
-                            ),
                         ],
                       ),
                     )
-                  : ListView(
-                      children: [
-                        for (final order in items)
-                          ListTile(
-                            title: Text(order.number),
-                            subtitle: Text(
-                              '${order.status.value} · ${order.itemsCount} items',
+                  : ListView.separated(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.page,
+                        AppSpacing.sm,
+                        AppSpacing.page,
+                        AppSpacing.xxxl,
+                      ),
+                      // One extra row for the loader or the retry.
+                      itemCount:
+                          items.length +
+                          ((_page?.hasMore(20) ?? false) ? 1 : 0),
+                      separatorBuilder: (_, _) =>
+                          const SizedBox(height: AppSpacing.md),
+                      itemBuilder: (context, index) {
+                        if (index == items.length) {
+                          return Padding(
+                            padding: const EdgeInsets.all(AppSpacing.lg),
+                            child: Center(
+                              child: _error == null
+                                  ? const SizedBox.square(
+                                      dimension: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                      ),
+                                    )
+                                  : TextButton(
+                                      onPressed: () => _load(more: true),
+                                      child: Text(_error!),
+                                    ),
                             ),
-                            trailing: Text(
-                              '${order.totalPrice.toStringAsFixed(2)} ${order.currency}',
-                            ),
-                            onTap: () => context.pushNamed(
-                              AppRoutes.orderDetail.name,
-                              pathParameters: {'id': order.id.toString()},
-                            ),
+                          );
+                        }
+                        _prefetchWhenVisible(index, items.length);
+                        final order = items[index];
+                        return _OrderTile(
+                          order: order,
+                          onTap: () => context.pushNamed(
+                            AppRoutes.orderDetail.name,
+                            pathParameters: {'id': order.id.toString()},
                           ),
-                        if (_page?.hasMore(20) ?? false)
-                          Center(
-                            child: TextButton(
-                              onPressed: _loading
-                                  ? null
-                                  : () => _load(more: true),
-                              child: Text(_loading ? '…' : 'More'),
-                            ),
-                          ),
-                      ],
+                        );
+                      },
                     ),
             ),
+    );
+  }
+}
+
+/// One order in the list: its number and where it stands, a strip of what is
+/// in it, and what it came to.
+class _OrderTile extends StatelessWidget {
+  const _OrderTile({required this.order, required this.onTap});
+
+  static const _thumb = 44.0;
+  static const _maxThumbs = 4;
+
+  final PreOrder order;
+  final VoidCallback onTap;
+
+  (String, Color, Color) _status(BuildContext context) {
+    final l10n = context.l10n;
+    return switch (order.status) {
+      PreOrderStatus.newOrder => (
+        l10n.orderStatusNew,
+        AppColors.primary,
+        AppColors.primarySoft,
+      ),
+      PreOrderStatus.confirmed => (
+        l10n.orderStatusConfirmed,
+        AppColors.primary,
+        AppColors.primarySoft,
+      ),
+      PreOrderStatus.ordered => (
+        l10n.orderStatusOrdered,
+        AppColors.primary,
+        AppColors.primarySoft,
+      ),
+      PreOrderStatus.completed => (
+        l10n.orderStatusCompleted,
+        AppColors.success,
+        const Color(0xFFE9F8F0),
+      ),
+      PreOrderStatus.cancelled => (
+        l10n.orderStatusCancelled,
+        AppColors.error,
+        AppColors.errorSoft,
+      ),
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.textTheme;
+    final (label, color, soft) = _status(context);
+    final locale = Localizations.localeOf(context).toString();
+    final date = order.createdAt == null
+        ? null
+        : DateFormat('MMM d, HH:mm', locale).format(order.createdAt!);
+    final shown = order.items.take(_maxThumbs).toList();
+    final hidden = order.items.length - shown.length;
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: OrderCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    order.number,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.titleSmall?.copyWith(
+                      color: AppColors.black,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: soft,
+                    borderRadius: BorderRadius.circular(AppRadius.pill),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: 4,
+                    ),
+                    child: Text(
+                      label,
+                      style: theme.labelSmall?.copyWith(
+                        color: color,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (date != null) ...[
+              const SizedBox(height: AppSpacing.xxs),
+              Text(
+                date,
+                style: theme.labelSmall?.copyWith(color: AppColors.grey500),
+              ),
+            ],
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              children: [
+                for (final item in shown) ...[
+                  Container(
+                    width: _thumb,
+                    height: _thumb,
+                    padding: const EdgeInsets.all(AppSpacing.xs),
+                    decoration: BoxDecoration(
+                      color: AppColors.grey100,
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                    ),
+                    child: item.image == null
+                        ? const HugeIcon(
+                            icon: AppIcons.image,
+                            size: 18,
+                            color: AppColors.grey500,
+                          )
+                        : ProductImageView(
+                            source: item.image!,
+                            fallbackIconSize: 18,
+                          ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                ],
+                if (hidden > 0)
+                  Container(
+                    width: _thumb,
+                    height: _thumb,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: AppColors.grey100,
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                    ),
+                    child: Text(
+                      '+$hidden',
+                      style: theme.labelLarge?.copyWith(
+                        color: AppColors.grey700,
+                      ),
+                    ),
+                  ),
+                const Spacer(),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '${CurrencyFormatter.amount(order.totalPrice)} ${order.currency}',
+                      style: theme.titleMedium?.copyWith(
+                        color: AppColors.black,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      context.l10n.orderItemCount(order.itemsCount),
+                      style: theme.labelSmall?.copyWith(
+                        color: AppColors.grey500,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

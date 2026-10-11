@@ -280,6 +280,19 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cartSelectAll => 'Выбрать все';
 
   @override
+  String get cartEmpty => 'Корзина пуста';
+
+  @override
+  String get cartTitle => 'Товары';
+
+  @override
+  String get cartEmptyMessage =>
+      'Добавляйте понравившиеся товары — они будут ждать вас здесь.';
+
+  @override
+  String get cartEmptyAction => 'Начать покупки';
+
+  @override
   String cartProductCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -371,6 +384,80 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get orderCancelled => 'Заказ отменён';
+
+  @override
+  String get orderStatusCancelled => 'Отменён';
+
+  @override
+  String get orderCancelTitle => 'Отменить заказ?';
+
+  @override
+  String get orderCancelMessage =>
+      'Отменённый заказ нельзя восстановить. Вы можете оформить его заново из корзины.';
+
+  @override
+  String get orderCancelKeep => 'Оставить заказ';
+
+  @override
+  String get orderCancelConfirm => 'Отменить заказ';
+
+  @override
+  String get orderRepeatDone => 'Товары добавлены в корзину';
+
+  @override
+  String get orderNotFound => 'Не удалось загрузить заказ';
+
+  @override
+  String get orderComment => 'Комментарий';
+
+  @override
+  String get orderStatusNew => 'Ожидает звонка';
+
+  @override
+  String get orderStatusConfirmed => 'Подтверждён';
+
+  @override
+  String get orderStatusOrdered => 'Заказан';
+
+  @override
+  String get orderStatusCompleted => 'Завершён';
+
+  @override
+  String get orderReceiptTitle => 'Чек заказа';
+
+  @override
+  String get orderReceiptItems => 'Товары';
+
+  @override
+  String get orderReceiptQty => 'Кол-во';
+
+  @override
+  String get orderReceiptPrice => 'Цена';
+
+  @override
+  String get orderReceiptAmount => 'Сумма';
+
+  @override
+  String get orderReceiptThanks => 'Спасибо за заказ';
+
+  @override
+  String get orderReceiptFailed => 'Не удалось создать чек';
+
+  @override
+  String get orderTrackRefresh => 'Обновляется каждые 15 секунд';
+
+  @override
+  String get orderTrackNoPoint => 'Точка доставки не указана';
+
+  @override
+  String get orderTrackMapPoint => 'Точка доставки на карте';
+
+  @override
+  String get orderTrackNoCourier =>
+      'Положение курьера и время прибытия пока недоступны.';
+
+  @override
+  String get orderTrackCancelled => 'Этот заказ был отменён.';
 
   @override
   String get orderHistory => 'История заказов';

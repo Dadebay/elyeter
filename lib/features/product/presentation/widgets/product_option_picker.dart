@@ -12,6 +12,7 @@ class ProductColorPicker extends StatelessWidget {
     required this.images,
     required this.selected,
     required this.onSelected,
+    this.unavailable = const {},
   });
 
   static const _size = 72.0;
@@ -19,6 +20,9 @@ class ProductColorPicker extends StatelessWidget {
   final List<String> images;
   final int selected;
   final ValueChanged<int> onSelected;
+
+  /// Indices that cannot be bought: dimmed, and they ignore taps.
+  final Set<int> unavailable;
 
   @override
   Widget build(BuildContext context) {
@@ -30,25 +34,34 @@ class ProductColorPicker extends StatelessWidget {
         separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
         itemBuilder: (context, index) {
           final active = index == selected;
+          final sold = unavailable.contains(index);
           return GestureDetector(
-            onTap: () => onSelected(index),
+            onTap: sold ? null : () => onSelected(index),
             behavior: HitTestBehavior.opaque,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              width: _size,
-              height: _size,
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              decoration: BoxDecoration(
-                color: AppColors.grey100,
-                borderRadius: BorderRadius.circular(AppRadius.md),
-                // Black, not the brand orange: the swatch's own colour is
-                // what the customer is choosing, so the marker stays neutral.
-                border: Border.all(
-                  color: active ? AppColors.black : Colors.transparent,
-                  width: 1.5,
+            child: Opacity(
+              opacity: sold ? 0.4 : 1,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 160),
+                width: _size,
+                height: _size,
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: AppColors.grey100,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  // Black, not the brand orange: the swatch's own colour is
+                  // what the customer is choosing, so the marker stays neutral.
+                  border: Border.all(
+                    color: active ? AppColors.black : Colors.transparent,
+                    width: 1.5,
+                  ),
+                ),
+                // A swatch whose photo is missing keeps a small glyph in its tile,
+                // not one stretched to fill it.
+                child: ProductImageView(
+                  source: images[index],
+                  fallbackIconSize: 22,
                 ),
               ),
-              child: ProductImageView(source: images[index]),
             ),
           );
         },
@@ -64,11 +77,16 @@ class ProductSizePicker extends StatelessWidget {
     required this.sizes,
     required this.selected,
     required this.onSelected,
+    this.unavailable = const {},
   });
 
   final List<String> sizes;
   final String selected;
   final ValueChanged<String> onSelected;
+
+  /// Values that cannot be bought: dimmed and struck through, and they ignore
+  /// taps.
+  final Set<String> unavailable;
 
   @override
   Widget build(BuildContext context) {
@@ -78,30 +96,36 @@ class ProductSizePicker extends StatelessWidget {
       children: [
         for (final size in sizes)
           GestureDetector(
-            onTap: () => onSelected(size),
+            onTap: unavailable.contains(size) ? null : () => onSelected(size),
             behavior: HitTestBehavior.opaque,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              constraints: const BoxConstraints(minWidth: 56),
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.md,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.grey100,
-                borderRadius: BorderRadius.circular(AppRadius.md),
-                border: Border.all(
-                  color: size == selected
-                      ? AppColors.black
-                      : Colors.transparent,
-                  width: 1.5,
+            child: Opacity(
+              opacity: unavailable.contains(size) ? 0.4 : 1,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 160),
+                constraints: const BoxConstraints(minWidth: 56),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.md,
                 ),
-              ),
-              child: Text(
-                size,
-                textAlign: TextAlign.center,
-                style: context.textTheme.titleSmall?.copyWith(
-                  color: AppColors.black,
+                decoration: BoxDecoration(
+                  color: AppColors.grey100,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  border: Border.all(
+                    color: size == selected
+                        ? AppColors.black
+                        : Colors.transparent,
+                    width: 1.5,
+                  ),
+                ),
+                child: Text(
+                  size,
+                  textAlign: TextAlign.center,
+                  style: context.textTheme.titleSmall?.copyWith(
+                    color: AppColors.black,
+                    decoration: unavailable.contains(size)
+                        ? TextDecoration.lineThrough
+                        : null,
+                  ),
                 ),
               ),
             ),

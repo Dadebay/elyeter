@@ -12,10 +12,19 @@ import 'product_image_view.dart';
 /// Each photo is its own card and the next one is left showing at the right
 /// edge, so it is obvious there is more to swipe to without a row of dots.
 class ProductGallery extends StatefulWidget {
-  const ProductGallery({super.key, required this.images, this.height = 320});
+  const ProductGallery({
+    super.key,
+    required this.images,
+    this.height = 320,
+    this.focusImage,
+  });
 
   final List<String> images;
   final double height;
+
+  /// A photo to bring to the front when it changes — the one belonging to
+  /// the variant just picked. Ignored if it is not one of [images].
+  final String? focusImage;
 
   /// Share of the width one card takes; the rest is the next card peeking.
   static const _viewportFraction = 0.9;
@@ -37,6 +46,20 @@ class _ProductGalleryState extends State<ProductGallery> {
     viewportFraction: ProductGallery._viewportFraction,
   );
   int _page = 0;
+
+  @override
+  void didUpdateWidget(ProductGallery oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final focus = widget.focusImage;
+    if (focus == null || focus == oldWidget.focusImage) return;
+    final index = widget.images.indexOf(focus);
+    if (index < 0 || !_controller.hasClients) return;
+    _controller.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeOutCubic,
+    );
+  }
 
   @override
   void dispose() {

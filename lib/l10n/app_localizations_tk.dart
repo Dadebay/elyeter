@@ -281,6 +281,19 @@ class AppLocalizationsTk extends AppLocalizations {
   String get cartSelectAll => 'Hemmesini saýla';
 
   @override
+  String get cartEmpty => 'Sebediňiz boş';
+
+  @override
+  String get cartTitle => 'Önümler';
+
+  @override
+  String get cartEmptyMessage =>
+      'Halan önümleriňizi goşuň, olar şu ýerde sizi garaşar.';
+
+  @override
+  String get cartEmptyAction => 'Söwda başla';
+
+  @override
   String cartProductCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -372,6 +385,79 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get orderCancelled => 'Sargyt ýatyryldy';
+
+  @override
+  String get orderStatusCancelled => 'Ýatyryldy';
+
+  @override
+  String get orderCancelTitle => 'Sargyt ýatyrylsynmy?';
+
+  @override
+  String get orderCancelMessage =>
+      'Ýatyrylan sargyt dikeldilip bilinmeýär. Ony sebediňizden täzeden bermek bolar.';
+
+  @override
+  String get orderCancelKeep => 'Sargyt galsyn';
+
+  @override
+  String get orderCancelConfirm => 'Sargyt ýatyr';
+
+  @override
+  String get orderRepeatDone => 'Önümler sebede goşuldy';
+
+  @override
+  String get orderNotFound => 'Sargyt ýüklenip bilmedi';
+
+  @override
+  String get orderComment => 'Bellik';
+
+  @override
+  String get orderStatusNew => 'Jaň garaşylýar';
+
+  @override
+  String get orderStatusConfirmed => 'Tassyklandy';
+
+  @override
+  String get orderStatusOrdered => 'Sargyt edildi';
+
+  @override
+  String get orderStatusCompleted => 'Tamamlandy';
+
+  @override
+  String get orderReceiptTitle => 'Sargyt çegi';
+
+  @override
+  String get orderReceiptItems => 'Önümler';
+
+  @override
+  String get orderReceiptQty => 'Sany';
+
+  @override
+  String get orderReceiptPrice => 'Baha';
+
+  @override
+  String get orderReceiptAmount => 'Jemi';
+
+  @override
+  String get orderReceiptThanks => 'Sargydyňyz üçin sagboluň';
+
+  @override
+  String get orderReceiptFailed => 'Çek döredilip bilmedi';
+
+  @override
+  String get orderTrackRefresh => 'Her 15 sekuntdan täzelenýär';
+
+  @override
+  String get orderTrackNoPoint => 'Eltip bermek nokady görkezilmedi';
+
+  @override
+  String get orderTrackMapPoint => 'Kartadaky eltip bermek nokady';
+
+  @override
+  String get orderTrackNoCourier => 'Kurýeriň ýeri we gelmeli wagty heniz ýok.';
+
+  @override
+  String get orderTrackCancelled => 'Bu sargyt ýatyryldy.';
 
   @override
   String get orderHistory => 'Sargytlaryň taryhy';

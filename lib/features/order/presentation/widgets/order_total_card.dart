@@ -12,10 +12,18 @@ import 'order_card.dart';
 
 /// What the order came to, and what made it up.
 class OrderTotalCard extends StatelessWidget {
-  const OrderTotalCard({super.key, required this.order, this.onDownload});
+  const OrderTotalCard({
+    super.key,
+    required this.order,
+    this.onDownload,
+    this.downloading = false,
+  });
 
   final OrderDetailData order;
   final VoidCallback? onDownload;
+
+  /// The receipt is being made: the button shows a spinner and ignores taps.
+  final bool downloading;
 
   @override
   Widget build(BuildContext context) {
@@ -24,23 +32,45 @@ class OrderTotalCard extends StatelessWidget {
     return OrderCard(
       child: Column(
         children: [
-          Text(l10n.orderTotalTitle, style: context.textTheme.labelSmall?.copyWith(color: AppColors.grey500)),
+          Text(
+            l10n.orderTotalTitle,
+            style: context.textTheme.labelSmall?.copyWith(
+              color: AppColors.grey500,
+            ),
+          ),
           const SizedBox(height: AppSpacing.xxs),
           _Total(amount: order.total),
           const SizedBox(height: AppSpacing.lg),
-          _Line(label: l10n.orderProductsTotal, value: CurrencyFormatter.amount(order.productsTotal)),
+          _Line(
+            label: l10n.orderProductsTotal,
+            value: CurrencyFormatter.amount(order.productsTotal),
+          ),
           _Line(
             label: l10n.orderDeliveryLabel,
             // Free delivery is the point, so it is said in words and in the
             // colour of good news rather than as `0 TMT`.
-            value: order.deliveryFee == 0 ? l10n.orderDeliveryFree : CurrencyFormatter.amount(order.deliveryFee),
+            value: order.deliveryFee == 0
+                ? l10n.orderDeliveryFree
+                : CurrencyFormatter.amount(order.deliveryFee),
             valueColor: order.deliveryFee == 0 ? AppColors.success : null,
             showCurrency: order.deliveryFee != 0,
           ),
-          _Line(label: l10n.orderCargo, value: CurrencyFormatter.amount(order.cargoFee)),
-          if (order.discount != 0) _Line(label: l10n.orderDiscount, value: '-${CurrencyFormatter.amount(order.discount)}', valueColor: AppColors.error),
+          if (order.cargoFee != 0)
+            _Line(
+              label: l10n.orderCargo,
+              value: CurrencyFormatter.amount(order.cargoFee),
+            ),
+          if (order.discount != 0)
+            _Line(
+              label: l10n.orderDiscount,
+              value: '-${CurrencyFormatter.amount(order.discount)}',
+              valueColor: AppColors.error,
+            ),
           const SizedBox(height: AppSpacing.lg),
-          _DownloadButton(onTap: onDownload),
+          _DownloadButton(
+            onTap: downloading ? null : onDownload,
+            busy: downloading,
+          ),
         ],
       ),
     );
@@ -64,11 +94,18 @@ class _Total extends StatelessWidget {
             const TextSpan(text: ' '),
             TextSpan(
               text: AppConstants.currencySymbol,
-              style: context.textTheme.titleMedium?.copyWith(color: AppColors.black, fontWeight: FontWeight.w700),
+              style: context.textTheme.titleMedium?.copyWith(
+                color: AppColors.black,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ],
         ),
-        style: context.textTheme.displayMedium?.copyWith(color: AppColors.black, fontWeight: FontWeight.w700, letterSpacing: -0.6),
+        style: context.textTheme.displayMedium?.copyWith(
+          color: AppColors.black,
+          fontWeight: FontWeight.w700,
+          letterSpacing: -0.6,
+        ),
       ),
     );
   }
@@ -76,7 +113,12 @@ class _Total extends StatelessWidget {
 
 /// A label on the left, its amount on the right.
 class _Line extends StatelessWidget {
-  const _Line({required this.label, required this.value, this.valueColor, this.showCurrency = true});
+  const _Line({
+    required this.label,
+    required this.value,
+    this.valueColor,
+    this.showCurrency = true,
+  });
 
   final String label;
   final String value;
@@ -98,7 +140,10 @@ class _Line extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: context.textTheme.bodyMedium?.copyWith(color: AppColors.black, fontWeight: FontWeight.w600),
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: AppColors.black,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
@@ -107,7 +152,11 @@ class _Line extends StatelessWidget {
               children: [
                 TextSpan(
                   text: value,
-                  style: context.textTheme.labelSmall?.copyWith(fontSize: 16, color: color, fontWeight: FontWeight.w600),
+                  style: context.textTheme.labelSmall?.copyWith(
+                    fontSize: 16,
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 if (showCurrency) ...[
                   const TextSpan(text: ' '),
@@ -118,7 +167,10 @@ class _Line extends StatelessWidget {
                 ],
               ],
             ),
-            style: context.textTheme.bodyMedium?.copyWith(color: color, fontWeight: FontWeight.w600),
+            style: context.textTheme.bodyMedium?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -127,16 +179,19 @@ class _Line extends StatelessWidget {
 }
 
 class _DownloadButton extends StatelessWidget {
-  const _DownloadButton({required this.onTap});
+  const _DownloadButton({required this.onTap, this.busy = false});
 
   final VoidCallback? onTap;
+  final bool busy;
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: AppColors.grey100,
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
       child: InkWell(
         onTap: onTap,
         child: SizedBox(
@@ -145,9 +200,24 @@ class _DownloadButton extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SvgPicture.asset(AppAssets.iconReceipt, width: 18, height: 18),
+              busy
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : SvgPicture.asset(
+                      AppAssets.iconReceipt,
+                      width: 18,
+                      height: 18,
+                    ),
               const SizedBox(width: AppSpacing.sm),
-              Text(context.l10n.orderDownloadCheck, style: context.textTheme.titleSmall?.copyWith(color: AppColors.black)),
+              Text(
+                context.l10n.orderDownloadCheck,
+                style: context.textTheme.titleSmall?.copyWith(
+                  color: AppColors.black,
+                ),
+              ),
             ],
           ),
         ),

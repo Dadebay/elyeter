@@ -28,6 +28,10 @@ abstract final class AppIcons {
   static const AppIconData minus = HugeIcons.strokeRoundedMinusSign;
   static const AppIconData delete = HugeIcons.strokeRoundedDelete02;
   static const AppIconData edit = HugeIcons.strokeRoundedEdit02;
+  static const AppIconData receipt = HugeIcons.strokeRoundedInvoice01;
+  static const AppIconData truck = HugeIcons.strokeRoundedDeliveryTruck01;
+  static const AppIconData parcel = HugeIcons.strokeRoundedPackage;
+  static const AppIconData refresh = HugeIcons.strokeRoundedRefresh;
   static const AppIconData copy = HugeIcons.strokeRoundedCopy01;
 
   // --------------------------------------------------------- navigation --

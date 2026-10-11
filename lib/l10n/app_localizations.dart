@@ -604,6 +604,30 @@ abstract class AppLocalizations {
   /// **'Select All'**
   String get cartSelectAll;
 
+  /// No description provided for @cartEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart is empty'**
+  String get cartEmpty;
+
+  /// No description provided for @cartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get cartTitle;
+
+  /// No description provided for @cartEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add products you like and they will wait for you here.'**
+  String get cartEmptyMessage;
+
+  /// No description provided for @cartEmptyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Start shopping'**
+  String get cartEmptyAction;
+
   /// No description provided for @cartProductCount.
   ///
   /// In en, this message translates to:
@@ -741,6 +765,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Order Cancelled'**
   String get orderCancelled;
+
+  /// No description provided for @orderStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get orderStatusCancelled;
+
+  /// No description provided for @orderCancelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this order?'**
+  String get orderCancelTitle;
+
+  /// No description provided for @orderCancelMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Once cancelled, an order cannot be restored. You can place it again from your cart.'**
+  String get orderCancelMessage;
+
+  /// No description provided for @orderCancelKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep order'**
+  String get orderCancelKeep;
+
+  /// No description provided for @orderCancelConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel order'**
+  String get orderCancelConfirm;
+
+  /// No description provided for @orderRepeatDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Items added to your cart'**
+  String get orderRepeatDone;
+
+  /// No description provided for @orderNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This order could not be loaded'**
+  String get orderNotFound;
+
+  /// No description provided for @orderComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get orderComment;
+
+  /// No description provided for @orderStatusNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for a call'**
+  String get orderStatusNew;
+
+  /// No description provided for @orderStatusConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get orderStatusConfirmed;
+
+  /// No description provided for @orderStatusOrdered.
+  ///
+  /// In en, this message translates to:
+  /// **'Ordered'**
+  String get orderStatusOrdered;
+
+  /// No description provided for @orderStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get orderStatusCompleted;
+
+  /// No description provided for @orderReceiptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order receipt'**
+  String get orderReceiptTitle;
+
+  /// No description provided for @orderReceiptItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get orderReceiptItems;
+
+  /// No description provided for @orderReceiptQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Qty'**
+  String get orderReceiptQty;
+
+  /// No description provided for @orderReceiptPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get orderReceiptPrice;
+
+  /// No description provided for @orderReceiptAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get orderReceiptAmount;
+
+  /// No description provided for @orderReceiptThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your order'**
+  String get orderReceiptThanks;
+
+  /// No description provided for @orderReceiptFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create the receipt'**
+  String get orderReceiptFailed;
+
+  /// No description provided for @orderTrackRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates every 15 seconds'**
+  String get orderTrackRefresh;
+
+  /// No description provided for @orderTrackNoPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'No delivery point was set'**
+  String get orderTrackNoPoint;
+
+  /// No description provided for @orderTrackMapPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery point on the map'**
+  String get orderTrackMapPoint;
+
+  /// No description provided for @orderTrackNoCourier.
+  ///
+  /// In en, this message translates to:
+  /// **'Live courier location and arrival time are not available yet.'**
+  String get orderTrackNoCourier;
+
+  /// No description provided for @orderTrackCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'This order was cancelled.'**
+  String get orderTrackCancelled;
 
   /// No description provided for @orderHistory.
   ///

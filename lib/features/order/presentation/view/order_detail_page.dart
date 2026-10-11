@@ -1,14 +1,49 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/router/app_routes.dart';
+import '../../../../core/constants/app_assets.dart';
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/di/injector.dart';
+import '../../../../core/network/shop_api.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/utils/extensions/context_extensions.dart';
+import '../../../../core/utils/formatters/currency_formatter.dart';
 import '../../../../core/utils/result.dart';
+import '../../../../core/widgets/app_back_button.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
+import '../../../cart/presentation/cubit/cart_cubit.dart';
+import '../../../product/presentation/widgets/product_photos.dart';
 import '../../domain/entities/pre_order.dart';
 import '../../domain/repositories/pre_order_repository.dart';
+import '../model/order_detail_data.dart';
+import '../receipt/order_receipt_pdf.dart';
+import '../widgets/cancel_order_dialog.dart';
+import '../widgets/order_card.dart';
+import '../widgets/order_info_row.dart';
+import '../widgets/order_items_sheet.dart';
+import '../widgets/order_products_strip.dart';
+import '../widgets/order_progress_timeline.dart';
+import '../widgets/order_total_card.dart';
 
+/// One order, end to end: where it has got to, what is in it, where it is
+/// going and what it cost.
+///
+/// Read from `GET /pre-orders/:id`, and drawn one of three ways — still on its
+/// way, delivered, or cancelled — from the order's status. Cancelling goes
+/// through `POST /pre-orders/:id/cancel`.
 class OrderDetailPage extends StatefulWidget {
   const OrderDetailPage({super.key, required this.orderId});
+
   final int orderId;
 
   @override
@@ -22,149 +57,559 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   @override
   void initState() {
     super.initState();
-    _refresh();
+    _future = _fetch();
   }
 
-  void _refresh() => setState(
-    () => _future = getIt<PreOrderRepository>().byId(widget.orderId),
-  );
+  /// Product slug to the photo to show for it. The order carries a photo per
+  /// line, but it is the supplier's link; the product's own photo from our
+  /// file server is the one that reliably loads, so that is what is shown.
+  final Map<String, String> _photos = {};
+
+  Future<Result<PreOrder>> _fetch() async {
+    final result = await getIt<PreOrderRepository>().byId(widget.orderId);
+    if (result.dataOrNull case final order?) _loadPhotos(order);
+    return result;
+  }
+
+  void _loadPhotos(PreOrder order) {
+    for (final item in order.items) {
+      final slug = item.productSlug;
+      if (slug == null || _photos.containsKey(slug)) continue;
+      ProductPhotos.load(slug).then((urls) {
+        if (mounted && urls.isNotEmpty) {
+          setState(() => _photos[slug] = urls.first);
+        }
+      });
+    }
+  }
+
+  /// Back to where the order was reached from — or, when the page was opened
+  /// on its own (straight after placing an order), to the home tab.
+  void _back() {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.goNamed(AppRoutes.home.name);
+    }
+  }
+
+  Future<void> _reload() async {
+    final next = _fetch();
+    setState(() {
+      _future = next;
+    });
+    await next;
+  }
 
   Future<void> _cancel() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cancel order?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Keep'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Cancel order'),
-          ),
-        ],
-      ),
-    );
-    if (confirm != true || !mounted) return;
+    if (_cancelling) return;
+    final confirmed = await showCancelOrderDialog(context);
+    if (!confirmed || !mounted) return;
     setState(() => _cancelling = true);
     final result = await getIt<PreOrderRepository>().cancel(widget.orderId);
     if (!mounted) return;
     setState(() => _cancelling = false);
     if (result.isSuccess) {
-      _refresh();
+      await _reload();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.failureOrNull?.message ?? 'Could not cancel'),
-        ),
+      AppSnackBar.show(
+        context,
+        result.failureOrNull?.message ?? context.l10n.orderNotFound,
+        icon: AppIcons.error,
+        iconColor: AppColors.error,
       );
     }
   }
 
+  /// Puts what was in the order back in the cart, and goes there.
+  void _repeat(PreOrder order) {
+    final cart = context.read<CartCubit>();
+    for (final item in order.items) {
+      final slug = item.productSlug;
+      // A product that has left the catalog has nothing to reorder.
+      if (slug == null) continue;
+      if (item.variantId != null) cart.setVariant(slug, item.variantId!);
+      cart.setQuantity(slug, item.quantity);
+    }
+    AppSnackBar.show(context, context.l10n.orderRepeatDone);
+    context.goNamed(AppRoutes.cart.name);
+  }
+
+  /// Rings the shop, with the number it publishes.
+  Future<void> _ask() async {
+    final failed = context.l10n.commonOpenFailed('tel');
+    String? phone;
+    try {
+      phone = (await getIt<ShopApi>().contacts()).phonePrimary;
+    } on Object {
+      phone = null;
+    }
+    var opened = false;
+    if (phone != null) {
+      try {
+        opened = await launchUrl(
+          Uri.parse('tel:$phone'),
+          mode: LaunchMode.externalApplication,
+        );
+      } on Object {
+        opened = false;
+      }
+    }
+    if (!opened && mounted) {
+      AppSnackBar.show(
+        context,
+        failed,
+        icon: AppIcons.error,
+        iconColor: AppColors.error,
+      );
+    }
+  }
+
+  bool _downloading = false;
+
+  /// Builds the order's receipt as a PDF and hands the file to the system
+  /// share sheet — which is where a phone offers "Save to Files" / "Save to
+  /// Drive" / a mail or chat app, so it is both the download and the way to
+  /// send it on.
+  Future<void> _downloadReceipt(PreOrder order) async {
+    if (_downloading) return;
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
+    setState(() => _downloading = true);
+    try {
+      final bytes = await OrderReceiptPdf.build(
+        order,
+        ReceiptLabels(
+          title: l10n.orderReceiptTitle,
+          number: l10n.orderNumber,
+          status: switch (order.status) {
+            PreOrderStatus.newOrder => l10n.orderStatusNew,
+            PreOrderStatus.confirmed => l10n.orderStatusConfirmed,
+            PreOrderStatus.ordered => l10n.orderStatusOrdered,
+            PreOrderStatus.completed => l10n.orderStatusCompleted,
+            PreOrderStatus.cancelled => l10n.orderStatusCancelled,
+          },
+          customer: l10n.orderRecipient,
+          address: l10n.orderPickupPoint,
+          date: l10n.orderTime,
+          products: l10n.orderReceiptItems,
+          quantity: l10n.orderReceiptQty,
+          price: l10n.orderReceiptPrice,
+          amount: l10n.orderReceiptAmount,
+          productsTotal: l10n.orderProductsTotal,
+          delivery: l10n.orderDeliveryLabel,
+          free: l10n.orderDeliveryFree,
+          cargo: l10n.orderCargo,
+          discount: l10n.orderDiscount,
+          total: l10n.orderTotalTitle,
+          thanks: l10n.orderReceiptThanks,
+        ),
+        locale: locale,
+      );
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/${order.number}.pdf');
+      await file.writeAsBytes(bytes, flush: true);
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [
+            XFile(
+              file.path,
+              mimeType: 'application/pdf',
+              name: '${order.number}.pdf',
+            ),
+          ],
+          subject: order.number,
+        ),
+      );
+    } on Object {
+      if (mounted) {
+        AppSnackBar.show(
+          context,
+          l10n.orderReceiptFailed,
+          icon: AppIcons.error,
+          iconColor: AppColors.error,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _downloading = false);
+    }
+  }
+
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: const Text('Order'),
-      actions: [
-        IconButton(onPressed: _refresh, icon: const Icon(Icons.refresh)),
-      ],
-    ),
-    body: FutureBuilder<Result<PreOrder>>(
-      future: _future,
-      builder: (context, snapshot) {
-        final order = snapshot.data?.dataOrNull;
-        if (order == null) {
-          return Center(
-            child: snapshot.connectionState != ConnectionState.done
-                ? const CircularProgressIndicator()
-                : TextButton(
-                    onPressed: _refresh,
-                    child: Text(
-                      snapshot.data?.failureOrNull?.message ?? 'Retry',
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leadingWidth: AppBackButton.leadingWidth,
+        leading: AppBackButton.appBarLeading(onPressed: _back),
+      ),
+      body: FutureBuilder<Result<PreOrder>>(
+        future: _future,
+        builder: (context, snapshot) {
+          final order = snapshot.data?.dataOrNull;
+          if (order == null) {
+            return Center(
+              child: snapshot.connectionState != ConnectionState.done
+                  ? const CircularProgressIndicator()
+                  : TextButton(
+                      onPressed: _reload,
+                      child: Text(
+                        snapshot.data?.failureOrNull?.message ??
+                            context.l10n.orderNotFound,
+                      ),
+                    ),
+            );
+          }
+          final data = OrderDetailData.fromPreOrder(order, photos: _photos);
+
+          return RefreshIndicator(
+            onRefresh: _reload,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.page,
+                0,
+                AppSpacing.page,
+                AppSpacing.xxxl,
+              ),
+              children: [
+                _Header(
+                  order: data,
+                  cancelling: _cancelling,
+                  onRepeat: () => _repeat(order),
+                  onAsk: _ask,
+                  onCancel: _cancel,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _Progress(
+                  order: data,
+                  onTrack: () => context.pushNamed(
+                    AppRoutes.orderTrack.name,
+                    pathParameters: {'id': order.id.toString()},
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _Products(
+                  order: data,
+                  onShowAll: () => showOrderItemsSheet(
+                    context,
+                    order: order,
+                    photos: _photos,
+                    onOpenProduct: (slug) => context.pushNamed(
+                      AppRoutes.productDetail.name,
+                      pathParameters: {'id': slug},
                     ),
                   ),
-          );
-        }
-        return ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Text(
-              order.number,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            Text(
-              order.status.value,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            FilledButton.icon(
-              onPressed: () => context.pushNamed(
-                AppRoutes.orderTrack.name,
-                pathParameters: {'id': order.id.toString()},
-              ),
-              icon: const Icon(Icons.map_outlined),
-              label: const Text('Siparişi haritada takip et'),
-            ),
-            const SizedBox(height: 16),
-            for (final item in order.items)
-              ListTile(
-                leading: item.image == null
-                    ? const Icon(Icons.shopping_bag_outlined)
-                    : Image.network(
-                        item.image!,
-                        width: 50,
-                        height: 50,
-                        errorBuilder: (_, _, _) =>
-                            const Icon(Icons.shopping_bag_outlined),
-                      ),
-                title: Text(item.name),
-                subtitle: Text(
-                  '${item.variant ?? ''} · ${item.quantity} × ${item.price.toStringAsFixed(2)} TMT',
                 ),
-                trailing: Text('${item.lineTotal.toStringAsFixed(2)} TMT'),
-                onTap: item.productSlug == null
-                    ? null
-                    : () => context.pushNamed(
-                        AppRoutes.productDetail.name,
-                        pathParameters: {'id': item.productSlug!},
-                      ),
-              ),
-            const Divider(),
-            ListTile(
-              title: const Text('Total'),
-              trailing: Text(
-                '${order.totalPrice.toStringAsFixed(2)} ${order.currency}',
-              ),
+                const SizedBox(height: AppSpacing.md),
+                _Details(order: data),
+                const SizedBox(height: AppSpacing.md),
+                OrderTotalCard(
+                  order: data,
+                  onDownload: () => _downloadReceipt(order),
+                  downloading: _downloading,
+                ),
+              ],
             ),
-            if (order.customerName != null)
-              ListTile(
-                title: const Text('Name'),
-                subtitle: Text(order.customerName!),
-              ),
-            if (order.phone != null)
-              ListTile(
-                title: const Text('Phone'),
-                subtitle: Text(order.phone!),
-              ),
-            if (order.address != null)
-              ListTile(
-                title: const Text('Address'),
-                subtitle: Text(order.address!),
-              ),
-            if (order.comment != null)
-              ListTile(
-                title: const Text('Comment'),
-                subtitle: Text(order.comment!),
-              ),
-            if (order.canCancel)
-              FilledButton.tonal(
-                onPressed: _cancelling ? null : _cancel,
-                child: Text(_cancelling ? '…' : 'Cancel order'),
-              ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Title, order number and the things that can be done about it. A finished
+/// order wears a green tick, a cancelled one a red cross.
+class _Header extends StatelessWidget {
+  const _Header({
+    required this.order,
+    required this.cancelling,
+    required this.onRepeat,
+    required this.onAsk,
+    required this.onCancel,
+  });
+
+  final OrderDetailData order;
+  final bool cancelling;
+  final VoidCallback onRepeat;
+  final VoidCallback onAsk;
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final title = switch (order.outcome) {
+      OrderOutcome.active => l10n.orderActiveTitle,
+      OrderOutcome.completed => l10n.orderCompleted,
+      OrderOutcome.cancelled => l10n.orderCancelled,
+    };
+
+    return OrderCard(
+      child: Column(
+        children: [
+          if (order.outcome != OrderOutcome.active) ...[
+            _OutcomeBadge(outcome: order.outcome),
+            const SizedBox(height: AppSpacing.md),
           ],
-        );
-      },
-    ),
-  );
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: context.textTheme.headlineSmall?.copyWith(
+              color: AppColors.black,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.3,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xxs),
+          Text(
+            l10n.orderNumber(order.number),
+            style: context.textTheme.labelSmall?.copyWith(
+              color: AppColors.grey500,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Row(
+            children: [
+              Expanded(
+                child: _Action(
+                  icon: AppAssets.iconRepeatOrder,
+                  label: l10n.orderRepeat,
+                  onTap: onRepeat,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: _Action(
+                  icon: AppAssets.iconBubbleQuestion,
+                  label: l10n.orderQuestions,
+                  onTap: onAsk,
+                ),
+              ),
+              // Only an order that is still on its way, and only while the
+              // API says it can be cancelled.
+              if (order.outcome == OrderOutcome.active && order.canCancel) ...[
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: _Action(
+                    icon: AppAssets.iconCircleX,
+                    label: l10n.orderCancel,
+                    onTap: cancelling ? null : onCancel,
+                    busy: cancelling,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The big green tick or red cross over a finished order.
+class _OutcomeBadge extends StatelessWidget {
+  const _OutcomeBadge({required this.outcome});
+
+  final OrderOutcome outcome;
+
+  @override
+  Widget build(BuildContext context) {
+    final done = outcome == OrderOutcome.completed;
+
+    return Container(
+      width: 64,
+      height: 64,
+      decoration: BoxDecoration(
+        color: done ? AppColors.success : AppColors.error,
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: HugeIcon(
+          icon: done ? AppIcons.check : AppIcons.close,
+          size: 34,
+          strokeWidth: 3,
+          color: AppColors.white,
+        ),
+      ),
+    );
+  }
+}
+
+/// One of the header's buttons.
+class _Action extends StatelessWidget {
+  const _Action({
+    required this.icon,
+    required this.label,
+    this.onTap,
+    this.busy = false,
+  });
+
+  /// Path to an SVG in `assets/icons`.
+  final String icon;
+  final String label;
+  final VoidCallback? onTap;
+  final bool busy;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.grey100,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+          child: Column(
+            children: [
+              SizedBox(
+                width: 22,
+                height: 22,
+                child: busy
+                    ? const Padding(
+                        padding: EdgeInsets.all(2),
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : SvgPicture.asset(icon, width: 22, height: 22),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: context.textTheme.labelMedium?.copyWith(
+                  color: AppColors.grey700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Progress extends StatelessWidget {
+  const _Progress({required this.order, required this.onTrack});
+
+  final OrderDetailData order;
+  final VoidCallback onTrack;
+
+  @override
+  Widget build(BuildContext context) {
+    return OrderCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // The chevron opens the order on the map.
+          OrderCardHeader(title: context.l10n.orderProgress, onTap: onTrack),
+          const SizedBox(height: AppSpacing.lg),
+          OrderProgressTimeline(
+            stages: order.stages,
+            badgeEveryDone: order.outcome == OrderOutcome.completed,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Products extends StatelessWidget {
+  const _Products({required this.order, required this.onShowAll});
+
+  final OrderDetailData order;
+  final VoidCallback onShowAll;
+
+  @override
+  Widget build(BuildContext context) {
+    return OrderCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OrderCardHeader(title: context.l10n.orderProducts, onTap: onShowAll),
+          const SizedBox(height: AppSpacing.xxs),
+          Text(
+            context.l10n.orderItemSummary(
+              order.itemCount,
+              CurrencyFormatter.format(order.productsTotal, decimals: 0),
+            ),
+            style: context.textTheme.labelSmall?.copyWith(
+              color: AppColors.grey500,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          OrderProductsStrip(
+            products: order.products,
+            itemCount: order.itemCount,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Where it is going, who is collecting it and when it was placed.
+class _Details extends StatelessWidget {
+  const _Details({required this.order});
+
+  final OrderDetailData order;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
+    final rows = <Widget>[
+      if (order.pickupPoint.isNotEmpty)
+        OrderInfoRow(
+          icon: AppAssets.iconPinLocation,
+          label: l10n.orderPickupPoint,
+          value: order.pickupPoint,
+        ),
+      if (order.recipientName.isNotEmpty || order.recipientPhone.isNotEmpty)
+        OrderInfoRow(
+          icon: AppAssets.iconUser,
+          label: l10n.orderRecipient,
+          value: order.recipientName.isEmpty
+              ? order.recipientPhone
+              : order.recipientName,
+          secondary: order.recipientName.isEmpty ? null : order.recipientPhone,
+        ),
+      OrderInfoRow(
+        icon: AppAssets.iconCalendar,
+        label: l10n.orderTime,
+        value: DateFormat(
+          "MMMM d, y 'at' HH:mm",
+          locale,
+        ).format(order.placedAt),
+      ),
+      if (order.comment != null && order.comment!.isNotEmpty)
+        OrderInfoRow(
+          icon: AppAssets.iconBubbleQuestion,
+          label: l10n.orderComment,
+          value: order.comment!,
+        ),
+    ];
+
+    return OrderCard(
+      child: Column(
+        children: [
+          for (var i = 0; i < rows.length; i++) ...[
+            if (i > 0)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+                child: Divider(height: 1, color: AppColors.grey100),
+              ),
+            rows[i],
+          ],
+        ],
+      ),
+    );
+  }
 }

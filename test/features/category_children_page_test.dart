@@ -18,6 +18,7 @@ import 'package:elyeter/features/product/domain/entities/product_query.dart';
 import 'package:elyeter/features/product/domain/repositories/product_repository.dart';
 import 'package:elyeter/features/product/presentation/widgets/catalog_product_grid.dart';
 import 'package:elyeter/l10n/app_localizations.dart';
+import 'package:flutter/cupertino.dart' show CupertinoSwitch;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -232,8 +233,13 @@ void main() {
     );
     await tester.tap(filterControls().first);
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextFormField).first, '50');
-    await tester.enterText(find.byType(TextFormField).last, '100');
+    final priceFields = find.descendant(
+      of: find.byType(BottomSheet),
+      matching: find.byType(TextField),
+    );
+    await tester.enterText(priceFields.first, '50');
+    await tester.enterText(priceFields.last, '100');
+    await tester.pump();
     await tester.tap(find.text('Apply'));
     await tester.pumpAndSettle();
     expect(products.lastQuery?.minPrice, 50);
@@ -243,13 +249,13 @@ void main() {
     await tester.tap(filterControls().first);
     await tester.pumpAndSettle();
     expect(
-      tester.widget<CheckboxListTile>(find.byType(CheckboxListTile)).value,
+      tester.widget<CupertinoSwitch>(find.byType(CupertinoSwitch)).value,
       isFalse,
     );
     await tester.tap(find.text('Featured products only'));
     await tester.pumpAndSettle();
     expect(
-      tester.widget<CheckboxListTile>(find.byType(CheckboxListTile)).value,
+      tester.widget<CupertinoSwitch>(find.byType(CupertinoSwitch)).value,
       isTrue,
     );
     await tester.tap(find.text('Apply'));

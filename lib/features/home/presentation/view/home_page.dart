@@ -21,6 +21,7 @@ import '../../../favorite/presentation/cubit/favorite_cubit.dart';
 import '../../../product/domain/entities/product_query.dart';
 import '../../../product/domain/repositories/product_repository.dart';
 import '../../../product/presentation/widgets/product_card.dart';
+import '../../../product/presentation/widgets/product_card_actions.dart';
 import '../../../search/presentation/view/visual_search_page.dart';
 import '../../../search/presentation/widgets/visual_search_source_sheet.dart';
 import '../widgets/brand_strip.dart';
@@ -240,9 +241,9 @@ class _HomePageState extends State<HomePage> {
               sliver: SliverGrid(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  mainAxisSpacing: AppSpacing.xl,
-                  crossAxisSpacing: AppSpacing.md,
-                  childAspectRatio: 0.58,
+                  mainAxisSpacing: AppSpacing.md,
+                  crossAxisSpacing: AppSpacing.sm,
+                  childAspectRatio: 0.57,
                 ),
                 delegate: SliverChildBuilderDelegate((context, index) {
                   final product = _products[index];
@@ -271,12 +272,8 @@ class _HomePageState extends State<HomePage> {
                                 );
                               }
                             },
-                            onAddToCart: () => product.hasVariants
-                                ? context.pushNamed(
-                                    AppRoutes.productDetail.name,
-                                    pathParameters: {'id': product.id},
-                                  )
-                                : context.read<CartCubit>().toggle(product.id),
+                            onAddToCart: () =>
+                                toggleCartFromCard(context, product),
                           ),
                         ),
                   );

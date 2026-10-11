@@ -279,6 +279,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cartSelectAll => 'Select All';
 
   @override
+  String get cartEmpty => 'Your cart is empty';
+
+  @override
+  String get cartTitle => 'Product';
+
+  @override
+  String get cartEmptyMessage =>
+      'Add products you like and they will wait for you here.';
+
+  @override
+  String get cartEmptyAction => 'Start shopping';
+
+  @override
   String cartProductCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -370,6 +383,80 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orderCancelled => 'Order Cancelled';
+
+  @override
+  String get orderStatusCancelled => 'Cancelled';
+
+  @override
+  String get orderCancelTitle => 'Cancel this order?';
+
+  @override
+  String get orderCancelMessage =>
+      'Once cancelled, an order cannot be restored. You can place it again from your cart.';
+
+  @override
+  String get orderCancelKeep => 'Keep order';
+
+  @override
+  String get orderCancelConfirm => 'Cancel order';
+
+  @override
+  String get orderRepeatDone => 'Items added to your cart';
+
+  @override
+  String get orderNotFound => 'This order could not be loaded';
+
+  @override
+  String get orderComment => 'Comment';
+
+  @override
+  String get orderStatusNew => 'Waiting for a call';
+
+  @override
+  String get orderStatusConfirmed => 'Confirmed';
+
+  @override
+  String get orderStatusOrdered => 'Ordered';
+
+  @override
+  String get orderStatusCompleted => 'Completed';
+
+  @override
+  String get orderReceiptTitle => 'Order receipt';
+
+  @override
+  String get orderReceiptItems => 'Items';
+
+  @override
+  String get orderReceiptQty => 'Qty';
+
+  @override
+  String get orderReceiptPrice => 'Price';
+
+  @override
+  String get orderReceiptAmount => 'Amount';
+
+  @override
+  String get orderReceiptThanks => 'Thank you for your order';
+
+  @override
+  String get orderReceiptFailed => 'Could not create the receipt';
+
+  @override
+  String get orderTrackRefresh => 'Updates every 15 seconds';
+
+  @override
+  String get orderTrackNoPoint => 'No delivery point was set';
+
+  @override
+  String get orderTrackMapPoint => 'Delivery point on the map';
+
+  @override
+  String get orderTrackNoCourier =>
+      'Live courier location and arrival time are not available yet.';
+
+  @override
+  String get orderTrackCancelled => 'This order was cancelled.';
 
   @override
   String get orderHistory => 'Order history';

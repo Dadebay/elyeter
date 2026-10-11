@@ -42,6 +42,27 @@ class SubcategoryGrid extends StatefulWidget {
   final List<SubcategoryItem> items;
   final ValueChanged<SubcategoryItem>? onTap;
 
+  /// How tall the grid comes out for [itemCount] tiles in a row [width] wide —
+  /// the same arithmetic [build] does, for a parent that has to know the
+  /// height up front, as a collapsing header does.
+  static double heightFor(
+    BuildContext context, {
+    required double width,
+    required int itemCount,
+  }) {
+    if (itemCount == 0) return 0;
+    final cell = (width - (_columns - 1) * _columnGap) / _columns;
+    final labelHeight =
+        (context.textTheme.labelSmall?.fontSize ?? 11) * 1.2 * 2 +
+        AppSpacing.xs;
+    final rows = itemCount <= _columns ? 1 : _rows;
+    final pages = (itemCount + _perPage - 1) ~/ _perPage;
+    return rows * (cell + labelHeight) +
+        (rows - 1) * _rowGap +
+        // The page dots and the gap above them, when there is a second page.
+        (pages > 1 ? AppSpacing.md + _PageDots.height : 0);
+  }
+
   @override
   State<SubcategoryGrid> createState() => _SubcategoryGridState();
 }
@@ -214,6 +235,8 @@ class _SubcategoryTile extends StatelessWidget {
 class _PageDots extends StatelessWidget {
   const _PageDots({required this.count, required this.index});
 
+  static const height = 4.0;
+
   final int count;
   final int index;
 
@@ -226,7 +249,7 @@ class _PageDots extends StatelessWidget {
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             margin: const EdgeInsets.symmetric(horizontal: 2),
-            height: 4,
+            height: height,
             // The current page reads as a bar, the rest as dots.
             width: i == index ? 20 : 8,
             decoration: BoxDecoration(
