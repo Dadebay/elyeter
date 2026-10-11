@@ -43,17 +43,21 @@ abstract final class AppTheme {
       // Widgets that read primaryTextTheme (some app bars, banners) would
       // otherwise fall back to the platform font.
       primaryTextTheme: textTheme,
-      scaffoldBackgroundColor: isLight ? AppColors.white : AppColors.backgroundDark,
+      scaffoldBackgroundColor: isLight
+          ? AppColors.white
+          : AppColors.backgroundDark,
       splashFactory: InkSparkle.splashFactory,
       appBarTheme: AppBarTheme(
-        backgroundColor: isLight ? AppColors.surface : AppColors.surfaceDark,
+        backgroundColor: isLight ? AppColors.white : AppColors.backgroundDark,
         foregroundColor: onSurface,
         elevation: 0,
-        scrolledUnderElevation: 0.5,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         centerTitle: false,
         titleTextStyle: textTheme.titleLarge,
-        systemOverlayStyle:
-            isLight ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+        systemOverlayStyle: isLight
+            ? SystemUiOverlayStyle.dark
+            : SystemUiOverlayStyle.light,
       ),
       cardTheme: CardThemeData(
         color: colorScheme.surface,

@@ -69,7 +69,9 @@ class EditProfileField extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             note!,
-            style: theme.textTheme.bodySmall?.copyWith(color: AppColors.grey500),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: AppColors.grey500,
+            ),
           ),
         ],
       ],

@@ -168,7 +168,7 @@ class _Avatar extends StatelessWidget {
       height: 44,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.55),
+        color: AppColors.grey300,
         shape: BoxShape.circle,
         image: switch ((imagePath, imageUrl)) {
           (final String path, _) => DecorationImage(
@@ -204,6 +204,12 @@ class _OrdersGlyph extends StatelessWidget {
   const _OrdersGlyph();
 
   @override
-  Widget build(BuildContext context) =>
-      const AppAssetImage(AppAssets.iconCubic, width: 44, height: 44);
+  Widget build(BuildContext context) => const SizedBox(
+    // Same height as the avatar beside it, so both titles line up.
+    height: 44,
+    child: Align(
+      alignment: Alignment.centerLeft,
+      child: AppAssetImage(AppAssets.iconCubic, width: 38, height: 38),
+    ),
+  );
 }

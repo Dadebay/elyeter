@@ -151,9 +151,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
               onPressed: _busy ? null : () => Navigator.of(context).pop(false),
               style: FilledButton.styleFrom(
                 minimumSize: const Size(0, 44),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.xxl,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
                 textStyle: theme.textTheme.labelLarge,
               ),
               child: Text(l10n.profileDeleteKeep),
@@ -164,9 +162,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.error,
                 minimumSize: const Size(0, 40),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.lg,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 textStyle: theme.textTheme.bodyMedium,
               ),
               child: _busy
@@ -195,15 +191,15 @@ class _WarningGlyph extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        width: 56,
-        height: 56,
+        width: 44,
+        height: 44,
         decoration: const BoxDecoration(
           color: AppColors.errorSoft,
           shape: BoxShape.circle,
         ),
         child: const HugeIcon(
           icon: AppIcons.delete,
-          size: 28,
+          size: 20,
           color: AppColors.error,
         ),
       ),

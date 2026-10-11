@@ -1,11 +1,19 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io' show Platform;
+import 'dart:ui' show PlatformDispatcher;
+
+import 'package:flutter/widgets.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/presentation/cubit/auth_cubit.dart';
+import '../../features/notification/presentation/services/notification_navigation.dart';
+import '../../app/cubit/locale_cubit.dart';
 import '../../firebase_options.dart';
+import '../network/interceptors/language_interceptor.dart';
 import '../utils/app_logger.dart';
 import 'local_notifications_service.dart';
 
@@ -16,13 +24,16 @@ import 'local_notifications_service.dart';
 /// when the app is open, and [_backgroundHandler] runs in its own isolate so
 /// a data-only push is still processed with the app closed.
 class PushService {
-  PushService(this._auth, this._local);
+  PushService(this._auth, this._local, this._locale, this._session);
 
   /// Everyone who opens the app joins this; broadcasts are sent here.
-  static const topic = 'elyeter';
+  static const topicTm = 'EVENT_TM';
+  static const topicRu = 'EVENT_RU';
 
   final AuthRepository _auth;
   final LocalNotificationsService _local;
+  final LocaleCubit _locale;
+  final AuthCubit _session;
 
   String? _token;
 
@@ -31,8 +42,11 @@ class PushService {
   Future<void> init() async {
     try {
       if (Firebase.apps.isEmpty) {
-        await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
       }
+      _local.onTap = _onLocalTap;
       await _local.init();
 
       final messaging = FirebaseMessaging.instance;
@@ -44,11 +58,21 @@ class PushService {
       // iOS suppresses banners while the app is open unless this is set —
       // independent of the permission above.
       if (Platform.isIOS) {
-        await messaging.setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
+        await messaging.setForegroundNotificationPresentationOptions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
       }
 
-      await messaging.subscribeToTopic(topic);
-      AppLogger.i('Subscribed to topic "$topic"');
+      await _syncTopics();
+      _locale.stream.listen((_) {
+        unawaited(_syncTopics());
+        unawaited(syncToken());
+      });
+      _session.stream.listen((state) {
+        if (!state.isAuthenticated) unawaited(_syncTopics());
+      });
 
       // Registered before the streams: a terminated-app delivery reaches the
       // isolate below, which has no Firebase of its own.
@@ -78,6 +102,7 @@ class PushService {
           lines: [token],
         );
         unawaited(syncToken());
+        unawaited(_syncTopics());
       });
     } on Object catch (e, s) {
       AppLogger.e('Push setup failed', e, s);
@@ -104,6 +129,19 @@ class PushService {
   /// Long enough for a fresh install on a slow network, short enough that
   /// nothing else at startup notices — this runs off the first frame.
   static const _apnsWait = Duration(seconds: 6);
+
+  String get _language => LanguageInterceptor.resolve(
+    _locale.state?.languageCode ??
+        PlatformDispatcher.instance.locale.languageCode,
+  );
+
+  Future<void> _syncTopics() async {
+    final messaging = FirebaseMessaging.instance;
+    final selected = _language == 'ru' ? topicRu : topicTm;
+    final other = selected == topicRu ? topicTm : topicRu;
+    await messaging.unsubscribeFromTopic(other);
+    await messaging.subscribeToTopic(selected);
+  }
 
   /// Prints both device tokens in full, on their own block, so a test push
   /// can be addressed to this exact phone from the Firebase console.
@@ -140,7 +178,7 @@ class PushService {
       if (token == null || token.isEmpty) return;
       if (!await _auth.hasSession()) return;
 
-      final result = await _auth.updateFcmToken(token);
+      final result = await _auth.updateFcmToken(token, lang: _language);
       result.fold(
         (_) => AppLogger.i('FCM token registered with the backend'),
         (failure) => AppLogger.w('FCM token not registered: ${failure.code}'),
@@ -156,12 +194,39 @@ class PushService {
     // one on top of it would be a duplicate banner.
     if (notification == null || Platform.isIOS) return;
 
-    unawaited(_local.show(notification.title, notification.body, payload: message.data.toString()));
+    unawaited(
+      _local.show(
+        notification.title,
+        notification.body,
+        payload: jsonEncode(message.data),
+      ),
+    );
   }
 
   void _onOpened(RemoteMessage message) {
     AppLogger.i('Notification opened: ${message.data}');
-    // Routing from a payload (an order, a product) hangs off this.
+    _route(message.data);
+  }
+
+  void _onLocalTap(String? payload) {
+    if (payload == null) return;
+    try {
+      final data = jsonDecode(payload);
+      if (data is Map<String, dynamic>) _route(data);
+    } on Object {
+      /* Ignore malformed payloads. */
+    }
+  }
+
+  void _route(Map<String, dynamic> data) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(
+        NotificationNavigation.open(
+          data['target_type'] as String?,
+          data['target'] as String?,
+        ),
+      );
+    });
   }
 }
 
@@ -170,6 +235,8 @@ class PushService {
 @pragma('vm:entry-point')
 Future<void> _backgroundHandler(RemoteMessage message) async {
   if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   }
 }

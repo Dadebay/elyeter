@@ -33,6 +33,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonRetry => 'Повторить';
 
   @override
+  String get notificationsEmptyTitle => 'Пока нет уведомлений';
+
+  @override
+  String get notificationsEmptyMessage => 'Новые уведомления появятся здесь.';
+
+  @override
+  String get announcementsEmptyTitle => 'Пока нет объявлений';
+
+  @override
+  String get announcementsEmptyMessage => 'Новые объявления появятся здесь.';
+
+  @override
   String get commonCancel => 'Отмена';
 
   @override
@@ -191,10 +203,25 @@ class AppLocalizationsRu extends AppLocalizations {
   String get categoryFilters => 'Фильтры';
 
   @override
+  String get categoryOnlyFeatured => 'Только рекомендуемые товары';
+
+  @override
   String get categorySortTitle => 'Сортировка';
 
   @override
+  String get categorySortNewest => 'Сначала новые';
+
+  @override
   String get categorySortPopular => 'Популярные';
+
+  @override
+  String get categoryPriceMin => 'Минимальная цена';
+
+  @override
+  String get categoryPriceRange => 'Диапазон цен';
+
+  @override
+  String get categoryPriceMax => 'Максимальная цена';
 
   @override
   String get categorySortPriceAsc => 'Цена: по возрастанию';
@@ -213,6 +240,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get categoryNoResults => 'Ничего не найдено по этим фильтрам';
+
+  @override
+  String get categoryProductsEmptyTitle => 'Пока нет товаров';
+
+  @override
+  String get categoryProductsEmptyMessage =>
+      'В этой категории пока нет товаров. Посмотрите другие категории.';
 
   @override
   String get categoryNoResultsHint => 'Попробуйте убрать один из них.';
@@ -342,6 +376,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get orderHistory => 'История заказов';
 
   @override
+  String get orderHistoryEmptyTitle => 'Заказов пока нет';
+
+  @override
+  String get orderHistoryEmptyMessage =>
+      'После оформления заказа он появится здесь.';
+
+  @override
+  String get activeOrdersEmptyTitle => 'Нет активных заказов';
+
+  @override
+  String get activeOrdersEmptyMessage =>
+      'Здесь появятся заказы в процессе выполнения.';
+
+  @override
   String orderItemCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -431,6 +479,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileSavedLocations => 'Мои адреса';
 
   @override
+  String get addressEmptyTitle => 'Пока нет сохранённых адресов';
+
+  @override
+  String get addressEmptyMessage =>
+      'Нажмите +, чтобы сохранить первый адрес доставки.';
+
+  @override
+  String get addressDeleteDone => 'Адрес удалён.';
+
+  @override
   String get profileOrderHistory => 'История заказов';
 
   @override
@@ -450,6 +508,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get profilePrivacy => 'Политика конфиденциальности';
+
+  @override
+  String get staticPageEmpty =>
+      'Содержимое появится здесь, когда будет доступно.';
 
   @override
   String get profileWhatsapp => 'WhatsApp';
@@ -584,6 +646,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get editProfilePhotoRemove => 'Удалить фото';
+
+  @override
+  String get editProfilePhotoTooLarge =>
+      'Не удалось уменьшить фото до 1 МБ. Выберите другое фото.';
 
   @override
   String get editProfileSaved => 'Профиль обновлён';

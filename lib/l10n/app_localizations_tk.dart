@@ -33,6 +33,19 @@ class AppLocalizationsTk extends AppLocalizations {
   String get commonRetry => 'Gaýtadan synanyş';
 
   @override
+  String get notificationsEmptyTitle => 'Heniz bildiriş ýok';
+
+  @override
+  String get notificationsEmptyMessage =>
+      'Täze bildirişler şu ýerde peýda bolar.';
+
+  @override
+  String get announcementsEmptyTitle => 'Heniz habar ýok';
+
+  @override
+  String get announcementsEmptyMessage => 'Täze habarlar şu ýerde peýda bolar.';
+
+  @override
   String get commonCancel => 'Ýatyr';
 
   @override
@@ -191,10 +204,25 @@ class AppLocalizationsTk extends AppLocalizations {
   String get categoryFilters => 'Süzgüçler';
 
   @override
+  String get categoryOnlyFeatured => 'Diňe öňe çykarylan harytlar';
+
+  @override
   String get categorySortTitle => 'Tertipleme';
 
   @override
+  String get categorySortNewest => 'Iň täzeler';
+
+  @override
   String get categorySortPopular => 'Meşhur';
+
+  @override
+  String get categoryPriceMin => 'Iň pes baha';
+
+  @override
+  String get categoryPriceRange => 'Baha aralygy';
+
+  @override
+  String get categoryPriceMax => 'Iň ýokary baha';
 
   @override
   String get categorySortPriceAsc => 'Baha: arzandan gymmada';
@@ -213,6 +241,13 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get categoryNoResults => 'Bu süzgüçlere hiç zat gabat gelmedi';
+
+  @override
+  String get categoryProductsEmptyTitle => 'Häzirlikçe haryt ýok';
+
+  @override
+  String get categoryProductsEmptyMessage =>
+      'Bu kategoriýada häzir haryt ýok. Beýleki kategoriýalara serediň.';
 
   @override
   String get categoryNoResultsHint => 'Birini aýryp görüň.';
@@ -342,6 +377,20 @@ class AppLocalizationsTk extends AppLocalizations {
   String get orderHistory => 'Sargytlaryň taryhy';
 
   @override
+  String get orderHistoryEmptyTitle => 'Heniz sargyt ýok';
+
+  @override
+  String get orderHistoryEmptyMessage =>
+      'Sargyt bereniňizden soň, ol şu ýerde görüner.';
+
+  @override
+  String get activeOrdersEmptyTitle => 'Işjeň sargyt ýok';
+
+  @override
+  String get activeOrdersEmptyMessage =>
+      'Dowam edýän sargytlaryňyz şu ýerde görüner.';
+
+  @override
   String orderItemCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -429,6 +478,16 @@ class AppLocalizationsTk extends AppLocalizations {
   String get profileSavedLocations => 'Saklanan salgylarym';
 
   @override
+  String get addressEmptyTitle => 'Heniz salgy saklanmady';
+
+  @override
+  String get addressEmptyMessage =>
+      'Ilkinji eltip beriş salgyňyzy saklamak üçin + basyň.';
+
+  @override
+  String get addressDeleteDone => 'Salgy pozuldy.';
+
+  @override
   String get profileOrderHistory => 'Sargytlaryň taryhy';
 
   @override
@@ -448,6 +507,9 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get profilePrivacy => 'Gizlinlik syýasaty';
+
+  @override
+  String get staticPageEmpty => 'Mazmun taýýar bolanda şu ýerde görkeziler.';
 
   @override
   String get profileWhatsapp => 'WhatsApp';
@@ -582,6 +644,10 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get editProfilePhotoRemove => 'Suraty aýyr';
+
+  @override
+  String get editProfilePhotoTooLarge =>
+      'Suraty 1 MB-dan kiçeldip bolmady. Başga surat saýlaň.';
 
   @override
   String get editProfileSaved => 'Profil täzelendi';

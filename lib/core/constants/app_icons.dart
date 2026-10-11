@@ -21,16 +21,28 @@ typedef AppIconData = List<List<dynamic>>;
 abstract final class AppIcons {
   // ------------------------------------------------------------ actions --
   static const AppIconData check = HugeIcons.strokeRoundedTick02;
-  static const AppIconData checkCircle = HugeIcons.strokeRoundedCheckmarkCircle02;
+  static const AppIconData checkCircle =
+      HugeIcons.strokeRoundedCheckmarkCircle02;
   static const AppIconData close = HugeIcons.strokeRoundedCancel01;
   static const AppIconData add = HugeIcons.strokeRoundedAdd01;
   static const AppIconData minus = HugeIcons.strokeRoundedMinusSign;
   static const AppIconData delete = HugeIcons.strokeRoundedDelete02;
+  static const AppIconData edit = HugeIcons.strokeRoundedEdit02;
   static const AppIconData copy = HugeIcons.strokeRoundedCopy01;
 
   // --------------------------------------------------------- navigation --
   static const AppIconData chevronRight = HugeIcons.strokeRoundedArrowRight01;
   static const AppIconData chevronDown = HugeIcons.strokeRoundedArrowDown01;
+  static const AppIconData back = HugeIcons.strokeRoundedArrowLeft01;
+
+  // ------------------------------------------------------------ address --
+  static const AppIconData home = HugeIcons.strokeRoundedHome01;
+  static const AppIconData work = HugeIcons.strokeRoundedBriefcase01;
+  static const AppIconData location = HugeIcons.strokeRoundedLocation01;
+  static const AppIconData currentLocation = HugeIcons.strokeRoundedNavigation2;
+  static const AppIconData mapPin = HugeIcons.strokeRoundedLocation01;
+  static const AppIconData information =
+      HugeIcons.strokeRoundedInformationCircle;
 
   /// Leaves the app — the socials, WhatsApp, the dialler.
   static const AppIconData external = HugeIcons.strokeRoundedArrowUpRight01;
@@ -48,6 +60,7 @@ abstract final class AppIcons {
   // ------------------------------------------------------------ catalog --
   static const AppIconData cart = HugeIcons.strokeRoundedShoppingBag02;
   static const AppIconData favorite = HugeIcons.strokeRoundedFavourite;
+  static const AppIconData share = HugeIcons.strokeRoundedShare08;
   static const AppIconData star = HugeIcons.strokeRoundedStar;
 
   // ------------------------------------------------------------ account --

@@ -170,13 +170,15 @@ class _LoginViewState extends State<_LoginView> {
         controller: _code,
         keyboardType: TextInputType.number,
         autofocus: true,
+        maxLength: _codeDigits,
+        maxLengthEnforcement: MaxLengthEnforcement.enforced,
         textAlign: TextAlign.center,
         style: context.textTheme.headlineSmall?.copyWith(letterSpacing: 8),
-        inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly,
-          LengthLimitingTextInputFormatter(_codeDigits),
-        ],
-        decoration: InputDecoration(labelText: l10n.loginCodeLabel),
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        decoration: InputDecoration(
+          labelText: l10n.loginCodeLabel,
+          counterText: '',
+        ),
         onChanged: (value) {
           setState(() {});
           // The last digit is the whole code: nobody needs to reach for a
@@ -220,7 +222,7 @@ class _LoginViewState extends State<_LoginView> {
   }
 
   void _verify(BuildContext context, LoginState state) {
-    if (state.submitting || _code.text.length < _codeDigits) return;
+    if (state.submitting || _code.text.length != _codeDigits) return;
     unawaited(context.read<LoginCubit>().verify(_code.text));
   }
 }

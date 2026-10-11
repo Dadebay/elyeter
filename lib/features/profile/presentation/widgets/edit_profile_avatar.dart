@@ -96,6 +96,8 @@ class _Circle extends StatelessWidget {
   Widget build(BuildContext context) {
     final path = imagePath;
     final url = imageUrl;
+    final hasPhoto = path != null || url != null;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       width: size,
@@ -105,7 +107,25 @@ class _Circle extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.primary.withValues(alpha: 0.55),
         shape: BoxShape.circle,
+        boxShadow: hasPhoto
+            ? [
+                BoxShadow(
+                  color: AppColors.black.withValues(alpha: isDark ? 0.35 : 0.16),
+                  blurRadius: 18,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 5),
+                ),
+              ]
+            : null,
       ),
+      foregroundDecoration: hasPhoto
+          ? BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isDark ? AppColors.grey700 : AppColors.grey300,
+              ),
+            )
+          : null,
       child: switch ((path, url)) {
         (final String file, _) => Image.file(
           File(file),
@@ -120,19 +140,20 @@ class _Circle extends StatelessWidget {
           radius: 0,
         ),
         // No photo: initials, or a glyph when the account has no name yet.
-        _ => initials.isEmpty
-            ? HugeIcon(
-                icon: AppIcons.user,
-                size: size * 0.5,
-                color: AppColors.white,
-              )
-            : Text(
-                initials,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: AppColors.black,
-                  fontWeight: FontWeight.w600,
+        _ =>
+          initials.isEmpty
+              ? HugeIcon(
+                  icon: AppIcons.user,
+                  size: size * 0.5,
+                  color: AppColors.white,
+                )
+              : Text(
+                  initials,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: AppColors.black,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
       },
     );
   }

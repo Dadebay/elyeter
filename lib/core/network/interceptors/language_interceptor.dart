@@ -11,12 +11,14 @@ import '../../storage/storage_keys.dart';
 /// than `tk` or `ru`, so anything else the app supports (English) is sent as
 /// `tk` rather than as an unknown tag.
 class LanguageInterceptor extends Interceptor {
-  LanguageInterceptor(this._storage);
+  LanguageInterceptor(this._storage, {String? Function()? languageCode})
+    : _languageCode = languageCode;
 
   static const supported = {'tk', 'ru'};
   static const fallback = 'tk';
 
   final LocalStorage _storage;
+  final String? Function()? _languageCode;
 
   /// Maps an app locale to a language the API understands.
   static String resolve(String? languageCode) =>
@@ -24,7 +26,9 @@ class LanguageInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    final stored = _storage.getString(StorageKeys.contentLanguage);
+    final stored =
+        _languageCode?.call() ??
+        _storage.getString(StorageKeys.contentLanguage);
     options.headers['Content-Language'] = resolve(stored);
     handler.next(options);
   }

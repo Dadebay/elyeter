@@ -5,6 +5,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_network_image.dart';
 import '../view/product_photo_viewer_page.dart';
+import 'product_image_view.dart';
 
 /// The detail page's photo pager.
 ///
@@ -32,7 +33,9 @@ class ProductGallery extends StatefulWidget {
 }
 
 class _ProductGalleryState extends State<ProductGallery> {
-  final _controller = PageController(viewportFraction: ProductGallery._viewportFraction);
+  final _controller = PageController(
+    viewportFraction: ProductGallery._viewportFraction,
+  );
   int _page = 0;
 
   @override
@@ -64,7 +67,13 @@ class _ProductGalleryState extends State<ProductGallery> {
               // the peeking one is always on the right.
               padEnds: false,
               itemBuilder: (context, index) => Padding(
-                padding: const EdgeInsets.only(left: ProductGallery._cardMargin),
+                // The last card is the only one with nothing peeking after
+                // it, so it is also the one that would sit hard against the
+                // screen's edge — it gets the same margin on the right.
+                padding: EdgeInsets.only(
+                  left: ProductGallery._cardMargin,
+                  right: index == count - 1 ? ProductGallery._cardMargin : 0,
+                ),
                 child: _Photo(
                   image: widget.images[index],
                   heroTag: 'product-photo-$index',
@@ -112,11 +121,16 @@ class _Photo extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.lg),
         child: ColoredBox(
           color: AppColors.grey100,
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.xl),
-            child: Hero(
-              tag: heroTag,
-              child: Image.asset(image, fit: BoxFit.contain),
+          // Edge to edge: the photo covers the whole card, cropped to fit,
+          // rather than floating on the grey inside a margin.
+          child: Hero(
+            tag: heroTag,
+            child: SizedBox.expand(
+              child: ProductImageView(
+                source: image,
+                fit: BoxFit.cover,
+                wordmarkPlaceholder: true,
+              ),
             ),
           ),
         ),
@@ -140,7 +154,10 @@ class _Counter extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 3),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: 3,
+        ),
         child: Text(
           '$index of $total',
           style: context.textTheme.labelMedium?.copyWith(

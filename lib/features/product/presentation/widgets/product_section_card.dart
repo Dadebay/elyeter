@@ -37,7 +37,9 @@ class ProductSectionCard extends StatelessWidget {
       // Shape only: [Material] rejects `shape` and `borderRadius` together.
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        side: bordered ? const BorderSide(color: AppColors.grey300) : BorderSide.none,
+        side: bordered
+            ? const BorderSide(color: AppColors.grey300)
+            : BorderSide.none,
       ),
       child: InkWell(
         onTap: onTap,
@@ -52,10 +54,8 @@ class ProductDottedLine extends StatelessWidget {
   const ProductDottedLine({super.key});
 
   @override
-  Widget build(BuildContext context) => const SizedBox(
-    height: 1,
-    child: CustomPaint(painter: _DotsPainter()),
-  );
+  Widget build(BuildContext context) =>
+      const SizedBox(height: 1, child: CustomPaint(painter: _DotsPainter()));
 }
 
 class _DotsPainter extends CustomPainter {

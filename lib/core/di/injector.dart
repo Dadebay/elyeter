@@ -1,3 +1,5 @@
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -33,6 +35,7 @@ import '../../features/search/data/repositories/search_repository_impl.dart';
 import '../../features/search/domain/repositories/search_repository.dart';
 import '../constants/app_environment.dart';
 import '../network/api_client.dart';
+import '../network/shop_api.dart';
 import '../network/interceptors/api_log_interceptor.dart';
 import '../network/interceptors/auth_interceptor.dart';
 import '../network/interceptors/language_interceptor.dart';
@@ -70,9 +73,15 @@ Future<void> _registerExternal() async {
 
 void _registerCore() {
   getIt
-    ..registerLazySingleton<LocalStorage>(() => LocalStorageImpl(getIt<SharedPreferences>()))
-    ..registerLazySingleton<SecureStorage>(() => SecureStorageImpl(getIt<FlutterSecureStorage>()))
-    ..registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(getIt<Connectivity>()))
+    ..registerLazySingleton<LocalStorage>(
+      () => LocalStorageImpl(getIt<SharedPreferences>()),
+    )
+    ..registerLazySingleton<SecureStorage>(
+      () => SecureStorageImpl(getIt<FlutterSecureStorage>()),
+    )
+    ..registerLazySingleton<NetworkInfo>(
+      () => NetworkInfoImpl(getIt<Connectivity>()),
+    )
     ..registerLazySingleton<Dio>(
       () => ApiClient.createDio(
         interceptors: [
@@ -80,14 +89,21 @@ void _registerCore() {
             getIt<SecureStorage>(),
             // Looked up lazily: the cubit is registered after Dio, and a
             // token is only ever refused once a request is in flight.
-            onUnauthorized: (failure) => getIt<AuthCubit>().onSessionExpired(failure),
+            onUnauthorized: (failure) =>
+                getIt<AuthCubit>().onSessionExpired(failure),
           ),
-          LanguageInterceptor(getIt<LocalStorage>()),
+          LanguageInterceptor(
+            getIt<LocalStorage>(),
+            languageCode: () =>
+                getIt<LocaleCubit>().state?.languageCode ??
+                PlatformDispatcher.instance.locale.languageCode,
+          ),
           if (AppEnvironment.enableLogging) ApiLogInterceptor(),
         ],
       ),
     )
-    ..registerLazySingleton<ApiClient>(() => ApiClient(getIt<Dio>()));
+    ..registerLazySingleton<ApiClient>(() => ApiClient(getIt<Dio>()))
+    ..registerLazySingleton<ShopApi>(() => ShopApi(getIt<ApiClient>()));
 }
 
 void _registerGlobalCubits() {
@@ -100,7 +116,9 @@ void _registerFeatures() {
   // Favourites and the cart are read and written from several tabs, so these
   // cubits outlive any one page — singletons rather than per-page factories.
   getIt
-    ..registerLazySingleton<FavoriteCubit>(FavoriteCubit.new)
+    ..registerLazySingleton<FavoriteCubit>(
+      () => FavoriteCubit(getIt<ShopApi>(), getIt<AuthCubit>()),
+    )
     ..registerLazySingleton<CartCubit>(CartCubit.new)
     ..registerLazySingleton<ProfileCubit>(ProfileCubit.new);
 
@@ -112,38 +130,81 @@ void _registerFeatures() {
 /// SMS login, the session and the account endpoints.
 void _registerAuth() {
   getIt
-    ..registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(getIt<ApiClient>()))
-    ..registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(getIt<AuthRemoteDataSource>(), getIt<SecureStorage>()))
+    ..registerLazySingleton<AuthRemoteDataSource>(
+      () => AuthRemoteDataSourceImpl(getIt<ApiClient>()),
+    )
+    ..registerLazySingleton<AuthRepository>(
+      () => AuthRepositoryImpl(
+        getIt<AuthRemoteDataSource>(),
+        getIt<SecureStorage>(),
+      ),
+    )
     // One session for the whole app; the interceptor reaches for it too.
     ..registerLazySingleton<AuthCubit>(() => AuthCubit(getIt<AuthRepository>()))
     // One per login screen: it owns a resend countdown.
-    ..registerFactory<LoginCubit>(() => LoginCubit(getIt<AuthRepository>(), getIt<AuthCubit>()))
+    ..registerFactory<LoginCubit>(
+      () => LoginCubit(getIt<AuthRepository>(), getIt<AuthCubit>()),
+    )
     // Push rides on the session: the topic is joined by everyone, but the
     // device token is only worth sending once an account exists.
-    ..registerLazySingleton<LocalNotificationsService>(LocalNotificationsService.new)
-    ..registerLazySingleton<PushService>(() => PushService(getIt<AuthRepository>(), getIt<LocalNotificationsService>()));
+    ..registerLazySingleton<LocalNotificationsService>(
+      LocalNotificationsService.new,
+    )
+    ..registerLazySingleton<PushService>(
+      () => PushService(
+        getIt<AuthRepository>(),
+        getIt<LocalNotificationsService>(),
+        getIt<LocaleCubit>(),
+        getIt<AuthCubit>(),
+      ),
+    );
 }
 
 /// Categories, products, brands and the type-ahead search.
 void _registerCatalog() {
   getIt
-    ..registerLazySingleton<CategoryRemoteDataSource>(() => CategoryRemoteDataSourceImpl(getIt<ApiClient>()))
-    ..registerLazySingleton<CategoryRepository>(() => CategoryRepositoryImpl(getIt<CategoryRemoteDataSource>()))
+    ..registerLazySingleton<CategoryRemoteDataSource>(
+      () => CategoryRemoteDataSourceImpl(getIt<ApiClient>()),
+    )
+    ..registerLazySingleton<CategoryRepository>(
+      () => CategoryRepositoryImpl(getIt<CategoryRemoteDataSource>()),
+    )
     // One per page: the tab's cubit dies with the page, while the tree it
     // loaded stays cached in the repository.
-    ..registerFactory<CategoryCubit>(() => CategoryCubit(getIt<CategoryRepository>()))
-    ..registerLazySingleton<ProductRemoteDataSource>(() => ProductRemoteDataSourceImpl(getIt<ApiClient>()))
-    ..registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(getIt<ProductRemoteDataSource>()))
-    ..registerLazySingleton<BrandRemoteDataSource>(() => BrandRemoteDataSourceImpl(getIt<ApiClient>()))
-    ..registerLazySingleton<BrandRepository>(() => BrandRepositoryImpl(getIt<BrandRemoteDataSource>()))
-    ..registerLazySingleton<SearchRemoteDataSource>(() => SearchRemoteDataSourceImpl(getIt<ApiClient>()))
-    ..registerLazySingleton<SearchRepository>(() => SearchRepositoryImpl(getIt<SearchRemoteDataSource>(), getIt<LocalStorage>()));
+    ..registerFactory<CategoryCubit>(
+      () => CategoryCubit(getIt<CategoryRepository>()),
+    )
+    ..registerLazySingleton<ProductRemoteDataSource>(
+      () => ProductRemoteDataSourceImpl(getIt<ApiClient>()),
+    )
+    ..registerLazySingleton<ProductRepository>(
+      () => ProductRepositoryImpl(getIt<ProductRemoteDataSource>()),
+    )
+    ..registerLazySingleton<BrandRemoteDataSource>(
+      () => BrandRemoteDataSourceImpl(getIt<ApiClient>()),
+    )
+    ..registerLazySingleton<BrandRepository>(
+      () => BrandRepositoryImpl(getIt<BrandRemoteDataSource>()),
+    )
+    ..registerLazySingleton<SearchRemoteDataSource>(
+      () => SearchRemoteDataSourceImpl(getIt<ApiClient>()),
+    )
+    ..registerLazySingleton<SearchRepository>(
+      () => SearchRepositoryImpl(
+        getIt<SearchRemoteDataSource>(),
+        getIt<LocalStorage>(),
+      ),
+    );
 }
 
 /// The cart lives on the device; these are the two supplier-backed calls
 /// and the order history behind them.
 void _registerPreOrders() {
   getIt
-    ..registerLazySingleton<PreOrderRemoteDataSource>(() => PreOrderRemoteDataSourceImpl(getIt<ApiClient>()))
-    ..registerLazySingleton<PreOrderRepository>(() => PreOrderRepositoryImpl(getIt<PreOrderRemoteDataSource>()));
+    ..registerLazySingleton<PreOrderRemoteDataSource>(
+      () => PreOrderRemoteDataSourceImpl(getIt<ApiClient>()),
+    )
+    ..registerLazySingleton<PreOrderRepository>(
+      () => PreOrderRepositoryImpl(getIt<PreOrderRemoteDataSource>()),
+    );
 }

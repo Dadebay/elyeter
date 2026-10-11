@@ -28,4 +28,17 @@ abstract final class ApiEndpoints {
   static const preOrderCheck = '/pre-orders/check';
   static String preOrder(int id) => '/pre-orders/$id';
   static String cancelPreOrder(int id) => '/pre-orders/$id/cancel';
+
+  static const favorites = '/favorites';
+  static const favoriteIds = '/favorites/ids';
+  static String favorite(int productId) => '/favorites/$productId';
+
+  static const locations = '/locations';
+  static String location(int id) => '/locations/$id';
+  static String defaultLocation(int id) => '/locations/$id/default';
+
+  static const pages = '/pages';
+  static String page(String slug) => '/pages/$slug';
+  static const contacts = '/contacts';
+  static const notifications = '/notifications';
 }

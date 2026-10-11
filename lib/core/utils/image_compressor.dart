@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
@@ -16,7 +17,7 @@ import 'app_logger.dart';
 /// not drop frames on the page that picked it.
 abstract final class ImageCompressor {
   /// The ceiling a stored avatar has to come in under.
-  static const maxBytes = 1024 * 1024;
+  static const maxBytes = 1_000_000;
 
   /// Longest side after resizing. Four times the size the avatar is drawn
   /// at, so it still looks right on a 3x screen and in the photo viewer.
@@ -30,23 +31,26 @@ abstract final class ImageCompressor {
   /// Re-encodes the photo at [path] as JPEG and writes it next to the
   /// original, returning the new file's path.
   ///
-  /// Returns [path] unchanged when the photo already fits, and when it
-  /// cannot be decoded at all — a picture the app cannot shrink is still a
-  /// picture the customer chose, and failing here must not lose it.
-  static Future<String> shrink(String path) async {
+  /// Returns [path] unchanged when it already fits. Returns null if a large
+  /// image cannot be reduced below the limit; callers must not keep it.
+  static Future<String?> shrink(String path) async {
     try {
       final source = File(path);
       final bytes = await source.readAsBytes();
       if (bytes.length <= maxBytes) return path;
 
-      final shrunk = await compute(_encode, bytes);
-      if (shrunk == null) return path;
+      final shrunk = await compute(compressBytes, bytes);
+      if (shrunk == null || shrunk.length > maxBytes) return null;
 
       final directory = await getTemporaryDirectory();
       final target = File(
         '${directory.path}/avatar_${DateTime.now().millisecondsSinceEpoch}.jpg',
       );
       await target.writeAsBytes(shrunk);
+      if (await target.length() > maxBytes) {
+        await target.delete();
+        return null;
+      }
 
       AppLogger.d(
         'Avatar shrunk: ${_kb(bytes.length)} -> ${_kb(shrunk.length)}',
@@ -54,36 +58,45 @@ abstract final class ImageCompressor {
       return target.path;
     } on Object catch (e) {
       AppLogger.w('Avatar compression failed: $e');
-      return path;
+      return null;
     }
   }
 
   static String _kb(int bytes) => '${(bytes / 1024).round()} KB';
-}
 
-/// Runs on a background isolate — top-level so [compute] can reach it, and
-/// free of anything but its argument for the same reason.
-Uint8List? _encode(Uint8List bytes) {
-  var image = img.decodeImage(bytes);
-  if (image == null) return null;
+  /// Pure-Dart work run by [compute], separate from file and plugin access.
+  static Uint8List? compressBytes(Uint8List bytes) {
+    try {
+      final decoded = img.decodeImage(bytes);
+      if (decoded == null) return null;
+      var image = decoded;
 
-  if (image.width > ImageCompressor.maxDimension ||
-      image.height > ImageCompressor.maxDimension) {
-    final landscape = image.width >= image.height;
-    image = img.copyResize(
-      image,
-      width: landscape ? ImageCompressor.maxDimension : null,
-      height: landscape ? null : ImageCompressor.maxDimension,
-    );
+      if (image.width > maxDimension || image.height > maxDimension) {
+        final landscape = image.width >= image.height;
+        image = img.copyResize(
+          image,
+          width: landscape ? maxDimension : null,
+          height: landscape ? null : maxDimension,
+        );
+      }
+
+      while (true) {
+        for (final quality in _qualitySteps) {
+          final encoded = Uint8List.fromList(
+            img.encodeJpg(image, quality: quality),
+          );
+          if (encoded.length <= maxBytes) return encoded;
+        }
+
+        if (image.width == 1 && image.height == 1) return null;
+        image = img.copyResize(
+          image,
+          width: math.max(1, image.width ~/ 2),
+          height: math.max(1, image.height ~/ 2),
+        );
+      }
+    } on Object {
+      return null;
+    }
   }
-
-  for (final quality in ImageCompressor._qualitySteps) {
-    final encoded = Uint8List.fromList(img.encodeJpg(image, quality: quality));
-    if (encoded.length <= ImageCompressor.maxBytes) return encoded;
-  }
-
-  // Still over the limit at the lowest step — an extreme source, a panorama
-  // or a scan. Halve it once more and settle: this is drawn at ~100pt.
-  final halved = img.copyResize(image, width: (image.width / 2).round());
-  return Uint8List.fromList(img.encodeJpg(halved, quality: 40));
 }

@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/constants/app_assets.dart';
+import '../../../../core/di/injector.dart';
+import '../../../../core/localization/failure_localizer.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
@@ -14,6 +16,8 @@ import '../widgets/edit_profile_field.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/widgets/app_snack_bar.dart';
 import '../../../../core/utils/image_compressor.dart';
+import '../../../auth/domain/repositories/auth_repository.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
 
 /// Two things a customer can change about their account: the photo and the
 /// display name. The phone number identifies the account, so it is shown
@@ -32,6 +36,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late final TextEditingController _name;
   late final ProfileState _initial;
   late String? _avatarPath;
+  bool _saving = false;
 
   @override
   void initState() {
@@ -91,7 +96,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
               hint: l10n.editProfileNameHint,
               textCapitalization: TextCapitalization.words,
               maxLength: EditProfilePage.nameLimit,
-              counter: l10n.editProfileNameCounter(_name.text.characters.length),
+              counter: l10n.editProfileNameCounter(
+                _name.text.characters.length,
+              ),
               validator: (value) => (value ?? '').trim().isEmpty
                   ? l10n.editProfileNameRequired
                   : null,
@@ -124,7 +131,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ),
       // Pinned: a two-field form should not make anyone scroll to save.
       bottomNavigationBar: _SaveBar(
-        enabled: _dirty,
+        enabled: _dirty && !_saving,
+        saving: _saving,
         label: l10n.commonSave,
         onPressed: _save,
       ),
@@ -197,16 +205,47 @@ class _EditProfilePageState extends State<EditProfilePage> {
     // is still over a megabyte, shrunk properly before it is kept.
     final path = await ImageCompressor.shrink(picked.path);
     if (!mounted) return;
+    if (path == null) {
+      AppSnackBar.show(
+        context,
+        context.l10n.editProfilePhotoTooLarge,
+        icon: AppIcons.error,
+        iconColor: AppColors.error,
+      );
+      return;
+    }
     setState(() => _avatarPath = path);
   }
 
-  void _save() {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+  Future<void> _save() async {
+    if (_saving || !(_formKey.currentState?.validate() ?? false)) return;
 
-    context.read<ProfileCubit>().save(
-      name: _name.text.trim(),
-      avatarPath: _avatarPath,
-    );
+    final name = _name.text.trim();
+    if (name != _initial.name) {
+      final auth = context.read<AuthCubit>();
+      final accountId = auth.state.user?.id;
+      if (accountId == null) return;
+      setState(() => _saving = true);
+      final result = await getIt<AuthRepository>().updateProfile(
+        username: name,
+      );
+      if (!mounted) return;
+      setState(() => _saving = false);
+      if (auth.state.user?.id != accountId) return;
+      if (result.dataOrNull case final updated?) {
+        auth.onUserUpdated(updated);
+      } else {
+        AppSnackBar.show(
+          context,
+          result.failureOrNull!.localize(context.l10n),
+          icon: AppIcons.error,
+          iconColor: AppColors.error,
+        );
+        return;
+      }
+    }
+
+    context.read<ProfileCubit>().save(name: name, avatarPath: _avatarPath);
     AppSnackBar.show(context, context.l10n.editProfileSaved);
     Navigator.of(context).pop();
   }
@@ -216,11 +255,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
 class _SaveBar extends StatelessWidget {
   const _SaveBar({
     required this.enabled,
+    required this.saving,
     required this.label,
     required this.onPressed,
   });
 
   final bool enabled;
+  final bool saving;
   final String label;
   final VoidCallback onPressed;
 
@@ -246,7 +287,12 @@ class _SaveBar extends StatelessWidget {
         ),
         child: FilledButton(
           onPressed: enabled ? onPressed : null,
-          child: Text(label),
+          child: saving
+              ? const SizedBox.square(
+                  dimension: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(label),
         ),
       ),
     );

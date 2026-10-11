@@ -5,7 +5,11 @@ import '../../../../core/theme/app_spacing.dart';
 
 /// A titled group of rows drawn as one rounded card, dividers between rows.
 class SettingsSection extends StatelessWidget {
-  const SettingsSection({super.key, required this.title, required this.children});
+  const SettingsSection({
+    super.key,
+    required this.title,
+    required this.children,
+  });
 
   final String title;
   final List<Widget> children;
@@ -27,7 +31,9 @@ class SettingsSection extends StatelessWidget {
           ),
           child: Text(
             title,
-            style: theme.textTheme.labelMedium?.copyWith(color: AppColors.grey500),
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: AppColors.grey500,
+            ),
           ),
         ),
         Material(

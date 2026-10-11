@@ -3,227 +3,141 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/di/injector.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
-import '../../../../core/widgets/app_empty_view.dart';
-import '../../../favorite/presentation/cubit/favorite_cubit.dart';
-import '../../../home/presentation/view/home_placeholder_data.dart';
-import '../../../product/presentation/widgets/product_card.dart';
+import '../../../product/domain/entities/product_detail.dart';
+import '../../../product/domain/repositories/product_repository.dart';
 import '../cubit/cart_cubit.dart';
 import '../cubit/cart_state.dart';
-import '../widgets/cart_line_tile.dart';
-import '../widgets/cart_summary_bar.dart';
-import '../widgets/swipe_to_delete.dart';
-import '../../../../core/constants/app_icons.dart';
 
-/// The cart: one line per product, a running total over the list.
-///
-/// Resolves ids against the catalog, so a product that leaves the catalog
-/// simply stops being listed — the stored line does no harm.
-class CartPage extends StatelessWidget {
+class CartPage extends StatefulWidget {
   const CartPage({super.key});
+  @override
+  State<CartPage> createState() => _CartPageState();
+}
 
-  /// Resting height of the summary pill. Only feeds the scroll clearance, so
-  /// a pixel either way just changes how much empty space trails the list.
-  static const _summaryHeight = 56.0;
-
-  /// Gap under the pill, and again under the list.
-  static const _gap = AppSpacing.md;
+class _CartPageState extends State<CartPage> {
+  final Map<String, ProductDetail?> _products = {};
+  final Set<String> _loading = {};
 
   @override
-  Widget build(BuildContext context) {
-    // The pill sits clear of the nav bar rather than a fixed distance off the
-    // screen edge, so it lands right on a home-indicator phone and on one
-    // without alike.
-    final summaryBottom = context.navBarHeight + _gap;
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchMissing());
+  }
 
-    return BlocBuilder<CartCubit, CartState>(
+  void _fetchMissing() {
+    if (!mounted) return;
+    for (final slug in context.read<CartCubit>().state.quantities.keys) {
+      if (_products.containsKey(slug) || !_loading.add(slug)) continue;
+      getIt<ProductRepository>().bySlug(slug).then((result) {
+        if (mounted) {
+          setState(() {
+            _products[slug] = result.dataOrNull;
+            _loading.remove(slug);
+          });
+        }
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => BlocListener<CartCubit, CartState>(
+    listener: (_, _) => _fetchMissing(),
+    child: BlocBuilder<CartCubit, CartState>(
       builder: (context, cart) {
-        final lines = HomePlaceholderData.catalog
-            .where((product) => cart.contains(product.id))
-            .toList();
-
+        final selected = cart.selectedIds.toList();
+        final total = selected.fold<num>(0, (sum, slug) {
+          final detail = _products[slug];
+          if (detail == null) return sum;
+          final variant = detail.variants
+              .where((v) => v.id == cart.variants[slug])
+              .firstOrNull;
+          return sum +
+              (variant?.price ?? detail.product.price) * cart.quantityOf(slug);
+        });
         return Scaffold(
-          backgroundColor: AppColors.white,
-          // Stays put while the list scrolls under it, so the count and the
-          // "Select All" tick are always in reach.
-          appBar: _CartAppBar(count: lines.length, allSelected: cart.allSelected),
-          body: lines.isEmpty
-              ? const AppEmptyView(icon: AppIcons.cart)
-              : Stack(
+          appBar: AppBar(title: Text(context.l10n.navCart)),
+          body: cart.quantities.isEmpty
+              ? const Center(
+                  child: Icon(Icons.shopping_cart_outlined, size: 72),
+                )
+              : ListView(
                   children: [
-                    ListView.separated(
-                      // The last line scrolls out from under the pill instead
-                      // of stopping behind it.
-                      padding: EdgeInsets.fromLTRB(
-                        AppSpacing.page,
-                        0,
-                        AppSpacing.page,
-                        summaryBottom + _summaryHeight + _gap,
-                      ),
-                      itemCount: lines.length,
-                      separatorBuilder: (_, _) =>
-                          const Divider(height: 1, color: AppColors.grey100),
-                      itemBuilder: (context, index) =>
-                          _Line(product: lines[index], cart: cart),
-                    ),
-                    Positioned(
-                      left: AppSpacing.page,
-                      right: AppSpacing.page,
-                      bottom: summaryBottom,
-                      child: _Summary(cart: cart, lines: lines),
-                    ),
+                    for (final slug in cart.quantities.keys)
+                      if (_loading.contains(slug))
+                        ListTile(
+                          title: Text(slug),
+                          trailing: const CircularProgressIndicator(),
+                        )
+                      else if (_products[slug] case final detail?)
+                        ListTile(
+                          leading: Checkbox(
+                            value: cart.isSelected(slug),
+                            onChanged: (_) =>
+                                context.read<CartCubit>().toggleSelected(slug),
+                          ),
+                          title: Text(detail.product.name),
+                          subtitle: Text(
+                            '${detail.product.price} TMT · ${cart.quantityOf(slug)}${cart.variants[slug] == null ? '' : ' · ${detail.variants.where((v) => v.id == cart.variants[slug]).firstOrNull?.label ?? ''}'}',
+                          ),
+                          onTap: () => context.pushNamed(
+                            AppRoutes.productDetail.name,
+                            pathParameters: {'id': slug},
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                onPressed: () =>
+                                    context.read<CartCubit>().decrease(slug),
+                                icon: const Icon(Icons.remove_circle_outline),
+                              ),
+                              Text('${cart.quantityOf(slug)}'),
+                              IconButton(
+                                onPressed: () =>
+                                    context.read<CartCubit>().increase(slug),
+                                icon: const Icon(Icons.add_circle_outline),
+                              ),
+                              IconButton(
+                                onPressed: () =>
+                                    context.read<CartCubit>().remove(slug),
+                                icon: const Icon(Icons.delete_outline),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        ListTile(
+                          title: Text(slug),
+                          subtitle: const Text('Product unavailable'),
+                          trailing: IconButton(
+                            onPressed: () =>
+                                context.read<CartCubit>().remove(slug),
+                            icon: const Icon(Icons.delete_outline),
+                          ),
+                        ),
                   ],
+                ),
+          bottomNavigationBar: cart.quantities.isEmpty
+              ? null
+              : SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: FilledButton(
+                      onPressed:
+                          selected.isEmpty ||
+                              selected.any((s) => _products[s] == null)
+                          ? null
+                          : () => context.pushNamed(AppRoutes.checkout.name),
+                      child: Text(
+                        '${context.l10n.commonCheckout} · $total TMT',
+                      ),
+                    ),
+                  ),
                 ),
         );
       },
-    );
-  }
-}
-
-/// Product count on the left, "Select All" pinned to the right edge.
-class _CartAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const _CartAppBar({required this.count, required this.allSelected});
-
-  static const _height = 76.0;
-
-  final int count;
-  final bool allSelected;
-
-  @override
-  Size get preferredSize => const Size.fromHeight(_height);
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      backgroundColor: AppColors.white,
-      surfaceTintColor: Colors.transparent,
-      elevation: 0,
-      // The list slides under the bar without tinting it.
-      scrolledUnderElevation: 0,
-      toolbarHeight: _height,
-      titleSpacing: AppSpacing.page,
-      automaticallyImplyLeading: false,
-      title: Text(
-        context.l10n.cartProductCount(count),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        // Tracking is size-specific: at this size the default spacing reads
-        // too loose, so it tightens as the type grows.
-        style: context.textTheme.headlineLarge?.copyWith(
-          color: AppColors.black,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.5,
-        ),
-      ),
-      // An action rather than part of the title, so it ends up hard against
-      // the right margin however long the count reads.
-      actions: count == 0
-          ? null
-          : [
-              _SelectAll(allSelected: allSelected),
-              const SizedBox(width: AppSpacing.page),
-            ],
-    );
-  }
-}
-
-/// The "Select All" label and its tick, as one control: tapping either ticks
-/// every line, and tapping again clears them.
-class _SelectAll extends StatelessWidget {
-  const _SelectAll({required this.allSelected});
-
-  final bool allSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    void toggle() => context.read<CartCubit>().toggleSelectAll();
-
-    return GestureDetector(
-      onTap: toggle,
-      behavior: HitTestBehavior.opaque,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            context.l10n.cartSelectAll,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: AppColors.grey700,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          CartTickBox(value: allSelected, onTap: toggle),
-        ],
-      ),
-    );
-  }
-}
-
-class _Line extends StatelessWidget {
-  const _Line({required this.product, required this.cart});
-
-  final ProductCardData product;
-  final CartState cart;
-
-  @override
-  Widget build(BuildContext context) {
-    final cubit = context.read<CartCubit>();
-
-    return BlocBuilder<FavoriteCubit, Set<String>>(
-      buildWhen: (before, after) =>
-          before.contains(product.id) != after.contains(product.id),
-      builder: (context, favorites) => SwipeToDelete(
-        onDelete: () => cubit.remove(product.id),
-        child: CartLineTile(
-          product: product,
-          quantity: cart.quantityOf(product.id),
-          selected: cart.isSelected(product.id),
-          isFavorite: favorites.contains(product.id),
-          onIncrease: () => cubit.increase(product.id),
-          onDecrease: () => cubit.decrease(product.id),
-          onSelectedChanged: () => cubit.toggleSelected(product.id),
-          onFavoriteTap: () => context.read<FavoriteCubit>().toggle(product.id),
-        ),
-      ),
-    );
-  }
-}
-
-/// Totals the ticked lines only — unticking a line is how the customer
-/// leaves it out without giving it up.
-class _Summary extends StatelessWidget {
-  const _Summary({required this.cart, required this.lines});
-
-  final CartState cart;
-  final List<ProductCardData> lines;
-
-  @override
-  Widget build(BuildContext context) {
-    var total = 0.0;
-    var oldTotal = 0.0;
-    var count = 0;
-
-    for (final product in lines) {
-      if (!cart.isSelected(product.id)) continue;
-      final quantity = cart.quantityOf(product.id);
-      total += product.price * quantity;
-      oldTotal += (product.oldPrice ?? product.price) * quantity;
-      count++;
-    }
-
-    return CartSummaryBar(
-      productCount: count,
-      total: total,
-      oldTotal: oldTotal,
-      // Nothing ticked is nothing to order, so the pill stays inert rather
-      // than opening an empty order.
-      onTap: count == 0
-          ? null
-          : () => context.pushNamed(AppRoutes.orderDetail.name),
-    );
-  }
+    ),
+  );
 }

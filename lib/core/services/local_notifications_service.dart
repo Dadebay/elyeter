@@ -15,6 +15,7 @@ class LocalNotificationsService {
   static const _channelDescription = 'Order updates and announcements';
 
   final _plugin = FlutterLocalNotificationsPlugin();
+  void Function(String?)? onTap;
 
   bool _initialized = false;
 
@@ -36,6 +37,8 @@ class LocalNotificationsService {
           requestSoundPermission: false,
         ),
       ),
+      onDidReceiveNotificationResponse: (response) =>
+          onTap?.call(response.payload),
     );
 
     await _plugin

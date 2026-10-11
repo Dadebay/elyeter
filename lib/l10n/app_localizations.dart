@@ -148,6 +148,30 @@ abstract class AppLocalizations {
   /// **'Retry'**
   String get commonRetry;
 
+  /// No description provided for @notificationsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet'**
+  String get notificationsEmptyTitle;
+
+  /// No description provided for @notificationsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'New updates will appear here.'**
+  String get notificationsEmptyMessage;
+
+  /// No description provided for @announcementsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No announcements yet'**
+  String get announcementsEmptyTitle;
+
+  /// No description provided for @announcementsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'New announcements will appear here.'**
+  String get announcementsEmptyMessage;
+
   /// No description provided for @commonCancel.
   ///
   /// In en, this message translates to:
@@ -436,17 +460,47 @@ abstract class AppLocalizations {
   /// **'Filters'**
   String get categoryFilters;
 
+  /// No description provided for @categoryOnlyFeatured.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured products only'**
+  String get categoryOnlyFeatured;
+
   /// No description provided for @categorySortTitle.
   ///
   /// In en, this message translates to:
   /// **'Sort by'**
   String get categorySortTitle;
 
+  /// No description provided for @categorySortNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get categorySortNewest;
+
   /// No description provided for @categorySortPopular.
   ///
   /// In en, this message translates to:
   /// **'Popular'**
   String get categorySortPopular;
+
+  /// No description provided for @categoryPriceMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum price'**
+  String get categoryPriceMin;
+
+  /// No description provided for @categoryPriceRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Price range'**
+  String get categoryPriceRange;
+
+  /// No description provided for @categoryPriceMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum price'**
+  String get categoryPriceMax;
 
   /// No description provided for @categorySortPriceAsc.
   ///
@@ -483,6 +537,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing matches these filters'**
   String get categoryNoResults;
+
+  /// No description provided for @categoryProductsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No products yet'**
+  String get categoryProductsEmptyTitle;
+
+  /// No description provided for @categoryProductsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This category has no products right now. Explore another category.'**
+  String get categoryProductsEmptyMessage;
 
   /// No description provided for @categoryNoResultsHint.
   ///
@@ -682,6 +748,30 @@ abstract class AppLocalizations {
   /// **'Order history'**
   String get orderHistory;
 
+  /// No description provided for @orderHistoryEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders yet'**
+  String get orderHistoryEmptyTitle;
+
+  /// No description provided for @orderHistoryEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your orders will appear here after you place one.'**
+  String get orderHistoryEmptyMessage;
+
+  /// No description provided for @activeOrdersEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No active orders'**
+  String get activeOrdersEmptyTitle;
+
+  /// No description provided for @activeOrdersEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders in progress will appear here.'**
+  String get activeOrdersEmptyMessage;
+
   /// No description provided for @orderItemCount.
   ///
   /// In en, this message translates to:
@@ -820,6 +910,24 @@ abstract class AppLocalizations {
   /// **'My saved locations'**
   String get profileSavedLocations;
 
+  /// No description provided for @addressEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved addresses yet'**
+  String get addressEmptyTitle;
+
+  /// No description provided for @addressEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to save your first delivery address.'**
+  String get addressEmptyMessage;
+
+  /// No description provided for @addressDeleteDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Address deleted.'**
+  String get addressDeleteDone;
+
   /// No description provided for @profileOrderHistory.
   ///
   /// In en, this message translates to:
@@ -861,6 +969,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Privacy policy'**
   String get profilePrivacy;
+
+  /// No description provided for @staticPageEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Content will appear here when it is available.'**
+  String get staticPageEmpty;
 
   /// No description provided for @profileWhatsapp.
   ///
@@ -1107,6 +1221,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove photo'**
   String get editProfilePhotoRemove;
+
+  /// No description provided for @editProfilePhotoTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'This photo could not be reduced below 1 MB. Choose another photo.'**
+  String get editProfilePhotoTooLarge;
 
   /// No description provided for @editProfileSaved.
   ///

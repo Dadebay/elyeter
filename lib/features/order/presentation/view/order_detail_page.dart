@@ -1,285 +1,170 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../../core/constants/app_assets.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/utils/extensions/context_extensions.dart';
-import '../../../../core/utils/formatters/currency_formatter.dart';
-import '../../../../core/widgets/app_back_button.dart';
-import '../model/order_detail_data.dart';
-import '../widgets/order_card.dart';
-import '../widgets/order_info_row.dart';
-import '../widgets/order_products_strip.dart';
-import '../widgets/order_progress_timeline.dart';
-import '../widgets/order_total_card.dart';
-import 'order_placeholder_data.dart';
+import '../../../../app/router/app_routes.dart';
+import '../../../../core/di/injector.dart';
+import '../../../../core/utils/result.dart';
+import '../../domain/entities/pre_order.dart';
+import '../../domain/repositories/pre_order_repository.dart';
 
-/// One order, end to end: where it has got to, what is in it, where it is
-/// going and what it cost.
-class OrderDetailPage extends StatelessWidget {
-  const OrderDetailPage({super.key, this.orderId});
-
-  /// Null opens the order the customer has just placed.
-  final String? orderId;
+class OrderDetailPage extends StatefulWidget {
+  const OrderDetailPage({super.key, required this.orderId});
+  final int orderId;
 
   @override
-  Widget build(BuildContext context) {
-    final order = OrderPlaceholderData.active;
+  State<OrderDetailPage> createState() => _OrderDetailPageState();
+}
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leadingWidth: AppBackButton.leadingWidth,
-        leading: const AppBackButton.appBarLeading(),
+class _OrderDetailPageState extends State<OrderDetailPage> {
+  late Future<Result<PreOrder>> _future;
+  bool _cancelling = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _refresh();
+  }
+
+  void _refresh() => setState(
+    () => _future = getIt<PreOrderRepository>().byId(widget.orderId),
+  );
+
+  Future<void> _cancel() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cancel order?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Keep'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Cancel order'),
+          ),
+        ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.page,
-          0,
-          AppSpacing.page,
-          AppSpacing.xxxl,
+    );
+    if (confirm != true || !mounted) return;
+    setState(() => _cancelling = true);
+    final result = await getIt<PreOrderRepository>().cancel(widget.orderId);
+    if (!mounted) return;
+    setState(() => _cancelling = false);
+    if (result.isSuccess) {
+      _refresh();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.failureOrNull?.message ?? 'Could not cancel'),
         ),
-        children: [
-          _Header(order: order),
-          const SizedBox(height: AppSpacing.md),
-          _Progress(order: order),
-          const SizedBox(height: AppSpacing.md),
-          _Products(order: order),
-          const SizedBox(height: AppSpacing.md),
-          _Details(order: order),
-          const SizedBox(height: AppSpacing.md),
-          OrderTotalCard(order: order),
-        ],
-      ),
-    );
+      );
+    }
   }
-}
-
-/// Title, order number and the three things that can be done about it.
-class _Header extends StatelessWidget {
-  const _Header({required this.order});
-
-  final OrderDetailData order;
 
   @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-
-    return OrderCard(
-      child: Column(
-        children: [
-          Text(
-            l10n.orderActiveTitle,
-            style: context.textTheme.headlineSmall?.copyWith(
-              color: AppColors.black,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.3,
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(
+      title: const Text('Order'),
+      actions: [
+        IconButton(onPressed: _refresh, icon: const Icon(Icons.refresh)),
+      ],
+    ),
+    body: FutureBuilder<Result<PreOrder>>(
+      future: _future,
+      builder: (context, snapshot) {
+        final order = snapshot.data?.dataOrNull;
+        if (order == null) {
+          return Center(
+            child: snapshot.connectionState != ConnectionState.done
+                ? const CircularProgressIndicator()
+                : TextButton(
+                    onPressed: _refresh,
+                    child: Text(
+                      snapshot.data?.failureOrNull?.message ?? 'Retry',
+                    ),
+                  ),
+          );
+        }
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Text(
+              order.number,
+              style: Theme.of(context).textTheme.headlineSmall,
             ),
-          ),
-          const SizedBox(height: AppSpacing.xxs),
-          Text(
-            l10n.orderNumber(order.number),
-            style: context.textTheme.labelSmall?.copyWith(
-              color: AppColors.grey500,
+            Text(
+              order.status.value,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Row(
-            children: [
-              Expanded(
-                child: _Action(
-                  icon: AppAssets.iconRepeatOrder,
-                  label: l10n.orderRepeat,
-                  onTap: () {},
-                ),
+            const SizedBox(height: 12),
+            FilledButton.icon(
+              onPressed: () => context.pushNamed(
+                AppRoutes.orderTrack.name,
+                pathParameters: {'id': order.id.toString()},
               ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: _Action(
-                  icon: AppAssets.iconBubbleQuestion,
-                  label: l10n.orderQuestions,
-                  onTap: () {},
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: _Action(
-                  icon: AppAssets.iconCircleX,
-                  label: l10n.orderCancel,
-                  onTap: () {},
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// One of the header's three buttons.
-class _Action extends StatelessWidget {
-  const _Action({required this.icon, required this.label, this.onTap});
-
-  /// Path to an SVG in `assets/icons`; see [OrderInfoRow.icon].
-  final String icon;
-
-  final String label;
-
-  /// Repeat, support and cancellation do not exist yet, so the three are
-  /// drawn as the design has them and handed an empty callback — pressed
-  /// they acknowledge the touch and do nothing. Wire them at the call site.
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.grey100,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-          child: Column(
-            children: [
-              SvgPicture.asset(icon, width: 22, height: 22),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: context.textTheme.labelMedium?.copyWith(
-                  color: AppColors.grey700,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Progress extends StatelessWidget {
-  const _Progress({required this.order});
-
-  final OrderDetailData order;
-
-  @override
-  Widget build(BuildContext context) {
-    return OrderCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          OrderCardHeader(title: context.l10n.orderProgress),
-          const SizedBox(height: AppSpacing.lg),
-          OrderProgressTimeline(stages: order.stages),
-        ],
-      ),
-    );
-  }
-}
-
-class _Products extends StatelessWidget {
-  const _Products({required this.order});
-
-  final OrderDetailData order;
-
-  @override
-  Widget build(BuildContext context) {
-    return OrderCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          OrderCardHeader(title: context.l10n.orderProducts, onTap: () {}),
-          const SizedBox(height: AppSpacing.xxs),
-          Text(
-            context.l10n.orderItemSummary(
-              order.itemCount,
-              CurrencyFormatter.format(order.productsTotal, decimals: 0),
+              icon: const Icon(Icons.map_outlined),
+              label: const Text('Siparişi haritada takip et'),
             ),
-            style: context.textTheme.labelSmall?.copyWith(
-              color: AppColors.grey500,
+            const SizedBox(height: 16),
+            for (final item in order.items)
+              ListTile(
+                leading: item.image == null
+                    ? const Icon(Icons.shopping_bag_outlined)
+                    : Image.network(
+                        item.image!,
+                        width: 50,
+                        height: 50,
+                        errorBuilder: (_, _, _) =>
+                            const Icon(Icons.shopping_bag_outlined),
+                      ),
+                title: Text(item.name),
+                subtitle: Text(
+                  '${item.variant ?? ''} · ${item.quantity} × ${item.price.toStringAsFixed(2)} TMT',
+                ),
+                trailing: Text('${item.lineTotal.toStringAsFixed(2)} TMT'),
+                onTap: item.productSlug == null
+                    ? null
+                    : () => context.pushNamed(
+                        AppRoutes.productDetail.name,
+                        pathParameters: {'id': item.productSlug!},
+                      ),
+              ),
+            const Divider(),
+            ListTile(
+              title: const Text('Total'),
+              trailing: Text(
+                '${order.totalPrice.toStringAsFixed(2)} ${order.currency}',
+              ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          OrderProductsStrip(
-            products: order.products,
-            itemCount: order.itemCount,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Where it is going, who is collecting it, when it was placed and how it
-/// was paid for.
-class _Details extends StatelessWidget {
-  const _Details({required this.order});
-
-  final OrderDetailData order;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final locale = Localizations.localeOf(context).toString();
-
-    return OrderCard(
-      child: Column(
-        children: [
-          OrderInfoRow(
-            icon: AppAssets.iconPinLocation,
-            label: l10n.orderPickupPoint,
-            value: order.pickupPoint,
-            onEdit: () {},
-          ),
-          const _Gap(),
-          OrderInfoRow(
-            icon: AppAssets.iconUser,
-            label: l10n.orderRecipient,
-            value: order.recipientName,
-            secondary: order.recipientPhone,
-            onEdit: () {},
-          ),
-          const _Gap(),
-          OrderInfoRow(
-            icon: AppAssets.iconCalendar,
-            label: l10n.orderTime,
-            value: DateFormat(
-              "MMMM d, y 'at' HH:mm",
-              locale,
-            ).format(order.placedAt),
-          ),
-          const _Gap(),
-          OrderInfoRow(
-            icon: AppAssets.iconWallet,
-            label: l10n.orderPayment,
-            value: l10n.orderPaymentCard,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// The hairline between two facts.
-class _Gap extends StatelessWidget {
-  const _Gap();
-
-  @override
-  Widget build(BuildContext context) => const Padding(
-    padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
-    child: Divider(height: 1, color: AppColors.grey100),
+            if (order.customerName != null)
+              ListTile(
+                title: const Text('Name'),
+                subtitle: Text(order.customerName!),
+              ),
+            if (order.phone != null)
+              ListTile(
+                title: const Text('Phone'),
+                subtitle: Text(order.phone!),
+              ),
+            if (order.address != null)
+              ListTile(
+                title: const Text('Address'),
+                subtitle: Text(order.address!),
+              ),
+            if (order.comment != null)
+              ListTile(
+                title: const Text('Comment'),
+                subtitle: Text(order.comment!),
+              ),
+            if (order.canCancel)
+              FilledButton.tonal(
+                onPressed: _cancelling ? null : _cancel,
+                child: Text(_cancelling ? '…' : 'Cancel order'),
+              ),
+          ],
+        );
+      },
+    ),
   );
 }

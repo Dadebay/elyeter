@@ -76,6 +76,11 @@ dependencies:
 
   # System share sheet for the product share button.
   share_plus: ^13.3.0
+  flutter_html: ^3.0.0
+  flutter_map: ^8.3.2
+  latlong2: ^0.9.1
+  location: ^10.0.2
+  html: 0.15.6
 
 dev_dependencies:
   flutter_test:
@@ -97,6 +102,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/flags/
     - assets/images/magazynes/
     - assets/images/category/
     - assets/images/banners/

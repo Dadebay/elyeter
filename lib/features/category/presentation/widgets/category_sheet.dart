@@ -62,11 +62,7 @@ class CategorySheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const _Handle(),
-          _Header(
-            title: title,
-            onReset: onReset,
-            resetLabel: resetLabel,
-          ),
+          _Header(title: title, onReset: onReset, resetLabel: resetLabel),
           const Divider(height: 1, color: AppColors.grey100),
           Flexible(child: child),
           if (footer != null) ...[
@@ -182,7 +178,14 @@ class _CloseButton extends StatelessWidget {
       child: const SizedBox(
         width: 32,
         height: 32,
-        child: HugeIcon(icon: AppIcons.close, size: 18, color: AppColors.grey700),
+        child: Center(
+          child: HugeIcon(
+            icon: AppIcons.close,
+            size: 14,
+            strokeWidth: 2.2,
+            color: AppColors.grey700,
+          ),
+        ),
       ),
     ),
   );

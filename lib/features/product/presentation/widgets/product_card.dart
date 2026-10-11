@@ -11,6 +11,8 @@ import '../../../../core/widgets/app_network_image.dart';
 import '../../../../core/widgets/cart_fly_animation.dart';
 import '../../../../core/widgets/favorite_button.dart';
 import '../../../../core/constants/app_icons.dart';
+import 'product_image_view.dart';
+import '../../domain/entities/product.dart';
 
 /// Minimal shape a card needs to render. Swap for the real entity once the
 /// product API lands — only this type changes, not the layout.
@@ -23,9 +25,27 @@ class ProductCardData {
     this.images = const [],
     this.specs = const [],
     this.attributes = const {},
+    this.apiId,
+    this.slug,
+    this.hasVariants = false,
   });
 
+  factory ProductCardData.fromProduct(Product product) => ProductCardData(
+    id: product.slug,
+    slug: product.slug,
+    apiId: product.id,
+    hasVariants: product.hasVariants,
+    title: product.name,
+    price: product.price,
+    oldPrice: product.oldPrice,
+    images: product.mainImage == null ? const [] : [product.mainImage!],
+  );
+
   final String id;
+  final int? apiId;
+  final String? slug;
+  final bool hasVariants;
+  String get favoriteKey => (apiId?.toString() ?? id);
   final String title;
   final num price;
 
@@ -82,6 +102,7 @@ class ProductCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onAddToCart;
   final VoidCallback? onFavoriteTap;
+
   /// Both default to the localized strings; pass them only to override.
   final String? addToCartLabel;
   final String? addedLabel;
@@ -115,7 +136,9 @@ class ProductCard extends StatelessWidget {
             data.title,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: context.textTheme.bodyMedium?.copyWith(color: AppColors.grey700),
+            style: context.textTheme.bodyMedium?.copyWith(
+              color: AppColors.grey700,
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
           _AddToCartButton(
@@ -180,7 +203,8 @@ class _GalleryState extends State<_Gallery> {
                       controller: _controller,
                       itemCount: count,
                       onPageChanged: (i) => setState(() => _page = i),
-                      itemBuilder: (context, index) => _Photo(widget.images[index]),
+                      itemBuilder: (context, index) =>
+                          _Photo(widget.images[index]),
                     ),
             ),
             Positioned(
@@ -188,7 +212,10 @@ class _GalleryState extends State<_Gallery> {
               // closer to the corner than the badges do.
               top: AppSpacing.xs,
               right: AppSpacing.xs,
-              child: FavoriteButton(active: widget.isFavorite, onTap: widget.onFavoriteTap),
+              child: FavoriteButton(
+                active: widget.isFavorite,
+                onTap: widget.onFavoriteTap,
+              ),
             ),
             if (widget.discountPercent != null)
               Positioned(
@@ -201,7 +228,9 @@ class _GalleryState extends State<_Gallery> {
               Positioned(
                 right: AppSpacing.sm,
                 bottom: AppSpacing.sm,
-                child: IgnorePointer(child: _Dots(count: count, index: _page)),
+                child: IgnorePointer(
+                  child: _Dots(count: count, index: _page),
+                ),
               ),
           ],
         ),
@@ -217,11 +246,7 @@ class _Photo extends StatelessWidget {
   final String source;
 
   @override
-  Widget build(BuildContext context) {
-    return source.startsWith('assets/')
-        ? Image.asset(source, fit: BoxFit.contain)
-        : AppNetworkImage(url: source, fit: BoxFit.contain, radius: 0);
-  }
+  Widget build(BuildContext context) => ProductImageView(source: source);
 }
 
 /// `-20%`, bottom left of the photo: the supplied ticket artwork with the
@@ -248,7 +273,11 @@ class _DiscountBadge extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          SvgPicture.asset(AppAssets.iconDiscountBanner, width: _width, height: _height),
+          SvgPicture.asset(
+            AppAssets.iconDiscountBanner,
+            width: _width,
+            height: _height,
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: _textInset),
             child: FittedBox(
@@ -333,7 +362,9 @@ class _Price extends StatelessWidget {
         const SizedBox(width: 3),
         Text(
           AppConstants.currencySymbol,
-          style: context.textTheme.labelSmall?.copyWith(color: AppColors.primary),
+          style: context.textTheme.labelSmall?.copyWith(
+            color: AppColors.primary,
+          ),
         ),
       ],
     );
@@ -343,7 +374,12 @@ class _Price extends StatelessWidget {
 /// Grey while the product can still be added, brand-orange with a tick once
 /// it is in the cart. Tapping it again takes the product back out.
 class _AddToCartButton extends StatelessWidget {
-  const _AddToCartButton({required this.label, required this.added, this.flyImage, this.onTap});
+  const _AddToCartButton({
+    required this.label,
+    required this.added,
+    this.flyImage,
+    this.onTap,
+  });
 
   /// The glyph box, sized so both states lay out identically.
   static const _iconSlot = 20.0;
@@ -393,12 +429,19 @@ class _AddToCartButton extends StatelessWidget {
                   height: _iconSlot,
                   child: Center(
                     child: added
-                        ? HugeIcon(icon: AppIcons.check, size: _iconSize, color: foreground)
+                        ? HugeIcon(
+                            icon: AppIcons.check,
+                            size: _iconSize,
+                            color: foreground,
+                          )
                         : SvgPicture.asset(
                             AppAssets.iconCart,
                             width: _iconSize,
                             height: _iconSize,
-                            colorFilter: ColorFilter.mode(foreground, BlendMode.srcIn),
+                            colorFilter: ColorFilter.mode(
+                              foreground,
+                              BlendMode.srcIn,
+                            ),
                           ),
                   ),
                 ),
@@ -408,7 +451,9 @@ class _AddToCartButton extends StatelessWidget {
                     label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: context.textTheme.labelLarge?.copyWith(color: foreground),
+                    style: context.textTheme.labelLarge?.copyWith(
+                      color: foreground,
+                    ),
                   ),
                 ),
               ],
@@ -419,4 +464,3 @@ class _AddToCartButton extends StatelessWidget {
     );
   }
 }
-

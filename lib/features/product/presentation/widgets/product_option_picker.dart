@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
+import 'product_image_view.dart';
 
 /// The colourway strip: the product's own photos as selectable swatches.
 class ProductColorPicker extends StatelessWidget {
@@ -47,7 +48,7 @@ class ProductColorPicker extends StatelessWidget {
                   width: 1.5,
                 ),
               ),
-              child: Image.asset(images[index], fit: BoxFit.contain),
+              child: ProductImageView(source: images[index]),
             ),
           );
         },
@@ -90,14 +91,18 @@ class ProductSizePicker extends StatelessWidget {
                 color: AppColors.grey100,
                 borderRadius: BorderRadius.circular(AppRadius.md),
                 border: Border.all(
-                  color: size == selected ? AppColors.black : Colors.transparent,
+                  color: size == selected
+                      ? AppColors.black
+                      : Colors.transparent,
                   width: 1.5,
                 ),
               ),
               child: Text(
                 size,
                 textAlign: TextAlign.center,
-                style: context.textTheme.titleSmall?.copyWith(color: AppColors.black),
+                style: context.textTheme.titleSmall?.copyWith(
+                  color: AppColors.black,
+                ),
               ),
             ),
           ),

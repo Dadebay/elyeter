@@ -6,7 +6,11 @@ import 'package:equatable/equatable.dart';
 /// Deselection is stored rather than selection, so a product added to the
 /// cart starts out ticked without anything having to remember to tick it.
 class CartState extends Equatable {
-  const CartState({this.quantities = const {}, this.deselected = const {}});
+  const CartState({
+    this.quantities = const {},
+    this.deselected = const {},
+    this.variants = const {},
+  });
 
   /// Product id -> quantity. A product not in the map is not in the cart.
   final Map<String, int> quantities;
@@ -14,6 +18,9 @@ class CartState extends Equatable {
   /// Ids the customer has unticked; they stay in the cart but are left out
   /// of the totals.
   final Set<String> deselected;
+
+  /// Selected supplier variant for products that require one at checkout.
+  final Map<String, int> variants;
 
   /// Distinct products in the cart — what the nav bar badge counts.
   int get lineCount => quantities.length;
@@ -30,5 +37,5 @@ class CartState extends Equatable {
   Iterable<String> get selectedIds => quantities.keys.where(isSelected);
 
   @override
-  List<Object?> get props => [quantities, deselected];
+  List<Object?> get props => [quantities, deselected, variants];
 }

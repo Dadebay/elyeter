@@ -15,7 +15,9 @@ enum AppRoutes {
   brand('brand/:id', 'brand'),
   search('/search', 'search'),
   orders('orders', 'orders'),
-  orderDetail('order', 'order-detail'),
+  checkout('checkout', 'checkout'),
+  orderDetail('/order/:id', 'order-detail'),
+  orderTrack('/order/:id/track', 'order-track'),
   activeOrders('active-orders', 'active-orders'),
   announcements('announcements', 'announcements'),
   editProfile('edit', 'edit-profile'),
@@ -25,6 +27,7 @@ enum AppRoutes {
   faq('faq', 'faq'),
   terms('terms', 'terms'),
   privacy('privacy', 'privacy'),
+  staticPage('pages/:slug', 'static-page'),
   login('/login', 'login');
 
   const AppRoutes(this.path, this.name);

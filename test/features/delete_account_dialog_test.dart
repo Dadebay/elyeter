@@ -5,6 +5,7 @@ import 'package:elyeter/features/auth/domain/entities/otp_challenge.dart';
 import 'package:elyeter/features/auth/domain/repositories/auth_repository.dart';
 import 'package:elyeter/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:elyeter/features/profile/presentation/widgets/delete_account_dialog.dart';
+import 'package:elyeter/core/constants/app_icons.dart';
 import 'package:elyeter/core/utils/result.dart';
 import 'package:elyeter/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -30,11 +31,13 @@ class _IdleAuthRepository implements AuthRepository {
   Future<void> signOut() async {}
 
   @override
-  Future<Result<AppUser>> updateProfile({String? username, String? image}) async =>
-      throw UnimplementedError();
+  Future<Result<AppUser>> updateProfile({
+    String? username,
+    String? image,
+  }) async => throw UnimplementedError();
 
   @override
-  Future<Result<void>> updateFcmToken(String token) async =>
+  Future<Result<void>> updateFcmToken(String token, {String? lang}) async =>
       throw UnimplementedError();
 
   @override
@@ -86,7 +89,13 @@ void main() {
     expect(keep.height, lessThanOrEqualTo(48));
     expect(
       keep.center.dx,
-      moreOrLessEquals(tester.getRect(find.byType(Dialog)).center.dx, epsilon: 1),
+      moreOrLessEquals(
+        tester.getRect(find.byType(Dialog)).center.dx,
+        epsilon: 1,
+      ),
     );
+
+    final deleteIcon = tester.widget<HugeIcon>(find.byType(HugeIcon));
+    expect(deleteIcon.size, 20);
   });
 }

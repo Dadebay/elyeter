@@ -12,6 +12,8 @@ abstract final class PreOrderModel {
     customerName: json.strOrNull('customer_name'),
     phone: json.strOrNull('phone'),
     address: json.strOrNull('address'),
+    latitude: json.doubleOrNull('latitude'),
+    longitude: json.doubleOrNull('longitude'),
     comment: json.strOrNull('comment'),
     createdAt: json.dateOrNull('created_at'),
     statusChangedAt: json.dateOrNull('status_changed_at'),

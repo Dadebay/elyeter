@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../../../../core/constants/app_icons.dart';
+import '../../../../core/widgets/app_network_image.dart';
 
 /// One tile across the top of a category.
 class SubcategoryItem {
@@ -11,11 +12,13 @@ class SubcategoryItem {
     required this.id,
     required this.name,
     this.imageAsset,
+    this.imageUrl,
   });
 
   final String id;
   final String name;
   final String? imageAsset;
+  final String? imageUrl;
 }
 
 /// The subcategories, four across and two down, paged sideways.
@@ -154,6 +157,7 @@ class _SubcategoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final image = item.imageAsset;
+    final imageUrl = item.imageUrl;
 
     return GestureDetector(
       onTap: onTap,
@@ -167,28 +171,36 @@ class _SubcategoryTile extends StatelessWidget {
           // gutter to gutter instead of floating in their cells.
           AspectRatio(
             aspectRatio: 1,
-            child: image == null
-                ? DecoratedBox(
+            child: image != null
+                ? Image.asset(image, fit: BoxFit.contain)
+                : imageUrl != null
+                ? AppNetworkImage(url: imageUrl, fit: BoxFit.contain)
+                : DecoratedBox(
                     decoration: BoxDecoration(
                       color: AppColors.background,
                       borderRadius: BorderRadius.circular(AppRadius.lg),
                     ),
-                    child: const HugeIcon(
-                      icon: AppIcons.image,
-                      color: AppColors.grey500,
+                    child: const Center(
+                      child: HugeIcon(
+                        icon: AppIcons.image,
+                        size: 28,
+                        color: AppColors.grey500,
+                      ),
                     ),
-                  )
-                : Image.asset(image, fit: BoxFit.contain),
+                  ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Flexible(
-            child: Text(
-              item.name,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: context.textTheme.labelSmall?.copyWith(
-                color: AppColors.black,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+              child: Text(
+                item.name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: context.textTheme.labelSmall?.copyWith(
+                  color: AppColors.black,
+                ),
               ),
             ),
           ),

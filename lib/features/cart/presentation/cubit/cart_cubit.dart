@@ -1,6 +1,5 @@
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
-import '../../../home/presentation/view/home_placeholder_data.dart';
 import 'cart_state.dart';
 
 /// The customer's cart: which products, how many, and what is ticked.
@@ -8,10 +7,7 @@ import 'cart_state.dart';
 /// Hydrated, like the favourites, so the cart survives a restart. Ids and
 /// counts only — prices come from the catalog, so nothing here goes stale.
 class CartCubit extends HydratedCubit<CartState> {
-  /// Starts on the placeholder cart so the Cart tab has something to show
-  /// on a fresh install; a stored cart replaces it on every later launch.
-  CartCubit()
-    : super(const CartState(quantities: HomePlaceholderData.demoCart));
+  CartCubit() : super(const CartState());
 
   /// Beyond this a line stops being a cart line and becomes a bulk order.
   static const maxQuantity = 99;
@@ -30,20 +26,50 @@ class CartCubit extends HydratedCubit<CartState> {
     if (quantity < 1) return remove(id);
     final quantities = Map<String, int>.of(state.quantities);
     quantities[id] = quantity > maxQuantity ? maxQuantity : quantity;
-    emit(CartState(quantities: quantities, deselected: state.deselected));
+    emit(
+      CartState(
+        quantities: quantities,
+        deselected: state.deselected,
+        variants: state.variants,
+      ),
+    );
   }
 
   void remove(String id) {
     final quantities = Map<String, int>.of(state.quantities)..remove(id);
     final deselected = Set<String>.of(state.deselected)..remove(id);
-    emit(CartState(quantities: quantities, deselected: deselected));
+    final variants = Map<String, int>.of(state.variants)..remove(id);
+    emit(
+      CartState(
+        quantities: quantities,
+        deselected: deselected,
+        variants: variants,
+      ),
+    );
+  }
+
+  void setVariant(String id, int variantId) {
+    final variants = Map<String, int>.of(state.variants)..[id] = variantId;
+    emit(
+      CartState(
+        quantities: state.quantities,
+        deselected: state.deselected,
+        variants: variants,
+      ),
+    );
   }
 
   void toggleSelected(String id) {
     if (!contains(id)) return;
     final deselected = Set<String>.of(state.deselected);
     if (!deselected.remove(id)) deselected.add(id);
-    emit(CartState(quantities: state.quantities, deselected: deselected));
+    emit(
+      CartState(
+        quantities: state.quantities,
+        deselected: deselected,
+        variants: state.variants,
+      ),
+    );
   }
 
   /// Ticks everything, or unticks everything when it is already all ticked.
@@ -51,6 +77,7 @@ class CartCubit extends HydratedCubit<CartState> {
     CartState(
       quantities: state.quantities,
       deselected: state.allSelected ? state.quantities.keys.toSet() : const {},
+      variants: state.variants,
     ),
   );
 
@@ -77,7 +104,13 @@ class CartCubit extends HydratedCubit<CartState> {
 
     return CartState(
       quantities: quantities,
-      deselected: (json['deselected'] as List?)?.cast<String>().toSet() ?? const {},
+      deselected:
+          (json['deselected'] as List?)?.cast<String>().toSet() ?? const {},
+      variants:
+          (json['variants'] as Map?)?.map(
+            (key, value) => MapEntry(key as String, (value as num).toInt()),
+          ) ??
+          const {},
     );
   }
 
@@ -85,6 +118,7 @@ class CartCubit extends HydratedCubit<CartState> {
   Map<String, dynamic>? toJson(CartState state) => {
     'quantities': state.quantities,
     'deselected': state.deselected.toList(),
+    'variants': state.variants,
     _marker: true,
   };
 }

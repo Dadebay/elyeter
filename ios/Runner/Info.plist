@@ -11,6 +11,8 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>Elyeter uses the camera so you can search for products by taking a photo.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Elyeter uses your location to help you choose a delivery address on the map.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Elyeter needs access to your photos so you can search for products with a picture you already have.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>

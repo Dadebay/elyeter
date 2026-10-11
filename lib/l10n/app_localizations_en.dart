@@ -33,6 +33,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonRetry => 'Retry';
 
   @override
+  String get notificationsEmptyTitle => 'No notifications yet';
+
+  @override
+  String get notificationsEmptyMessage => 'New updates will appear here.';
+
+  @override
+  String get announcementsEmptyTitle => 'No announcements yet';
+
+  @override
+  String get announcementsEmptyMessage => 'New announcements will appear here.';
+
+  @override
   String get commonCancel => 'Cancel';
 
   @override
@@ -190,10 +202,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryFilters => 'Filters';
 
   @override
+  String get categoryOnlyFeatured => 'Featured products only';
+
+  @override
   String get categorySortTitle => 'Sort by';
 
   @override
+  String get categorySortNewest => 'Newest';
+
+  @override
   String get categorySortPopular => 'Popular';
+
+  @override
+  String get categoryPriceMin => 'Minimum price';
+
+  @override
+  String get categoryPriceRange => 'Price range';
+
+  @override
+  String get categoryPriceMax => 'Maximum price';
 
   @override
   String get categorySortPriceAsc => 'Price: low to high';
@@ -212,6 +239,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryNoResults => 'Nothing matches these filters';
+
+  @override
+  String get categoryProductsEmptyTitle => 'No products yet';
+
+  @override
+  String get categoryProductsEmptyMessage =>
+      'This category has no products right now. Explore another category.';
 
   @override
   String get categoryNoResultsHint => 'Try removing one of them.';
@@ -341,6 +375,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orderHistory => 'Order history';
 
   @override
+  String get orderHistoryEmptyTitle => 'No orders yet';
+
+  @override
+  String get orderHistoryEmptyMessage =>
+      'Your orders will appear here after you place one.';
+
+  @override
+  String get activeOrdersEmptyTitle => 'No active orders';
+
+  @override
+  String get activeOrdersEmptyMessage => 'Orders in progress will appear here.';
+
+  @override
   String orderItemCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -428,6 +475,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileSavedLocations => 'My saved locations';
 
   @override
+  String get addressEmptyTitle => 'No saved addresses yet';
+
+  @override
+  String get addressEmptyMessage =>
+      'Tap + to save your first delivery address.';
+
+  @override
+  String get addressDeleteDone => 'Address deleted.';
+
+  @override
   String get profileOrderHistory => 'Order history';
 
   @override
@@ -447,6 +504,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profilePrivacy => 'Privacy policy';
+
+  @override
+  String get staticPageEmpty =>
+      'Content will appear here when it is available.';
 
   @override
   String get profileWhatsapp => 'WhatsApp';
@@ -580,6 +641,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editProfilePhotoRemove => 'Remove photo';
+
+  @override
+  String get editProfilePhotoTooLarge =>
+      'This photo could not be reduced below 1 MB. Choose another photo.';
 
   @override
   String get editProfileSaved => 'Profile updated';
