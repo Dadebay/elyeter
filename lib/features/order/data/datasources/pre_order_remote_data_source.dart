@@ -60,7 +60,7 @@ class PreOrderRemoteDataSourceImpl implements PreOrderRemoteDataSource {
           'customer_name': customerName,
         if (address != null && address.isNotEmpty) 'address': address,
         if (comment != null && comment.isNotEmpty) 'comment': comment,
-        if (expectedTotal != null) 'expected_total': expectedTotal,
+        'expected_total': ?expectedTotal,
       },
       receiveTimeout: AppConstants.preOrderTimeout,
     );

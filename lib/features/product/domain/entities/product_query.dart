@@ -22,6 +22,7 @@ class ProductQuery extends Equatable {
     this.categorySlug,
     this.brandId,
     this.brandSlug,
+    this.brandSlugs = const [],
     this.search,
     this.minPrice,
     this.maxPrice,
@@ -35,6 +36,28 @@ class ProductQuery extends Equatable {
 
   final int? brandId;
   final String? brandSlug;
+
+  /// More than one brand at once. The API's `brand_slug` takes a single
+  /// value, so a query naming several is split into one request per brand
+  /// by the data source and merged there — it is never sent as is.
+  final List<String> brandSlugs;
+
+  /// Every brand this query asks for, [brandSlug] included, without repeats.
+  List<String> get allBrandSlugs => {?brandSlug, ...brandSlugs}.toList();
+
+  /// This query narrowed to the one brand [slug] — what a single request
+  /// can actually say.
+  ProductQuery forBrand(String slug) => ProductQuery(
+    categoryId: categoryId,
+    categorySlug: categorySlug,
+    brandId: brandId,
+    brandSlug: slug,
+    search: search,
+    minPrice: minPrice,
+    maxPrice: maxPrice,
+    onlyFeatured: onlyFeatured,
+    sort: sort,
+  );
 
   /// Matches product name (both languages) and SKU.
   final String? search;
@@ -57,7 +80,7 @@ class ProductQuery extends Equatable {
     if (categoryId != null) 'category_id': categoryId,
     if (categorySlug != null) 'category_slug': categorySlug,
     if (brandId != null) 'brand_id': brandId,
-    if (brandSlug != null) 'brand_slug': brandSlug,
+    if (allBrandSlugs.length == 1) 'brand_slug': allBrandSlugs.single,
     if (search != null && search!.trim().isNotEmpty) 'search': search!.trim(),
     if (minPrice != null) 'min_price': minPrice,
     if (maxPrice != null) 'max_price': maxPrice,
@@ -70,6 +93,7 @@ class ProductQuery extends Equatable {
     String? categorySlug,
     int? brandId,
     String? brandSlug,
+    List<String>? brandSlugs,
     String? search,
     num? minPrice,
     num? maxPrice,
@@ -82,6 +106,7 @@ class ProductQuery extends Equatable {
     categorySlug: categorySlug ?? this.categorySlug,
     brandId: brandId ?? this.brandId,
     brandSlug: brandSlug ?? this.brandSlug,
+    brandSlugs: brandSlugs ?? this.brandSlugs,
     search: clearSearch ? null : (search ?? this.search),
     minPrice: clearPrices ? null : (minPrice ?? this.minPrice),
     maxPrice: clearPrices ? null : (maxPrice ?? this.maxPrice),
@@ -95,6 +120,7 @@ class ProductQuery extends Equatable {
     categorySlug,
     brandId,
     brandSlug,
+    brandSlugs,
     search,
     minPrice,
     maxPrice,

@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/di/injector.dart';
 import '../../../../core/error/failure.dart';
+import '../../../../core/services/push_service.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/app_user.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -149,6 +151,10 @@ class LoginCubit extends Cubit<LoginState> {
     switch (result) {
       case Success(:final data):
         _auth.onSignedIn(data.user);
+        // The account exists on this device now, so the token the app got at
+        // boot finally has somewhere to go — `PATCH /auth/fcm-token` is a
+        // no-op without a session, and the next rotation could be days away.
+        unawaited(getIt<PushService>().syncToken());
         emit(
           state.copyWith(
             submitting: false,

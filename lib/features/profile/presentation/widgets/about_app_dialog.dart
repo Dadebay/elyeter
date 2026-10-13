@@ -9,10 +9,8 @@ import '../../../../core/utils/extensions/context_extensions.dart';
 
 /// Replaces Flutter's stock [showAboutDialog]: brand mark, one line about
 /// what the app is for, and a version chip — no licence page.
-Future<void> showAboutAppDialog(BuildContext context) => showDialog<void>(
-  context: context,
-  builder: (_) => const _AboutAppDialog(),
-);
+Future<void> showAboutAppDialog(BuildContext context) =>
+    showDialog<void>(context: context, builder: (_) => const _AboutAppDialog());
 
 class _AboutAppDialog extends StatelessWidget {
   const _AboutAppDialog();
@@ -75,7 +73,9 @@ class _AboutAppDialog extends StatelessWidget {
                 vertical: AppSpacing.xs,
               ),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.backgroundDark : AppColors.surfaceMuted,
+                color: isDark
+                    ? AppColors.backgroundDark
+                    : AppColors.surfaceMuted,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
               ),
               child: Text(

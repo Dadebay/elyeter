@@ -4,7 +4,7 @@ abstract final class AppAssets {
   static const _images = 'assets/images';
 
   // Bottom navigation
-  static const iconHome = '$_icons/home.svg';
+  static const iconHome = '$_icons/nav_home.svg';
   static const iconCategory = '$_icons/category.svg';
   static const iconCart = '$_icons/cart.svg';
   static const iconFavorite = '$_icons/heart.svg';
@@ -43,6 +43,8 @@ abstract final class AppAssets {
   static const logoWhite = '$_images/logo_white.svg';
   static const logoYellow = '$_images/logo_yellow.svg';
   static const homeBackground = '$_images/background.png';
+  static const emptyShoppingBag = '$_images/order_history_empty_3d_cutout.png';
+  static const cartEmpty3d = '$_images/cart_empty_3d.png';
   static const iconMapPin = '$_icons/map_pin.svg';
 
   // Partner marketplaces, in the order the design shows them.

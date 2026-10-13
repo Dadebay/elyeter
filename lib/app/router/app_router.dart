@@ -9,13 +9,13 @@ import '../../features/cart/presentation/view/cart_page.dart';
 import '../../features/category/presentation/view/category_detail_page.dart';
 import '../../features/category/presentation/view/category_page.dart';
 import '../../features/favorite/presentation/view/favorite_page.dart';
-import '../../features/legal/presentation/view/faq_page.dart';
-import '../../features/legal/presentation/view/privacy_page.dart';
-import '../../features/legal/presentation/view/terms_page.dart';
+import '../../features/legal/presentation/view/static_page_view.dart';
 import '../../features/home/presentation/view/home_page.dart';
 import '../../features/marketplace/presentation/view/marketplace_page.dart';
 import '../../features/notification/presentation/view/notification_page.dart';
 import '../../features/order/presentation/view/order_detail_page.dart';
+import '../../features/order/presentation/view/order_track_page.dart';
+import '../../features/order/presentation/view/checkout_page.dart';
 import '../../features/order/presentation/view/order_list_page.dart';
 import '../../features/product/presentation/view/product_detail_page.dart';
 import '../../features/product/presentation/view/product_reviews_page.dart';
@@ -126,12 +126,12 @@ abstract final class AppRouter {
                 builder: (context, state) => const CartPage(),
                 routes: [
                   GoRoute(
-                    path: AppRoutes.orderDetail.path,
-                    name: AppRoutes.orderDetail.name,
+                    path: AppRoutes.checkout.path,
+                    name: AppRoutes.checkout.name,
                     // Over the shell: an order being read is not a tab, and
                     // the nav bar would only offer a way to lose it.
                     parentNavigatorKey: rootNavigatorKey,
-                    builder: (context, state) => const OrderDetailPage(),
+                    builder: (context, state) => const CheckoutPage(),
                   ),
                 ],
               ),
@@ -167,8 +167,10 @@ abstract final class AppRouter {
                     path: AppRoutes.activeOrders.path,
                     name: AppRoutes.activeOrders.name,
                     parentNavigatorKey: rootNavigatorKey,
-                    builder: (context, state) =>
-                        OrderListPage(title: context.l10n.profileActiveOrders),
+                    builder: (context, state) => OrderListPage(
+                      title: context.l10n.profileActiveOrders,
+                      activeOnly: true,
+                    ),
                   ),
                   GoRoute(
                     path: AppRoutes.editProfile.path,
@@ -198,25 +200,36 @@ abstract final class AppRouter {
                     parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) => NotificationPage(
                       title: context.l10n.profileAnnouncements,
+                      isAnnouncement: true,
                     ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.staticPage.path,
+                    name: AppRoutes.staticPage.name,
+                    parentNavigatorKey: rootNavigatorKey,
+                    builder: (context, state) =>
+                        StaticPageView(slug: state.pathParameters['slug']!),
                   ),
                   GoRoute(
                     path: AppRoutes.faq.path,
                     name: AppRoutes.faq.name,
                     parentNavigatorKey: rootNavigatorKey,
-                    builder: (context, state) => const FaqPage(),
+                    builder: (context, state) =>
+                        const StaticPageView(slug: 'faq'),
                   ),
                   GoRoute(
                     path: AppRoutes.terms.path,
                     name: AppRoutes.terms.name,
                     parentNavigatorKey: rootNavigatorKey,
-                    builder: (context, state) => const TermsPage(),
+                    builder: (context, state) =>
+                        const StaticPageView(slug: 'terms'),
                   ),
                   GoRoute(
                     path: AppRoutes.privacy.path,
                     name: AppRoutes.privacy.name,
                     parentNavigatorKey: rootNavigatorKey,
-                    builder: (context, state) => const PrivacyPage(),
+                    builder: (context, state) =>
+                        const StaticPageView(slug: 'privacy'),
                   ),
                   GoRoute(
                     path: AppRoutes.settings.path,
@@ -229,6 +242,20 @@ abstract final class AppRouter {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: AppRoutes.orderDetail.path,
+        name: AppRoutes.orderDetail.name,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) =>
+            OrderDetailPage(orderId: int.parse(state.pathParameters['id']!)),
+      ),
+      GoRoute(
+        path: AppRoutes.orderTrack.path,
+        name: AppRoutes.orderTrack.name,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) =>
+            OrderTrackPage(orderId: int.parse(state.pathParameters['id']!)),
       ),
       GoRoute(
         path: AppRoutes.search.path,

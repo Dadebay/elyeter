@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_page_app_bar.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// Frequently asked questions, one expandable card each: the list stays
 /// scannable and only the answer being read takes up room.
@@ -101,8 +102,8 @@ class _FaqTile extends StatelessWidget {
                       duration: const Duration(milliseconds: 220),
                       curve: Curves.easeOutCubic,
                       turns: open ? 0.5 : 0,
-                      child: Icon(
-                        Icons.keyboard_arrow_down_rounded,
+                      child: HugeIcon(
+                        icon: AppIcons.chevronDown,
                         color: open ? AppColors.primary : AppColors.iconSoft,
                       ),
                     ),

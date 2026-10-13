@@ -5,6 +5,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../model/category_filters.dart';
 import 'category_sheet.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// Picks any number of values under one facet.
 ///
@@ -126,8 +127,8 @@ class _SearchField extends StatelessWidget {
         hintStyle: context.textTheme.bodyMedium?.copyWith(
           color: AppColors.grey500,
         ),
-        prefixIcon: const Icon(
-          Icons.search_rounded,
+        prefixIcon: const HugeIcon(
+          icon: AppIcons.search,
           size: 20,
           color: AppColors.grey500,
         ),
@@ -281,8 +282,8 @@ class _Swatch extends StatelessWidget {
                       : null,
                 ),
                 child: color == null
-                    ? const Icon(
-                        Icons.help_outline_rounded,
+                    ? const HugeIcon(
+                        icon: AppIcons.help,
                         size: 18,
                         color: AppColors.grey500,
                       )
@@ -328,7 +329,7 @@ class _Tick extends StatelessWidget {
       ),
     ),
     child: value
-        ? const Icon(Icons.check_rounded, size: 15, color: AppColors.white)
+        ? const HugeIcon(icon: AppIcons.check, size: 15, color: AppColors.white)
         : null,
   );
 }

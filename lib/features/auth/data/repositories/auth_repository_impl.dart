@@ -37,8 +37,8 @@ class AuthRepositoryImpl implements AuthRepository {
       _guard(() => _remote.updateMe(username: username, image: image));
 
   @override
-  Future<Result<void>> updateFcmToken(String token) =>
-      _guard(() => _remote.updateFcmToken(token));
+  Future<Result<void>> updateFcmToken(String token, {String? lang}) =>
+      _guard(() => _remote.updateFcmToken(token, lang: lang));
 
   @override
   Future<Result<void>> deleteAccount() => _guard(() async {
@@ -47,7 +47,14 @@ class AuthRepositoryImpl implements AuthRepository {
   });
 
   @override
-  Future<void> signOut() => _storage.clear();
+  Future<void> signOut() async {
+    try {
+      await _remote.deleteFcmToken();
+    } on Object {
+      /* Clear local credentials even offline. */
+    }
+    await _storage.clear();
+  }
 
   @override
   Future<bool> hasSession() async {

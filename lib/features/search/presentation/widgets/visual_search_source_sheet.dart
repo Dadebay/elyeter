@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// hugeicons 1.x hands an icon over as JSON path data rather than [IconData].
 typedef HugeIconData = List<List<dynamic>>;
@@ -55,7 +55,7 @@ class VisualSearchSourceSheet extends StatelessWidget {
                 children: [
                   Expanded(
                     child: _SourceCard(
-                      icon: HugeIcons.strokeRoundedCamera01,
+                      icon: AppIcons.camera,
                       label: context.l10n.visualSearchCamera,
                       onTap: () => Navigator.of(context).pop(VisualSearchSource.camera),
                     ),
@@ -63,7 +63,7 @@ class VisualSearchSourceSheet extends StatelessWidget {
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: _SourceCard(
-                      icon: HugeIcons.strokeRoundedImage02,
+                      icon: AppIcons.image,
                       label: context.l10n.visualSearchGallery,
                       onTap: () => Navigator.of(context).pop(VisualSearchSource.gallery),
                     ),

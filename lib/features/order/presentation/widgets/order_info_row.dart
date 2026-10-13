@@ -92,7 +92,11 @@ class OrderInfoRow extends StatelessWidget {
               behavior: HitTestBehavior.opaque,
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.xs),
-                child: SvgPicture.asset(AppAssets.iconPencil, width: 20, height: 20),
+                child: SvgPicture.asset(
+                  AppAssets.iconPencil,
+                  width: 20,
+                  height: 20,
+                ),
               ),
             ),
           ),

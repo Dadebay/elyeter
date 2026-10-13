@@ -6,6 +6,7 @@ import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_asset_image.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// The two cards at the top of the profile page: who is signed in, and a
 /// shortcut into the order list.
@@ -16,6 +17,7 @@ class ProfileSummaryCards extends StatelessWidget {
     required this.editLabel,
     required this.ordersTitle,
     required this.ordersSubtitle,
+    this.phone,
     this.avatarUrl,
     this.avatarPath,
     this.onEditProfile,
@@ -23,6 +25,12 @@ class ProfileSummaryCards extends StatelessWidget {
   });
 
   final String name;
+
+  /// The account's number, shown under [name]. Left out when it is already
+  /// standing in as the title, which is the case for an account that has
+  /// never been given a name.
+  final String? phone;
+
   final String editLabel;
   final String ordersTitle;
   final String ordersSubtitle;
@@ -33,10 +41,25 @@ class ProfileSummaryCards extends StatelessWidget {
   final VoidCallback? onEditProfile;
   final VoidCallback? onOrders;
 
-  /// "Myradow Maksat" -> "MM"
+  /// "Myradow Maksat" -> "MM".
+  ///
+  /// Empty when there is nothing to take initials from — which is also the
+  /// case when [name] is standing in as the account's phone number, since
+  /// "+9" is not an initial. That puts a person glyph in the circle.
   String get _initials {
-    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty);
-    return parts.take(2).map((p) => p[0].toUpperCase()).join();
+    final words = name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((word) => word.isNotEmpty && RegExp('[a-zA-ZÀ-ÿňşýžçöüä]').hasMatch(word[0]));
+    return words.take(2).map((word) => word[0].toUpperCase()).join();
+  }
+
+  /// The number, unless the title is already showing it — in which case the
+  /// card falls back to naming what tapping it does.
+  String get _subtitle {
+    final number = phone?.trim() ?? '';
+    if (number.isEmpty || number == name.trim()) return editLabel;
+    return number;
   }
 
   @override
@@ -56,7 +79,9 @@ class ProfileSummaryCards extends StatelessWidget {
               imagePath: avatarPath,
             ),
               title: name,
-              subtitle: editLabel,
+              // The number identifies the account, so it is worth more
+              // under a name than a label repeating what tapping does.
+              subtitle: _subtitle,
             ),
           ),
           const SizedBox(width: AppSpacing.md),
@@ -143,7 +168,7 @@ class _Avatar extends StatelessWidget {
       height: 44,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.55),
+        color: AppColors.grey300,
         shape: BoxShape.circle,
         image: switch ((imagePath, imageUrl)) {
           (final String path, _) => DecorationImage(
@@ -157,14 +182,20 @@ class _Avatar extends StatelessWidget {
           _ => null,
         },
       ),
-      child: imagePath != null || imageUrl != null
-          ? null
-          : Text(
-              initials,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(color: AppColors.black),
-            ),
+      child: switch ((imagePath ?? imageUrl, initials)) {
+        (final String _, _) => null,
+        (_, '') => const HugeIcon(
+          icon: AppIcons.user,
+          size: 24,
+          color: AppColors.white,
+        ),
+        _ => Text(
+          initials,
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(color: AppColors.black),
+        ),
+      },
     );
   }
 }
@@ -173,6 +204,12 @@ class _OrdersGlyph extends StatelessWidget {
   const _OrdersGlyph();
 
   @override
-  Widget build(BuildContext context) =>
-      const AppAssetImage(AppAssets.iconCubic, width: 44, height: 44);
+  Widget build(BuildContext context) => const SizedBox(
+    // Same height as the avatar beside it, so both titles line up.
+    height: 44,
+    child: Align(
+      alignment: Alignment.centerLeft,
+      child: AppAssetImage(AppAssets.iconCubic, width: 38, height: 38),
+    ),
+  );
 }

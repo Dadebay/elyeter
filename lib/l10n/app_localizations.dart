@@ -148,6 +148,30 @@ abstract class AppLocalizations {
   /// **'Retry'**
   String get commonRetry;
 
+  /// No description provided for @notificationsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet'**
+  String get notificationsEmptyTitle;
+
+  /// No description provided for @notificationsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'New updates will appear here.'**
+  String get notificationsEmptyMessage;
+
+  /// No description provided for @announcementsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No announcements yet'**
+  String get announcementsEmptyTitle;
+
+  /// No description provided for @announcementsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'New announcements will appear here.'**
+  String get announcementsEmptyMessage;
+
   /// No description provided for @commonCancel.
   ///
   /// In en, this message translates to:
@@ -436,17 +460,47 @@ abstract class AppLocalizations {
   /// **'Filters'**
   String get categoryFilters;
 
+  /// No description provided for @categoryOnlyFeatured.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured products only'**
+  String get categoryOnlyFeatured;
+
   /// No description provided for @categorySortTitle.
   ///
   /// In en, this message translates to:
   /// **'Sort by'**
   String get categorySortTitle;
 
+  /// No description provided for @categorySortNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get categorySortNewest;
+
   /// No description provided for @categorySortPopular.
   ///
   /// In en, this message translates to:
   /// **'Popular'**
   String get categorySortPopular;
+
+  /// No description provided for @categoryPriceMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum price'**
+  String get categoryPriceMin;
+
+  /// No description provided for @categoryPriceRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Price range'**
+  String get categoryPriceRange;
+
+  /// No description provided for @categoryPriceMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum price'**
+  String get categoryPriceMax;
 
   /// No description provided for @categorySortPriceAsc.
   ///
@@ -483,6 +537,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing matches these filters'**
   String get categoryNoResults;
+
+  /// No description provided for @categoryProductsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No products yet'**
+  String get categoryProductsEmptyTitle;
+
+  /// No description provided for @categoryProductsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This category has no products right now. Explore another category.'**
+  String get categoryProductsEmptyMessage;
 
   /// No description provided for @categoryNoResultsHint.
   ///
@@ -537,6 +603,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select All'**
   String get cartSelectAll;
+
+  /// No description provided for @cartEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart is empty'**
+  String get cartEmpty;
+
+  /// No description provided for @cartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get cartTitle;
+
+  /// No description provided for @cartEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add products you like and they will wait for you here.'**
+  String get cartEmptyMessage;
+
+  /// No description provided for @cartEmptyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Start shopping'**
+  String get cartEmptyAction;
 
   /// No description provided for @cartProductCount.
   ///
@@ -676,11 +766,179 @@ abstract class AppLocalizations {
   /// **'Order Cancelled'**
   String get orderCancelled;
 
+  /// No description provided for @orderStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get orderStatusCancelled;
+
+  /// No description provided for @orderCancelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this order?'**
+  String get orderCancelTitle;
+
+  /// No description provided for @orderCancelMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Once cancelled, an order cannot be restored. You can place it again from your cart.'**
+  String get orderCancelMessage;
+
+  /// No description provided for @orderCancelKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep order'**
+  String get orderCancelKeep;
+
+  /// No description provided for @orderCancelConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel order'**
+  String get orderCancelConfirm;
+
+  /// No description provided for @orderRepeatDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Items added to your cart'**
+  String get orderRepeatDone;
+
+  /// No description provided for @orderNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This order could not be loaded'**
+  String get orderNotFound;
+
+  /// No description provided for @orderComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment'**
+  String get orderComment;
+
+  /// No description provided for @orderStatusNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for a call'**
+  String get orderStatusNew;
+
+  /// No description provided for @orderStatusConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get orderStatusConfirmed;
+
+  /// No description provided for @orderStatusOrdered.
+  ///
+  /// In en, this message translates to:
+  /// **'Ordered'**
+  String get orderStatusOrdered;
+
+  /// No description provided for @orderStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get orderStatusCompleted;
+
+  /// No description provided for @orderReceiptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order receipt'**
+  String get orderReceiptTitle;
+
+  /// No description provided for @orderReceiptItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get orderReceiptItems;
+
+  /// No description provided for @orderReceiptQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Qty'**
+  String get orderReceiptQty;
+
+  /// No description provided for @orderReceiptPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get orderReceiptPrice;
+
+  /// No description provided for @orderReceiptAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get orderReceiptAmount;
+
+  /// No description provided for @orderReceiptThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your order'**
+  String get orderReceiptThanks;
+
+  /// No description provided for @orderReceiptFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create the receipt'**
+  String get orderReceiptFailed;
+
+  /// No description provided for @orderTrackRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates every 15 seconds'**
+  String get orderTrackRefresh;
+
+  /// No description provided for @orderTrackNoPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'No delivery point was set'**
+  String get orderTrackNoPoint;
+
+  /// No description provided for @orderTrackMapPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery point on the map'**
+  String get orderTrackMapPoint;
+
+  /// No description provided for @orderTrackNoCourier.
+  ///
+  /// In en, this message translates to:
+  /// **'Live courier location and arrival time are not available yet.'**
+  String get orderTrackNoCourier;
+
+  /// No description provided for @orderTrackCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'This order was cancelled.'**
+  String get orderTrackCancelled;
+
   /// No description provided for @orderHistory.
   ///
   /// In en, this message translates to:
   /// **'Order history'**
   String get orderHistory;
+
+  /// No description provided for @orderHistoryEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders yet'**
+  String get orderHistoryEmptyTitle;
+
+  /// No description provided for @orderHistoryEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your orders will appear here after you place one.'**
+  String get orderHistoryEmptyMessage;
+
+  /// No description provided for @activeOrdersEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No active orders'**
+  String get activeOrdersEmptyTitle;
+
+  /// No description provided for @activeOrdersEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders in progress will appear here.'**
+  String get activeOrdersEmptyMessage;
 
   /// No description provided for @orderItemCount.
   ///
@@ -820,6 +1078,24 @@ abstract class AppLocalizations {
   /// **'My saved locations'**
   String get profileSavedLocations;
 
+  /// No description provided for @addressEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved addresses yet'**
+  String get addressEmptyTitle;
+
+  /// No description provided for @addressEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to save your first delivery address.'**
+  String get addressEmptyMessage;
+
+  /// No description provided for @addressDeleteDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Address deleted.'**
+  String get addressDeleteDone;
+
   /// No description provided for @profileOrderHistory.
   ///
   /// In en, this message translates to:
@@ -862,6 +1138,12 @@ abstract class AppLocalizations {
   /// **'Privacy policy'**
   String get profilePrivacy;
 
+  /// No description provided for @staticPageEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Content will appear here when it is available.'**
+  String get staticPageEmpty;
+
   /// No description provided for @profileWhatsapp.
   ///
   /// In en, this message translates to:
@@ -903,6 +1185,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Version {version}'**
   String profileVersion(String version);
+
+  /// No description provided for @profileSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get profileSignOut;
+
+  /// No description provided for @profileSignOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out?'**
+  String get profileSignOutTitle;
+
+  /// No description provided for @profileSignOutMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You will need your phone number to sign in again.'**
+  String get profileSignOutMessage;
+
+  /// No description provided for @profileGuestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not signed in'**
+  String get profileGuestTitle;
+
+  /// No description provided for @profileGuestMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to track your orders, save addresses and keep your favourites.'**
+  String get profileGuestMessage;
+
+  /// No description provided for @authSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get authSignIn;
+
+  /// No description provided for @authSignInRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in required'**
+  String get authSignInRequiredTitle;
+
+  /// No description provided for @authSignInRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to use this part of the app.'**
+  String get authSignInRequiredMessage;
+
+  /// No description provided for @loginTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get loginTitle;
+
+  /// No description provided for @loginPhoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your phone number'**
+  String get loginPhoneTitle;
+
+  /// No description provided for @loginPhoneMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'We will text you a confirmation code.'**
+  String get loginPhoneMessage;
+
+  /// No description provided for @loginPhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number'**
+  String get loginPhoneLabel;
+
+  /// No description provided for @loginPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'6X XXXXXX'**
+  String get loginPhoneHint;
+
+  /// No description provided for @loginSendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get loginSendCode;
+
+  /// No description provided for @loginCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code'**
+  String get loginCodeTitle;
+
+  /// No description provided for @loginCodeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Code sent to {phone}'**
+  String loginCodeMessage(String phone);
+
+  /// No description provided for @loginCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmation code'**
+  String get loginCodeLabel;
+
+  /// No description provided for @loginVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get loginVerify;
+
+  /// No description provided for @loginResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get loginResend;
+
+  /// No description provided for @loginResendIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend in {seconds} s'**
+  String loginResendIn(int seconds);
+
+  /// No description provided for @loginChangePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Change number'**
+  String get loginChangePhone;
+
+  /// No description provided for @loginSignedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'You are signed in'**
+  String get loginSignedIn;
 
   /// No description provided for @settingsLanguageEnglish.
   ///
@@ -975,6 +1389,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove photo'**
   String get editProfilePhotoRemove;
+
+  /// No description provided for @editProfilePhotoTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'This photo could not be reduced below 1 MB. Choose another photo.'**
+  String get editProfilePhotoTooLarge;
 
   /// No description provided for @editProfileSaved.
   ///
@@ -1293,6 +1713,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please check the details you entered.'**
   String get errorValidation;
+
+  /// No description provided for @profileDeleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get profileDeleteAccount;
+
+  /// No description provided for @profileDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your account?'**
+  String get profileDeleteTitle;
+
+  /// No description provided for @profileDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This is permanent. Your account and everything in it is removed from Elyeter and cannot be restored.'**
+  String get profileDeleteMessage;
+
+  /// No description provided for @profileDeleteLossOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order history'**
+  String get profileDeleteLossOrders;
+
+  /// No description provided for @profileDeleteLossProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name, photo and saved details'**
+  String get profileDeleteLossProfile;
+
+  /// No description provided for @profileDeleteLossAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Access to the account on this number'**
+  String get profileDeleteLossAccess;
+
+  /// No description provided for @profileDeleteAccountOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Account: {phone}'**
+  String profileDeleteAccountOn(String phone);
+
+  /// No description provided for @profileDeleteKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep my account'**
+  String get profileDeleteKeep;
+
+  /// No description provided for @profileDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete permanently'**
+  String get profileDeleteConfirm;
+
+  /// No description provided for @profileDeleteDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been deleted.'**
+  String get profileDeleteDone;
 }
 
 class _AppLocalizationsDelegate

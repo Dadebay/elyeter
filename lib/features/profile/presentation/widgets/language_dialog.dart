@@ -3,10 +3,16 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
+import '../../../../core/constants/app_icons.dart';
+import 'language_flag.dart';
 
 /// One choice in [showLanguageDialog].
 class LanguageOption {
-  const LanguageOption({required this.code, required this.title, this.subtitle});
+  const LanguageOption({
+    required this.code,
+    required this.title,
+    this.subtitle,
+  });
 
   final String code;
 
@@ -17,7 +23,8 @@ class LanguageOption {
   /// would just repeat [title] — "English / English" says nothing.
   final String? subtitle;
 
-  String? get secondary => subtitle == null || subtitle == title ? null : subtitle;
+  String? get secondary =>
+      subtitle == null || subtitle == title ? null : subtitle;
 }
 
 /// Asks for the app language. Returns the chosen code, or null when the
@@ -29,9 +36,21 @@ Future<String?> showLanguageDialog(
   final l10n = context.l10n;
 
   final options = <LanguageOption>[
-    LanguageOption(code: 'tk', title: 'Türkmençe', subtitle: l10n.settingsLanguageTurkmen),
-    LanguageOption(code: 'en', title: 'English', subtitle: l10n.settingsLanguageEnglish),
-    LanguageOption(code: 'ru', title: 'Русский', subtitle: l10n.settingsLanguageRussian),
+    LanguageOption(
+      code: 'tk',
+      title: 'Türkmençe',
+      subtitle: l10n.settingsLanguageTurkmen,
+    ),
+    LanguageOption(
+      code: 'en',
+      title: 'English',
+      subtitle: l10n.settingsLanguageEnglish,
+    ),
+    LanguageOption(
+      code: 'ru',
+      title: 'Русский',
+      subtitle: l10n.settingsLanguageRussian,
+    ),
   ];
 
   return showDialog<String>(
@@ -123,6 +142,11 @@ class _LanguageRow extends StatelessWidget {
           ),
           child: Row(
             children: [
+              LanguageFlag(
+                languageCode: option.code,
+                semanticsLabel: option.title,
+              ),
+              const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,7 +155,7 @@ class _LanguageRow extends StatelessWidget {
                     Text(
                       option.title,
                       style: context.textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w700,
                         color: selected
                             ? AppColors.primary
                             : (isDark ? AppColors.white : AppColors.ink),
@@ -142,7 +166,7 @@ class _LanguageRow extends StatelessWidget {
                       Text(
                         option.secondary!,
                         style: context.textTheme.bodySmall?.copyWith(
-                                    color: AppColors.grey500,
+                          color: AppColors.grey500,
                         ),
                       ),
                     ],
@@ -176,6 +200,10 @@ class _CheckDot extends StatelessWidget {
       color: AppColors.primary,
       shape: BoxShape.circle,
     ),
-    child: const Icon(Icons.check_rounded, size: 15, color: AppColors.white),
+    child: const HugeIcon(
+      icon: AppIcons.check,
+      size: 15,
+      color: AppColors.white,
+    ),
   );
 }

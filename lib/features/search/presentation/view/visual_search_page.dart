@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -11,6 +10,7 @@ import '../../../../core/utils/app_logger.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../widgets/visual_search_controls.dart';
 import '../widgets/visual_search_frame.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// Full-screen in-app camera for searching by photo.
 ///
@@ -276,7 +276,7 @@ class _Blocked extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const HugeIcon(icon: HugeIcons.strokeRoundedCameraOff01, color: AppColors.grey500, size: 40),
+            const HugeIcon(icon: AppIcons.cameraOff, color: AppColors.grey500, size: 40),
             const SizedBox(height: AppSpacing.lg),
             Text(
               message,

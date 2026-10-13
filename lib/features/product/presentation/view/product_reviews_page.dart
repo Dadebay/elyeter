@@ -9,6 +9,7 @@ import '../../../home/presentation/view/home_placeholder_data.dart';
 import '../model/product_detail_data.dart';
 import '../widgets/product_reviews_section.dart';
 import '../widgets/product_section_card.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// Every review for one product, behind the detail page's "Read all reviews".
 class ProductReviewsPage extends StatelessWidget {
@@ -24,7 +25,7 @@ class ProductReviewsPage extends StatelessWidget {
       backgroundColor: AppColors.white,
       appBar: AppPageAppBar(title: context.l10n.productReviews),
       body: product == null
-          ? const AppEmptyView(icon: Icons.search_off_rounded)
+          ? const AppEmptyView(icon: AppIcons.searchEmpty)
           : _Reviews(detail: HomePlaceholderData.detailFor(product)),
     );
   }

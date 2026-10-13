@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_asset_image.dart';
+import '../../../../core/constants/app_icons.dart';
+import 'language_flag.dart';
 
 /// What sits at the end of a settings row.
 sealed class TileTrailing {
@@ -21,6 +23,14 @@ class TileValue extends TileTrailing {
   final String value;
 }
 
+/// A selected language flag at the far end of the row.
+class TileFlag extends TileTrailing {
+  const TileFlag({required this.languageCode, required this.label});
+
+  final String languageCode;
+  final String label;
+}
+
 /// An inline switch, e.g. dark mode.
 class TileSwitch extends TileTrailing {
   const TileSwitch({required this.value, required this.onChanged});
@@ -35,10 +45,20 @@ class TileExternal extends TileTrailing {
 
 /// One row of a settings group.
 class SettingsTile extends StatelessWidget {
-  const SettingsTile({super.key, required this.icon, required this.label, this.trailing = const TileChevron(), this.onTap});
+  const SettingsTile({
+    super.key,
+    this.icon,
+    this.hugeIcon,
+    this.hugeIconStrokeWidth,
+    required this.label,
+    this.trailing = const TileChevron(),
+    this.onTap,
+  }) : assert((icon == null) != (hugeIcon == null));
 
   /// Path to an SVG in `assets/icons`.
-  final String icon;
+  final String? icon;
+  final AppIconData? hugeIcon;
+  final double? hugeIconStrokeWidth;
   final String label;
   final TileTrailing trailing;
   final VoidCallback? onTap;
@@ -53,38 +73,77 @@ class SettingsTile extends StatelessWidget {
     final labelColor = isDark ? AppColors.white : AppColors.ink;
 
     return Ink(
-      color: Color(0xfff5f5f5),
+      color: isDark ? AppColors.surfaceDark : AppColors.surfaceMuted,
       child: InkWell(
         onTap: switch (trailing) {
           TileSwitch(:final value, :final onChanged) => () => onChanged(!value),
           _ => onTap,
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            // The 34pt flag needs less inset than a 24pt chevron so both
+            // settings rows keep the same overall height.
+            vertical: trailing is TileFlag ? 7 : AppSpacing.md,
+          ),
           child: Row(
             children: [
-              AppAssetImage(icon, width: 22, height: 22, color: iconColor),
+              if (hugeIcon case final data?)
+                HugeIcon(
+                  icon: data,
+                  size: 22,
+                  color: iconColor,
+                  strokeWidth: hugeIconStrokeWidth,
+                )
+              else
+                AppAssetImage(icon!, width: 22, height: 22, color: iconColor),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Text(
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w600),
+                  style: theme.textTheme.bodyMedium!.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               switch (trailing) {
-                TileChevron() => Icon(Icons.chevron_right_rounded, color: chevronColor),
-                TileExternal() => Icon(Icons.north_east_rounded, size: 18, color: chevronColor),
+                TileChevron() => HugeIcon(
+                  icon: AppIcons.chevronRight,
+                  color: chevronColor,
+                ),
+                TileExternal() => HugeIcon(
+                  icon: AppIcons.external,
+                  size: 18,
+                  color: chevronColor,
+                ),
                 TileValue(:final value) => Row(
                   children: [
-                    Text(value, style: theme.textTheme.bodyMedium?.copyWith(color: labelColor)),
+                    Text(
+                      value,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: labelColor,
+                      ),
+                    ),
                     const SizedBox(width: AppSpacing.xs),
-                    Icon(Icons.unfold_more_rounded, size: 18, color: chevronColor),
+                    HugeIcon(
+                      icon: AppIcons.unfold,
+                      size: 18,
+                      color: chevronColor,
+                    ),
                   ],
                 ),
+                TileFlag(:final languageCode, :final label) => LanguageFlag(
+                  languageCode: languageCode,
+                  semanticsLabel: label,
+                ),
                 // iOS-style on every platform, as the design shows it.
-                TileSwitch(:final value, :final onChanged) => CupertinoSwitch(value: value, onChanged: onChanged, activeTrackColor: AppColors.primary),
+                TileSwitch(:final value, :final onChanged) => CupertinoSwitch(
+                  value: value,
+                  onChanged: onChanged,
+                  activeTrackColor: AppColors.primary,
+                ),
               },
             ],
           ),

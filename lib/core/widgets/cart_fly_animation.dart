@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../constants/app_icons.dart';
 
 /// Plays a "flies into the cart" flourish from wherever a product was added,
 /// arcing up to the cart tab's real on-screen position.
@@ -81,7 +82,7 @@ class _FlyingThumb extends StatelessWidget {
         image: image == null ? null : DecorationImage(image: image!, fit: BoxFit.cover),
       ),
       child: image == null
-          ? const Icon(Icons.shopping_bag_rounded, color: AppColors.primary, size: 18)
+          ? const HugeIcon(icon: AppIcons.cart, color: AppColors.primary, size: 18)
           : null,
     );
   }

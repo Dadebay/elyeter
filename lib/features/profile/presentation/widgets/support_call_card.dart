@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// Blue support panel at the bottom of the profile page.
 class SupportCallCard extends StatelessWidget {
@@ -33,7 +33,9 @@ class SupportCallCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -57,7 +59,7 @@ class SupportCallCard extends StatelessWidget {
                 ),
                 child: const Center(
                   child: HugeIcon(
-                    icon: HugeIcons.strokeRoundedCustomerService01,
+                    icon: AppIcons.support,
                     color: AppColors.info,
                     size: 20,
                   ),
@@ -100,8 +102,10 @@ class SupportCallCard extends StatelessWidget {
               FilledButton(
                 onPressed: onCall,
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.white,
-                  foregroundColor: AppColors.black,
+                  backgroundColor: isDark
+                      ? AppColors.surfaceDark
+                      : AppColors.white,
+                  foregroundColor: isDark ? AppColors.white : AppColors.black,
                   minimumSize: const Size(0, 40),
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.lg,

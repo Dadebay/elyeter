@@ -87,7 +87,7 @@ class AppBottomNavBar extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: 10,
+            horizontal: AppNavBar.verticalPadding,
             vertical: AppNavBar.verticalPadding,
           ),
           // A fixed height is what lets the highlight below size itself as a

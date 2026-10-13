@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../constants/app_assets.dart';
+import '../constants/app_icons.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import 'app_asset_image.dart';
 
-/// The app's back affordance: a white stadium with the chevron from
-/// `assets/icons/back.svg`, lifted by a faint shadow so it reads on a photo
-/// and on a white page alike.
+/// The app's back affordance: a pill with the chevron from
+/// `assets/icons/back.svg`, outlined in dark mode and lifted by a faint
+/// shadow in light mode.
 ///
 /// Use [AppBackButton.appBarLeading] inside an [AppBar] together with
 /// [AppBackButton.leadingWidth]; the bare constructor suits a [Stack] over
@@ -18,6 +19,7 @@ class AppBackButton extends StatelessWidget {
     this.onPressed,
     this.width = defaultWidth,
     this.tint,
+    this.icon,
   });
 
   /// Wrapped in the page inset, for `AppBar.leading`.
@@ -25,6 +27,7 @@ class AppBackButton extends StatelessWidget {
     Key? key,
     VoidCallback? onPressed,
     Color? tint,
+    AppIconData? icon,
   }) = _AppBarBackButton;
 
   /// The control's resting width. Exposed so a page drawing its own
@@ -36,7 +39,8 @@ class AppBackButton extends StatelessWidget {
 
   /// What `AppBar.leadingWidth` must be for the button to sit at the page
   /// inset without being squeezed by the toolbar's default 56pt slot.
-  static const double leadingWidth = defaultWidth + AppSpacing.page + AppSpacing.sm;
+  static const double leadingWidth =
+      defaultWidth + AppSpacing.page + AppSpacing.sm;
 
   /// Deliberately faint: heavier reads as a smudge rather than a lift.
   static const List<BoxShadow> shadow = [
@@ -48,6 +52,7 @@ class AppBackButton extends StatelessWidget {
 
   /// Chevron colour; defaults to the theme's ink.
   final Color? tint;
+  final AppIconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +63,9 @@ class AppBackButton extends StatelessWidget {
       label: MaterialLocalizations.of(context).backButtonTooltip,
       child: Container(
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : AppColors.white,
+          color: isDark ? AppColors.grey900 : AppColors.white,
           borderRadius: BorderRadius.circular(AppRadius.pill),
+          border: isDark ? Border.all(color: AppColors.grey700) : null,
           boxShadow: isDark ? null : shadow,
         ),
         child: Material(
@@ -72,12 +78,20 @@ class AppBackButton extends StatelessWidget {
               width: width,
               height: height,
               child: Center(
-                child: AppAssetImage(
-                  AppAssets.iconBack,
-                  width: iconSize,
-                  height: iconSize,
-                  color: tint ?? (isDark ? AppColors.white : AppColors.ink),
-                ),
+                child: icon == null
+                    ? AppAssetImage(
+                        AppAssets.iconBack,
+                        width: iconSize,
+                        height: iconSize,
+                        color:
+                            tint ?? (isDark ? AppColors.white : AppColors.ink),
+                      )
+                    : HugeIcon(
+                        icon: icon!,
+                        size: iconSize,
+                        color:
+                            tint ?? (isDark ? AppColors.white : AppColors.ink),
+                      ),
               ),
             ),
           ),
@@ -88,14 +102,14 @@ class AppBackButton extends StatelessWidget {
 }
 
 class _AppBarBackButton extends AppBackButton {
-  const _AppBarBackButton({super.key, super.onPressed, super.tint});
+  const _AppBarBackButton({super.key, super.onPressed, super.tint, super.icon});
 
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(left: AppSpacing.page),
     child: Align(
       alignment: Alignment.centerLeft,
-      child: AppBackButton(onPressed: onPressed, tint: tint),
+      child: AppBackButton(onPressed: onPressed, tint: tint, icon: icon),
     ),
   );
 }

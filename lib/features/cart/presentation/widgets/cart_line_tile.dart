@@ -5,8 +5,11 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../../../../core/utils/formatters/currency_formatter.dart';
+import '../../../../core/widgets/counting_number.dart';
 import '../../../../core/widgets/favorite_button.dart';
 import '../../../product/presentation/widgets/product_card.dart';
+import '../../../product/presentation/widgets/product_image_view.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// One line of the cart: photo, title and specs, a quantity stepper, the line
 /// price and the tick that keeps it in the total.
@@ -61,10 +64,7 @@ class CartLineTile extends StatelessWidget {
                         // Weight, not size, is what lifts the product name
                         // above its specs — it gains presence without
                         // taking another line.
-                        style: context.textTheme.bodyMedium?.copyWith(
-                          color: AppColors.black,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: context.textTheme.bodyMedium?.copyWith(color: AppColors.black, fontWeight: FontWeight.w500),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
@@ -125,12 +125,23 @@ class _Photo extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.grey100,
                 borderRadius: BorderRadius.circular(AppRadius.lg),
+                // The faintest lift, so the photo does not sit flat on the page.
+                boxShadow: const [BoxShadow(color: Color(0x0F000000), blurRadius: 10, offset: Offset(0, 3))],
               ),
               child: image == null
-                  ? const Icon(Icons.image_outlined, color: AppColors.grey500)
-                  : Padding(
-                      padding: const EdgeInsets.all(AppSpacing.sm),
-                      child: Image.asset(image, fit: BoxFit.contain),
+                  // Centred and sized: left to a tight box the glyph would
+                  // stretch to fill the whole photo.
+                  ? const Center(
+                      child: HugeIcon(icon: AppIcons.image, size: 28, color: AppColors.grey500),
+                    )
+                  // Edge to edge, rounded with the tile: the photo covers all of
+                  // it rather than floating on the grey. Bundled artwork or an
+                  // API photo alike.
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
+                      child: SizedBox.expand(
+                        child: ProductImageView(source: image, fit: BoxFit.cover, fallbackIconSize: 28),
+                      ),
                     ),
             ),
           ),
@@ -165,29 +176,21 @@ class _Stepper extends StatelessWidget {
     return Container(
       height: _trackHeight,
       padding: const EdgeInsets.all(_inset),
-      decoration: BoxDecoration(
-        color: AppColors.grey100,
-        borderRadius: BorderRadius.circular(
-          _StepButton._radius + _inset,
-        ),
-      ),
+      decoration: BoxDecoration(color: AppColors.grey100, borderRadius: BorderRadius.circular(_StepButton._radius + _inset)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _StepButton(icon: Icons.remove_rounded, onTap: onDecrease),
+          _StepButton(icon: AppIcons.minus, onTap: onDecrease),
           // Fixed width so the pill does not resize between 9 and 10.
           SizedBox(
             width: 34,
             child: Text(
               '$quantity',
               textAlign: TextAlign.center,
-              style: context.textTheme.titleSmall?.copyWith(
-                color: AppColors.black,
-                fontWeight: FontWeight.w600,
-              ),
+              style: context.textTheme.titleSmall?.copyWith(color: AppColors.black, fontWeight: FontWeight.w600),
             ),
           ),
-          _StepButton(icon: Icons.add_rounded, onTap: onIncrease),
+          _StepButton(icon: AppIcons.add, onTap: onIncrease),
         ],
       ),
     );
@@ -202,7 +205,8 @@ class _StepButton extends StatelessWidget {
   /// Rounded square rather than a disc, as the design draws it.
   static const _radius = AppRadius.md;
 
-  final IconData icon;
+  /// A `AppIcons.*` constant — the package supplies glyphs as data.
+  final AppIconData icon;
   final VoidCallback onTap;
 
   @override
@@ -218,7 +222,11 @@ class _StepButton extends StatelessWidget {
         child: SizedBox(
           width: _size,
           height: _size,
-          child: Icon(icon, size: 18, color: AppColors.grey700),
+          // Centred: under a tight box a HugeIcon stretches to fill it, which
+          // is what made the glyph overflow its button.
+          child: Center(
+            child: HugeIcon(icon: icon, size: 18, color: AppColors.grey700),
+          ),
         ),
       ),
     );
@@ -240,13 +248,19 @@ class _LinePrice extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         _ShrinkToFit(
-          child: Text(
-            '${CurrencyFormatter.amount(product.price * quantity)} ${AppConstants.currencySymbol}',
-            maxLines: 1,
-            style: context.textTheme.titleMedium?.copyWith(
-              color: AppColors.black,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.2,
+          // Runs up (or down) to the new total when the quantity changes.
+          child: CountingNumber(
+            value: product.price * quantity,
+            builder: (shown) => Text(
+              '${CurrencyFormatter.amount(shown)} ${AppConstants.currencySymbol}',
+              maxLines: 1,
+              style: context.textTheme.titleMedium?.copyWith(
+                color: AppColors.black,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.2,
+                // Equal-width digits, so the figure does not shimmy as it counts.
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
             ),
           ),
         ),
@@ -256,21 +270,22 @@ class _LinePrice extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  '${CurrencyFormatter.amount(product.oldPrice! * quantity)} '
-                  '${AppConstants.currencySymbol}',
-                  maxLines: 1,
-                  style: context.textTheme.bodySmall?.copyWith(
-                    color: AppColors.error,
-                    decoration: TextDecoration.lineThrough,
-                    decorationColor: AppColors.error,
+                CountingNumber(
+                  value: product.oldPrice! * quantity,
+                  builder: (shown) => Text(
+                    '${CurrencyFormatter.amount(shown)} '
+                    '${AppConstants.currencySymbol}',
+                    maxLines: 1,
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: AppColors.error,
+                      decoration: TextDecoration.lineThrough,
+                      decorationColor: AppColors.error,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.xs),
-                Text(
-                  '-$discount%',
-                  style: context.textTheme.bodySmall?.copyWith(color: AppColors.error),
-                ),
+                Text('-$discount%', style: context.textTheme.bodySmall?.copyWith(color: AppColors.error)),
               ],
             ),
           ),
@@ -287,11 +302,11 @@ class _ShrinkToFit extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) =>
-      FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerRight, child: child);
+  Widget build(BuildContext context) => FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerRight, child: child);
 }
 
-/// Square tick box, filled black when the line counts towards the total.
+/// Square tick box, filled soft grey with a dark tick when the line counts
+/// towards the total.
 class _Tick extends StatelessWidget {
   const _Tick({required this.value, required this.onTap});
 
@@ -310,11 +325,16 @@ class _Tick extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: value ? AppColors.black : AppColors.white,
+          color: value ? AppColors.grey100 : AppColors.white,
           borderRadius: BorderRadius.circular(AppRadius.xs),
-          border: Border.all(color: value ? AppColors.black : AppColors.grey300, width: 1.5),
+          // Same width either way; ticked, the edge fades into the fill.
+          border: Border.all(color: value ? AppColors.grey100 : AppColors.grey300, width: 1.5),
         ),
-        child: value ? const Icon(Icons.check_rounded, size: 16, color: AppColors.white) : null,
+        child: value
+            ? const Center(
+                child: HugeIcon(icon: AppIcons.check, size: 16, strokeWidth: 2.2, color: AppColors.black),
+              )
+            : null,
       ),
     );
   }

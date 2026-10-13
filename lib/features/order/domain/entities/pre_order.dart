@@ -15,8 +15,11 @@ enum PreOrderStatus {
 
   final String value;
 
-  static PreOrderStatus parse(String? value) => PreOrderStatus.values
-      .firstWhere((s) => s.value == value, orElse: () => PreOrderStatus.newOrder);
+  static PreOrderStatus parse(String? value) =>
+      PreOrderStatus.values.firstWhere(
+        (s) => s.value == value,
+        orElse: () => PreOrderStatus.newOrder,
+      );
 
   bool get isTerminal =>
       this == PreOrderStatus.completed || this == PreOrderStatus.cancelled;
@@ -89,6 +92,8 @@ class PreOrder extends Equatable {
     this.customerName,
     this.phone,
     this.address,
+    this.latitude,
+    this.longitude,
     this.comment,
     this.createdAt,
     this.statusChangedAt,
@@ -112,6 +117,10 @@ class PreOrder extends Equatable {
   final String? customerName;
   final String? phone;
   final String? address;
+
+  /// Snapshot of the delivery point saved when the order was placed.
+  final double? latitude;
+  final double? longitude;
   final String? comment;
   final DateTime? createdAt;
   final DateTime? statusChangedAt;
@@ -135,6 +144,8 @@ class PreOrder extends Equatable {
     customerName,
     phone,
     address,
+    latitude,
+    longitude,
     comment,
     createdAt,
     statusChangedAt,

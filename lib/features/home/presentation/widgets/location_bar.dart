@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// Delivery city + street line shown over the gradient.
 class LocationBar extends StatelessWidget {
@@ -33,9 +33,9 @@ class LocationBar extends StatelessWidget {
                 Text(city, style: textTheme.titleMedium?.copyWith(color: AppColors.white)),
                 Padding(
                   padding: const EdgeInsets.only(left: AppSpacing.xs),
-                  child: HugeIcon(icon: HugeIcons.strokeRoundedArrowDown01, size: 18, color: AppColors.white),
+                  child: HugeIcon(icon: AppIcons.chevronDown, size: 18, color: AppColors.white),
                 ),
-                //  Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.white, size: 22),
+                //  HugeIcon(icon: AppIcons.chevronDown, color: AppColors.white, size: 22),
               ],
             ),
             Text(

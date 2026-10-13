@@ -1,30 +1,109 @@
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'dart:async';
 
-/// The ids of the products the customer has favourited.
-///
-/// Hydrated, like the theme and locale cubits, so the list survives a
-/// restart. Ids only: the products themselves come from the catalog, so
-/// nothing here goes stale when a price or a photo changes.
-class FavoriteCubit extends HydratedCubit<Set<String>> {
-  FavoriteCubit() : super(const {});
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../core/network/shop_api.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
+
+/// Signed-in account's server favourites. Never persisted across accounts.
+class FavoriteCubit extends Cubit<Set<String>> {
+  FavoriteCubit([this._api, this._auth]) : super(const {}) {
+    if (_auth case final auth?) {
+      _subscription = auth.stream.listen(_onAuthChanged);
+      _onAuthChanged(auth.state);
+    }
+  }
+
+  final ShopApi? _api;
+  final AuthCubit? _auth;
+  StreamSubscription<AuthState>? _subscription;
+  int _generation = 0;
+  int? _accountId;
+  bool _authenticated = false;
+  final Set<String> _pending = {};
 
   bool contains(String id) => state.contains(id);
 
-  /// Adds the product, or removes it when it is already a favourite.
-  void toggle(String id) {
-    final next = Set<String>.of(state);
-    if (!next.remove(id)) next.add(id);
-    emit(next);
+  void _onAuthChanged(AuthState auth) {
+    if (_authenticated == auth.isAuthenticated && _accountId == auth.user?.id) return;
+    _authenticated = auth.isAuthenticated;
+    _accountId = auth.user?.id;
+    ++_generation;
+    emit(const {});
+    if (auth.isAuthenticated) unawaited(refresh());
   }
 
-  /// Empties the list. Named to avoid [HydratedMixin.clear], which throws the
-  /// stored copy away without telling the UI.
+  Future<void> refresh() async {
+    if (_auth?.state.isAuthenticated != true || _api == null) return;
+    final generation = _generation;
+    try {
+      final ids = await _api.favoriteIds();
+      if (!isClosed && generation == _generation) {
+        for (final pending in _pending) {
+          if (state.contains(pending)) { ids.add(pending); } else { ids.remove(pending); }
+        }
+        emit(ids);
+      }
+    } on Object {
+      // A failed refresh must leave any optimistic hearts intact.
+    }
+  }
+
+  Future<bool> toggle(String id) async {
+    final productId = int.tryParse(id);
+    if (_api == null && _auth == null) {
+      final next = Set<String>.of(state);
+      if (!next.remove(id)) next.add(id);
+      emit(next);
+      return true;
+    }
+    if (_auth?.state.isAuthenticated != true ||
+        productId == null ||
+        !_pending.add(id)) {
+      return false;
+    }
+    final wasFavorite = state.contains(id);
+    final generation = _generation;
+    final optimistic = Set<String>.of(state);
+    if (wasFavorite) {
+      optimistic.remove(id);
+    } else {
+      optimistic.add(id);
+    }
+    emit(optimistic);
+    try {
+      final actual = await _api!.setFavorite(productId, favorite: !wasFavorite);
+      if (!isClosed && generation == _generation) {
+        final reconciled = Set<String>.of(state);
+        if (actual) {
+          reconciled.add(id);
+        } else {
+          reconciled.remove(id);
+        }
+        emit(reconciled);
+      }
+      return true;
+    } on Object {
+      if (!isClosed && generation == _generation) {
+        final rollback = Set<String>.of(state);
+        if (wasFavorite) {
+          rollback.add(id);
+        } else {
+          rollback.remove(id);
+        }
+        emit(rollback);
+      }
+      return false;
+    } finally {
+      _pending.remove(id);
+    }
+  }
+
   void removeAll() => emit(const {});
 
   @override
-  Set<String>? fromJson(Map<String, dynamic> json) =>
-      (json['ids'] as List?)?.cast<String>().toSet();
-
-  @override
-  Map<String, dynamic>? toJson(Set<String> state) => {'ids': state.toList()};
+  Future<void> close() async {
+    await _subscription?.cancel();
+    await super.close();
+  }
 }

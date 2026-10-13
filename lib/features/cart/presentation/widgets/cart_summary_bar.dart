@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../../../../core/utils/formatters/currency_formatter.dart';
+import '../../../../core/widgets/counting_number.dart';
 
 /// The pill that floats over the list: how many products are ticked and what
 /// they come to, with the undiscounted total struck out beside it.
@@ -25,11 +26,11 @@ class CartSummaryBar extends StatelessWidget {
 
   /// A wide surface should read as thick — a heavier blur than a small chip
   /// would take.
-  static const _blur = 24.0;
+  static const _blur = 30.0;
 
   /// Enough tint to keep the brand colour and carry text, sheer enough that
-  /// the product photos still move underneath.
-  static const _tint = 0.72;
+  /// the product photos still move underneath, blurred, through the glass.
+  static const _tint = 0.78;
 
   final int productCount;
   final num total;
@@ -65,12 +66,28 @@ class CartSummaryBar extends StatelessWidget {
       ),
     );
 
-    // No outline and no rim light: the design reads the pill as a single
-    // block of colour, and an edge on top of the blur only muddies it.
+    // Frosted orange glass: the brand colour, brightest at the top and
+    // settling toward the bottom, with a hair of white at the edge where
+    // light catches it.
     final surface = DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.primarySoft.withValues(alpha: opaque ? 1 : _tint),
+        gradient: opaque
+            ? null
+            : LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.white.withValues(alpha: 0.22),
+                  AppColors.primary.withValues(alpha: 0.0),
+                ],
+              ),
+        color: opaque
+            ? AppColors.primarySoft
+            : AppColors.primary.withValues(alpha: _tint),
         borderRadius: radius,
+        border: opaque
+            ? null
+            : Border.all(color: Colors.white.withValues(alpha: 0.45)),
       ),
       child: content,
     );
@@ -124,14 +141,18 @@ class _Row extends StatelessWidget {
 
     return Row(
       children: [
-        Flexible(
+        // Its own width and no more. As a Flexible it was handed half the free
+        // space whether it used it or not, which left a gap at the right end
+        // that the totals could not reach.
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 140),
           child: Text(
             context.l10n.cartProductCount(productCount),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: context.textTheme.bodyMedium?.copyWith(
+            style: context.textTheme.titleSmall?.copyWith(
               color: AppColors.black,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),
@@ -148,38 +169,51 @@ class _Row extends StatelessWidget {
               textBaseline: TextBaseline.alphabetic,
               children: [
                 if (saved) ...[
-                  Text(
-                    '${CurrencyFormatter.amount(oldTotal)} '
-                    '${AppConstants.currencySymbol}',
-                    style: context.textTheme.bodySmall?.copyWith(
-                      color: AppColors.error,
-                      fontWeight: FontWeight.w500,
-                      decoration: TextDecoration.lineThrough,
-                      decorationColor: AppColors.error,
+                  CountingNumber(
+                    value: oldTotal,
+                    builder: (shown) => Text(
+                      '${CurrencyFormatter.amount(shown)} '
+                      '${AppConstants.currencySymbol}',
+                      style: context.textTheme.bodySmall?.copyWith(
+                        // Red would sink into the orange; a muted ink reads on it.
+                        color: AppColors.black.withValues(alpha: 0.55),
+                        fontWeight: FontWeight.w700,
+                        decoration: TextDecoration.lineThrough,
+                        decorationColor: AppColors.black.withValues(
+                          alpha: 0.55,
+                        ),
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
                 ],
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(text: CurrencyFormatter.amount(total)),
-                      const TextSpan(text: ' '),
-                      TextSpan(
-                        text: AppConstants.currencySymbol,
-                        style: context.textTheme.labelMedium?.copyWith(
-                          color: AppColors.black,
-                          fontWeight: FontWeight.w600,
+                CountingNumber(
+                  value: total,
+                  builder: (shown) => Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(text: CurrencyFormatter.amount(shown)),
+                        const TextSpan(text: ' '),
+                        TextSpan(
+                          text: AppConstants.currencySymbol,
+                          style: context.textTheme.labelMedium?.copyWith(
+                            color: AppColors.black,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  style: context.textTheme.titleMedium?.copyWith(
-                    color: AppColors.black,
-                    fontWeight: FontWeight.w700,
-                    // Large, heavy figures read too loose at their default
-                    // tracking; tighten as the size goes up.
-                    letterSpacing: -0.2,
+                      ],
+                    ),
+                    style: context.textTheme.titleMedium?.copyWith(
+                      color: AppColors.black,
+                      fontWeight: FontWeight.w800,
+                      // Large, heavy figures read too loose at their default
+                      // tracking; tighten as the size goes up.
+                      letterSpacing: -0.2,
+                      // Digits all as wide as each other, so the figure does
+                      // not shimmy sideways while it counts.
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
                   ),
                 ),
               ],

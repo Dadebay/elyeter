@@ -5,10 +5,15 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../model/product_detail_data.dart';
 import 'product_section_card.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// Score, the per-star bars and a strip of the most recent reviews.
 class ProductReviewsSection extends StatelessWidget {
-  const ProductReviewsSection({super.key, required this.detail, this.onReadAll});
+  const ProductReviewsSection({
+    super.key,
+    required this.detail,
+    this.onReadAll,
+  });
 
   /// Height of the review strip: stars, four lines of text and the author
   /// row, with the card's own padding — no more, or every card trails an
@@ -29,7 +34,9 @@ class ProductReviewsSection extends StatelessWidget {
         children: [
           Text(
             context.l10n.productReviews,
-            style: context.textTheme.titleMedium?.copyWith(color: AppColors.black),
+            style: context.textTheme.titleMedium?.copyWith(
+              color: AppColors.black,
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
           Row(
@@ -115,7 +122,11 @@ class _ReadAllButton extends StatelessWidget {
 
 /// The headline score: the number, its stars and how many ratings it is from.
 class ProductReviewScore extends StatelessWidget {
-  const ProductReviewScore({super.key, required this.rating, required this.ratingCount});
+  const ProductReviewScore({
+    super.key,
+    required this.rating,
+    required this.ratingCount,
+  });
 
   final double rating;
   final int ratingCount;
@@ -127,14 +138,18 @@ class ProductReviewScore extends StatelessWidget {
       children: [
         Text(
           rating.toStringAsFixed(1),
-          style: context.textTheme.displayLarge?.copyWith(color: AppColors.black),
+          style: context.textTheme.displayLarge?.copyWith(
+            color: AppColors.black,
+          ),
         ),
         const SizedBox(height: AppSpacing.xs),
         ProductStars(rating: rating, size: 18),
         const SizedBox(height: AppSpacing.xs),
         Text(
           context.l10n.productRatingCount(ratingCount),
-          style: context.textTheme.bodySmall?.copyWith(color: AppColors.grey500),
+          style: context.textTheme.bodySmall?.copyWith(
+            color: AppColors.grey500,
+          ),
         ),
       ],
     );
@@ -164,7 +179,9 @@ class _Bars extends StatelessWidget {
                   width: 14,
                   child: Text(
                     '${shares.length - i}',
-                    style: context.textTheme.labelMedium?.copyWith(color: AppColors.grey700),
+                    style: context.textTheme.labelMedium?.copyWith(
+                      color: AppColors.grey700,
+                    ),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.xs),
@@ -177,7 +194,9 @@ class _Bars extends StatelessWidget {
                       // White track, not grey: the card underneath is already
                       // grey, so a grey track would disappear into it.
                       backgroundColor: AppColors.white,
-                      valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                      valueColor: const AlwaysStoppedAnimation(
+                        AppColors.primary,
+                      ),
                     ),
                   ),
                 ),
@@ -229,7 +248,9 @@ class ProductReviewCard extends StatelessWidget {
               review.text,
               maxLines: maxLines,
               overflow: TextOverflow.ellipsis,
-              style: context.textTheme.bodySmall?.copyWith(color: AppColors.grey700),
+              style: context.textTheme.bodySmall?.copyWith(
+                color: AppColors.grey700,
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -242,7 +263,9 @@ class ProductReviewCard extends StatelessWidget {
                   '${review.author} • ${review.date}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: context.textTheme.labelSmall?.copyWith(color: AppColors.grey500),
+                  style: context.textTheme.labelSmall?.copyWith(
+                    color: AppColors.grey500,
+                  ),
                 ),
               ),
             ],
@@ -298,10 +321,14 @@ class ProductStars extends StatelessWidget {
     mainAxisSize: MainAxisSize.min,
     children: [
       for (var i = 1; i <= 5; i++)
-        Icon(
-          Icons.star_rounded,
+        // Hugeicons' free set is stroke-only, so an earned star cannot be
+        // filled in. Colour alone would read as a faint tint next to the
+        // grey ones, so the earned stars are drawn heavier as well.
+        HugeIcon(
+          icon: AppIcons.star,
           size: size,
           color: i <= rating.round() ? AppColors.primary : AppColors.grey300,
+          strokeWidth: i <= rating.round() ? 2.4 : 1.5,
         ),
     ],
   );

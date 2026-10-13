@@ -33,6 +33,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonRetry => 'Повторить';
 
   @override
+  String get notificationsEmptyTitle => 'Пока нет уведомлений';
+
+  @override
+  String get notificationsEmptyMessage => 'Новые уведомления появятся здесь.';
+
+  @override
+  String get announcementsEmptyTitle => 'Пока нет объявлений';
+
+  @override
+  String get announcementsEmptyMessage => 'Новые объявления появятся здесь.';
+
+  @override
   String get commonCancel => 'Отмена';
 
   @override
@@ -191,10 +203,25 @@ class AppLocalizationsRu extends AppLocalizations {
   String get categoryFilters => 'Фильтры';
 
   @override
+  String get categoryOnlyFeatured => 'Только рекомендуемые товары';
+
+  @override
   String get categorySortTitle => 'Сортировка';
 
   @override
+  String get categorySortNewest => 'Сначала новые';
+
+  @override
   String get categorySortPopular => 'Популярные';
+
+  @override
+  String get categoryPriceMin => 'Минимальная цена';
+
+  @override
+  String get categoryPriceRange => 'Диапазон цен';
+
+  @override
+  String get categoryPriceMax => 'Максимальная цена';
 
   @override
   String get categorySortPriceAsc => 'Цена: по возрастанию';
@@ -213,6 +240,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get categoryNoResults => 'Ничего не найдено по этим фильтрам';
+
+  @override
+  String get categoryProductsEmptyTitle => 'Пока нет товаров';
+
+  @override
+  String get categoryProductsEmptyMessage =>
+      'В этой категории пока нет товаров. Посмотрите другие категории.';
 
   @override
   String get categoryNoResultsHint => 'Попробуйте убрать один из них.';
@@ -244,6 +278,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cartSelectAll => 'Выбрать все';
+
+  @override
+  String get cartEmpty => 'Корзина пуста';
+
+  @override
+  String get cartTitle => 'Товары';
+
+  @override
+  String get cartEmptyMessage =>
+      'Добавляйте понравившиеся товары — они будут ждать вас здесь.';
+
+  @override
+  String get cartEmptyAction => 'Начать покупки';
 
   @override
   String cartProductCount(int count) {
@@ -339,7 +386,95 @@ class AppLocalizationsRu extends AppLocalizations {
   String get orderCancelled => 'Заказ отменён';
 
   @override
+  String get orderStatusCancelled => 'Отменён';
+
+  @override
+  String get orderCancelTitle => 'Отменить заказ?';
+
+  @override
+  String get orderCancelMessage =>
+      'Отменённый заказ нельзя восстановить. Вы можете оформить его заново из корзины.';
+
+  @override
+  String get orderCancelKeep => 'Оставить заказ';
+
+  @override
+  String get orderCancelConfirm => 'Отменить заказ';
+
+  @override
+  String get orderRepeatDone => 'Товары добавлены в корзину';
+
+  @override
+  String get orderNotFound => 'Не удалось загрузить заказ';
+
+  @override
+  String get orderComment => 'Комментарий';
+
+  @override
+  String get orderStatusNew => 'Ожидает звонка';
+
+  @override
+  String get orderStatusConfirmed => 'Подтверждён';
+
+  @override
+  String get orderStatusOrdered => 'Заказан';
+
+  @override
+  String get orderStatusCompleted => 'Завершён';
+
+  @override
+  String get orderReceiptTitle => 'Чек заказа';
+
+  @override
+  String get orderReceiptItems => 'Товары';
+
+  @override
+  String get orderReceiptQty => 'Кол-во';
+
+  @override
+  String get orderReceiptPrice => 'Цена';
+
+  @override
+  String get orderReceiptAmount => 'Сумма';
+
+  @override
+  String get orderReceiptThanks => 'Спасибо за заказ';
+
+  @override
+  String get orderReceiptFailed => 'Не удалось создать чек';
+
+  @override
+  String get orderTrackRefresh => 'Обновляется каждые 15 секунд';
+
+  @override
+  String get orderTrackNoPoint => 'Точка доставки не указана';
+
+  @override
+  String get orderTrackMapPoint => 'Точка доставки на карте';
+
+  @override
+  String get orderTrackNoCourier =>
+      'Положение курьера и время прибытия пока недоступны.';
+
+  @override
+  String get orderTrackCancelled => 'Этот заказ был отменён.';
+
+  @override
   String get orderHistory => 'История заказов';
+
+  @override
+  String get orderHistoryEmptyTitle => 'Заказов пока нет';
+
+  @override
+  String get orderHistoryEmptyMessage =>
+      'После оформления заказа он появится здесь.';
+
+  @override
+  String get activeOrdersEmptyTitle => 'Нет активных заказов';
+
+  @override
+  String get activeOrdersEmptyMessage =>
+      'Здесь появятся заказы в процессе выполнения.';
 
   @override
   String orderItemCount(int count) {
@@ -431,6 +566,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileSavedLocations => 'Мои адреса';
 
   @override
+  String get addressEmptyTitle => 'Пока нет сохранённых адресов';
+
+  @override
+  String get addressEmptyMessage =>
+      'Нажмите +, чтобы сохранить первый адрес доставки.';
+
+  @override
+  String get addressDeleteDone => 'Адрес удалён.';
+
+  @override
   String get profileOrderHistory => 'История заказов';
 
   @override
@@ -450,6 +595,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get profilePrivacy => 'Политика конфиденциальности';
+
+  @override
+  String get staticPageEmpty =>
+      'Содержимое появится здесь, когда будет доступно.';
 
   @override
   String get profileWhatsapp => 'WhatsApp';
@@ -474,6 +623,79 @@ class AppLocalizationsRu extends AppLocalizations {
   String profileVersion(String version) {
     return 'Версия $version';
   }
+
+  @override
+  String get profileSignOut => 'Выйти';
+
+  @override
+  String get profileSignOutTitle => 'Выйти из аккаунта?';
+
+  @override
+  String get profileSignOutMessage =>
+      'Чтобы войти снова, понадобится номер телефона.';
+
+  @override
+  String get profileGuestTitle => 'Вы не вошли в аккаунт';
+
+  @override
+  String get profileGuestMessage =>
+      'Войдите, чтобы отслеживать заказы, сохранять адреса и избранное.';
+
+  @override
+  String get authSignIn => 'Войти';
+
+  @override
+  String get authSignInRequiredTitle => 'Требуется вход';
+
+  @override
+  String get authSignInRequiredMessage =>
+      'Войдите, чтобы пользоваться этим разделом.';
+
+  @override
+  String get loginTitle => 'Вход';
+
+  @override
+  String get loginPhoneTitle => 'Введите номер телефона';
+
+  @override
+  String get loginPhoneMessage => 'Мы отправим код подтверждения в SMS.';
+
+  @override
+  String get loginPhoneLabel => 'Номер телефона';
+
+  @override
+  String get loginPhoneHint => '6X XXXXXX';
+
+  @override
+  String get loginSendCode => 'Отправить код';
+
+  @override
+  String get loginCodeTitle => 'Введите код';
+
+  @override
+  String loginCodeMessage(String phone) {
+    return 'Код отправлен на $phone';
+  }
+
+  @override
+  String get loginCodeLabel => 'Код подтверждения';
+
+  @override
+  String get loginVerify => 'Продолжить';
+
+  @override
+  String get loginResend => 'Отправить код ещё раз';
+
+  @override
+  String loginResendIn(int seconds) {
+    return 'Повторно через $seconds с';
+  }
+
+  @override
+  String get loginChangePhone => 'Изменить номер';
+
+  @override
+  String get loginSignedIn => 'Вы вошли в аккаунт';
 
   @override
   String get settingsLanguageEnglish => 'Английский';
@@ -511,6 +733,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get editProfilePhotoRemove => 'Удалить фото';
+
+  @override
+  String get editProfilePhotoTooLarge =>
+      'Не удалось уменьшить фото до 1 МБ. Выберите другое фото.';
 
   @override
   String get editProfileSaved => 'Профиль обновлён';
@@ -693,4 +919,37 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get errorValidation => 'Проверьте введённые данные.';
+
+  @override
+  String get profileDeleteAccount => 'Удалить аккаунт';
+
+  @override
+  String get profileDeleteTitle => 'Удалить ваш аккаунт?';
+
+  @override
+  String get profileDeleteMessage =>
+      'Это навсегда. Аккаунт и все его данные удаляются из Elyeter без возможности восстановления.';
+
+  @override
+  String get profileDeleteLossOrders => 'История заказов';
+
+  @override
+  String get profileDeleteLossProfile => 'Имя, фото и сохранённые данные';
+
+  @override
+  String get profileDeleteLossAccess => 'Доступ к аккаунту на этом номере';
+
+  @override
+  String profileDeleteAccountOn(String phone) {
+    return 'Аккаунт: $phone';
+  }
+
+  @override
+  String get profileDeleteKeep => 'Оставить аккаунт';
+
+  @override
+  String get profileDeleteConfirm => 'Удалить навсегда';
+
+  @override
+  String get profileDeleteDone => 'Ваш аккаунт удалён.';
 }

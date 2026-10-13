@@ -8,6 +8,10 @@
   "favoriteTitle": "Favorites",
   "navProfile": "Profile",
   "commonRetry": "Retry",
+  "notificationsEmptyTitle": "No notifications yet",
+  "notificationsEmptyMessage": "New updates will appear here.",
+  "announcementsEmptyTitle": "No announcements yet",
+  "announcementsEmptyMessage": "New announcements will appear here.",
   "commonCancel": "Cancel",
   "commonClose": "Close",
   "commonSave": "Save",
@@ -80,14 +84,21 @@
   "categoryFilterBrand": "Brand",
   "categorySearch": "Search",
   "categoryFilters": "Filters",
+  "categoryOnlyFeatured": "Featured products only",
   "categorySortTitle": "Sort by",
+  "categorySortNewest": "Newest",
   "categorySortPopular": "Popular",
+  "categoryPriceMin": "Minimum price",
+  "categoryPriceRange": "Price range",
+  "categoryPriceMax": "Maximum price",
   "categorySortPriceAsc": "Price: low to high",
   "categorySortPriceDesc": "Price: high to low",
   "categorySortDiscount": "Biggest discount",
   "categoryApply": "Apply",
   "categoryReset": "Reset",
   "categoryNoResults": "Nothing matches these filters",
+  "categoryProductsEmptyTitle": "No products yet",
+  "categoryProductsEmptyMessage": "This category has no products right now. Explore another category.",
   "categoryNoResultsHint": "Try removing one of them.",
   "categoryFacetSearch": "Search {facet}",
   "@categoryFacetSearch": {
@@ -111,6 +122,10 @@
   "commonAdded": "Added",
   "cartDelete": "Delete",
   "cartSelectAll": "Select All",
+  "cartEmpty": "Your cart is empty",
+  "cartTitle": "Product",
+  "cartEmptyMessage": "Add products you like and they will wait for you here.",
+  "cartEmptyAction": "Start shopping",
   "cartProductCount": "{count, plural, =1{1 Product} other{{count} Product}}",
   "@cartProductCount": {
     "placeholders": {
@@ -176,7 +191,35 @@
   "orderActive": "Active Order",
   "orderCompleted": "Order Completed",
   "orderCancelled": "Order Cancelled",
+  "orderStatusCancelled": "Cancelled",
+  "orderCancelTitle": "Cancel this order?",
+  "orderCancelMessage": "Once cancelled, an order cannot be restored. You can place it again from your cart.",
+  "orderCancelKeep": "Keep order",
+  "orderCancelConfirm": "Cancel order",
+  "orderRepeatDone": "Items added to your cart",
+  "orderNotFound": "This order could not be loaded",
+  "orderComment": "Comment",
+  "orderStatusNew": "Waiting for a call",
+  "orderStatusConfirmed": "Confirmed",
+  "orderStatusOrdered": "Ordered",
+  "orderStatusCompleted": "Completed",
+  "orderReceiptTitle": "Order receipt",
+  "orderReceiptItems": "Items",
+  "orderReceiptQty": "Qty",
+  "orderReceiptPrice": "Price",
+  "orderReceiptAmount": "Amount",
+  "orderReceiptThanks": "Thank you for your order",
+  "orderReceiptFailed": "Could not create the receipt",
+  "orderTrackRefresh": "Updates every 15 seconds",
+  "orderTrackNoPoint": "No delivery point was set",
+  "orderTrackMapPoint": "Delivery point on the map",
+  "orderTrackNoCourier": "Live courier location and arrival time are not available yet.",
+  "orderTrackCancelled": "This order was cancelled.",
   "orderHistory": "Order history",
+  "orderHistoryEmptyTitle": "No orders yet",
+  "orderHistoryEmptyMessage": "Your orders will appear here after you place one.",
+  "activeOrdersEmptyTitle": "No active orders",
+  "activeOrdersEmptyMessage": "Orders in progress will appear here.",
   "orderItemCount": "{count, plural, =0{No products} =1{1 product} other{{count} products}}",
   "@orderItemCount": {
     "placeholders": {
@@ -214,6 +257,9 @@
   "profileNotifications": "Notifications",
   "profileActiveOrders": "Active orders",
   "profileSavedLocations": "My saved locations",
+  "addressEmptyTitle": "No saved addresses yet",
+  "addressEmptyMessage": "Tap + to save your first delivery address.",
+  "addressDeleteDone": "Address deleted.",
   "profileOrderHistory": "Order history",
   "profileAnnouncements": "Announcements",
   "profileDarkMode": "Dark mode",
@@ -221,6 +267,7 @@
   "profileFaq": "FAQ",
   "profileTerms": "Terms of use",
   "profilePrivacy": "Privacy policy",
+  "staticPageEmpty": "Content will appear here when it is available.",
   "profileWhatsapp": "WhatsApp",
   "profileInstagram": "Instagram",
   "profileTiktok": "TikTok",
@@ -235,6 +282,42 @@
       }
     }
   },
+  "profileSignOut": "Sign out",
+  "profileSignOutTitle": "Sign out?",
+  "profileSignOutMessage": "You will need your phone number to sign in again.",
+  "profileGuestTitle": "You are not signed in",
+  "profileGuestMessage": "Sign in to track your orders, save addresses and keep your favourites.",
+  "authSignIn": "Sign in",
+  "authSignInRequiredTitle": "Sign in required",
+  "authSignInRequiredMessage": "Sign in to use this part of the app.",
+  "loginTitle": "Sign in",
+  "loginPhoneTitle": "Enter your phone number",
+  "loginPhoneMessage": "We will text you a confirmation code.",
+  "loginPhoneLabel": "Phone number",
+  "loginPhoneHint": "6X XXXXXX",
+  "loginSendCode": "Send code",
+  "loginCodeTitle": "Enter the code",
+  "loginCodeMessage": "Code sent to {phone}",
+  "@loginCodeMessage": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "loginCodeLabel": "Confirmation code",
+  "loginVerify": "Continue",
+  "loginResend": "Resend code",
+  "loginResendIn": "Resend in {seconds} s",
+  "@loginResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "loginChangePhone": "Change number",
+  "loginSignedIn": "You are signed in",
   "settingsLanguageEnglish": "English",
   "settingsLanguageTurkmen": "Türkmençe",
   "settingsLanguageRussian": "Русский",
@@ -247,6 +330,7 @@
   "editProfilePhotoCamera": "Take a photo",
   "editProfilePhotoGallery": "Choose from gallery",
   "editProfilePhotoRemove": "Remove photo",
+  "editProfilePhotoTooLarge": "This photo could not be reduced below 1 MB. Choose another photo.",
   "editProfileSaved": "Profile updated",
   "editProfileNameRequired": "Please enter your name",
   "editProfilePhotoHint": "Tap the photo to change it",
@@ -313,5 +397,22 @@
   "errorSupplierUnavailable": "The supplier is not responding. Try again in a couple of minutes.",
   "errorCannotCancel": "This order can no longer be cancelled.",
   "errorTooManyRequests": "Too many requests. Please slow down.",
-  "errorValidation": "Please check the details you entered."
+  "errorValidation": "Please check the details you entered.",
+  "profileDeleteAccount": "Delete account",
+  "profileDeleteTitle": "Delete your account?",
+  "profileDeleteMessage": "This is permanent. Your account and everything in it is removed from Elyeter and cannot be restored.",
+  "profileDeleteLossOrders": "Your order history",
+  "profileDeleteLossProfile": "Your name, photo and saved details",
+  "profileDeleteLossAccess": "Access to the account on this number",
+  "profileDeleteAccountOn": "Account: {phone}",
+  "@profileDeleteAccountOn": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "profileDeleteKeep": "Keep my account",
+  "profileDeleteConfirm": "Delete permanently",
+  "profileDeleteDone": "Your account has been deleted."
 }

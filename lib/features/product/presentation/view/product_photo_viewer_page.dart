@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/constants/app_icons.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_back_button.dart';
+import '../widgets/product_image_view.dart';
 
 /// Full-screen photo viewer: pinch or double-tap to zoom, swipe between
 /// photos, swipe down to dismiss.
@@ -96,7 +98,7 @@ class _ProductPhotoViewerPageState extends State<ProductPhotoViewerPage> {
           Positioned(
             top: MediaQuery.viewPaddingOf(context).top + AppSpacing.sm,
             left: 0,
-            child: const AppBackButton.appBarLeading(),
+            child: const AppBackButton.appBarLeading(icon: AppIcons.back),
           ),
           if (widget.images.length > 1)
             Positioned(
@@ -194,9 +196,10 @@ class _ZoomablePhotoState extends State<_ZoomablePhoto>
               1,
             ));
 
-    _zoomTo = Matrix4Tween(begin: _viewer.value, end: end).animate(
-      CurvedAnimation(parent: _zoom, curve: Curves.easeOutCubic),
-    );
+    _zoomTo = Matrix4Tween(
+      begin: _viewer.value,
+      end: end,
+    ).animate(CurvedAnimation(parent: _zoom, curve: Curves.easeOutCubic));
     _zoom.forward(from: 0);
   }
 
@@ -218,7 +221,7 @@ class _ZoomablePhotoState extends State<_ZoomablePhoto>
         child: Center(
           child: Hero(
             tag: widget.heroTag,
-            child: Image.asset(widget.image, fit: BoxFit.contain),
+            child: ProductImageView(source: widget.image),
           ),
         ),
       ),

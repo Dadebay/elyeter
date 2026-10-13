@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
+import '../../../../core/constants/app_icons.dart';
 import 'visual_search_source_sheet.dart' show HugeIconData;
 
 /// Close button, title and flash toggle across the top of the camera.
@@ -20,7 +20,7 @@ class VisualSearchTopBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
       child: Row(
         children: [
-          _GlassButton(icon: HugeIcons.strokeRoundedCancel01, onTap: onClose),
+          _GlassButton(icon: AppIcons.close, onTap: onClose),
           Expanded(
             child: Text(
               title,
@@ -67,12 +67,12 @@ class VisualSearchShutterBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _GlassButton(
-            icon: flashOn ? HugeIcons.strokeRoundedFlash : HugeIcons.strokeRoundedFlashOff,
+            icon: flashOn ? AppIcons.flashOn : AppIcons.flashOff,
             onTap: busy ? null : onFlash,
             active: flashOn,
           ),
           _Shutter(busy: busy, onTap: enabled && !busy ? onCapture : null),
-          _GlassButton(icon: HugeIcons.strokeRoundedCameraRotated01, onTap: busy ? null : onSwitch),
+          _GlassButton(icon: AppIcons.cameraFlip, onTap: busy ? null : onSwitch),
         ],
       ),
     );

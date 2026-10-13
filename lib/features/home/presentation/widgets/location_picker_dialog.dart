@@ -6,6 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// One deliverable place: a street or neighbourhood inside a city district.
 class DeliveryLocation {
@@ -270,7 +271,7 @@ class _LocationRow extends StatelessWidget {
               ),
             ),
             if (selected)
-              const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 22),
+              const HugeIcon(icon: AppIcons.checkCircle, color: AppColors.primary, size: 22),
           ],
         ),
       ),
