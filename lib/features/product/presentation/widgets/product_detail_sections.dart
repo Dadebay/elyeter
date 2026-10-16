@@ -78,9 +78,11 @@ class ProductOptionLabel extends StatelessWidget {
   );
 }
 
-/// Big orange price, with what it was and what that saves beside it.
+/// Burgundy price, with the previous amount and orange discount beside it.
 class ProductPriceCard extends StatelessWidget {
   const ProductPriceCard({super.key, required this.price, this.oldPrice});
+
+  static const _priceColor = Color(0xFFAD1F2A);
 
   final num price;
   final num? oldPrice;
@@ -102,7 +104,7 @@ class ProductPriceCard extends StatelessWidget {
               CurrencyFormatter.amount(price),
               maxLines: 1,
               style: context.textTheme.headlineLarge?.copyWith(
-                color: AppColors.primary,
+                color: _priceColor,
               ),
             ),
           ),
@@ -110,7 +112,8 @@ class ProductPriceCard extends StatelessWidget {
           Text(
             AppConstants.currencySymbol,
             style: context.textTheme.labelMedium?.copyWith(
-              color: AppColors.primary,
+              color: _priceColor,
+              fontWeight: FontWeight.w700,
             ),
           ),
           if (discount != null) ...[
@@ -127,7 +130,7 @@ class ProductPriceCard extends StatelessWidget {
             Text(
               '-$discount%',
               style: context.textTheme.bodySmall?.copyWith(
-                color: AppColors.error,
+                color: AppColors.primaryVibrant,
               ),
             ),
           ],
@@ -146,6 +149,10 @@ class ProductArticleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ProductSectionCard(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.sm,
+      ),
       child: Row(
         children: [
           Expanded(
@@ -156,6 +163,7 @@ class ProductArticleCard extends StatelessWidget {
                   context.l10n.productArticle,
                   style: context.textTheme.titleSmall?.copyWith(
                     color: AppColors.black,
+                    fontSize: 13,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xxs),
@@ -165,6 +173,7 @@ class ProductArticleCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: context.textTheme.bodyMedium?.copyWith(
                     color: AppColors.grey700,
+                    fontSize: 13,
                   ),
                 ),
               ],
@@ -193,8 +202,8 @@ class _CopyButton extends StatelessWidget {
         onTap: () => _copy(context),
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
+            horizontal: AppSpacing.xl,
+            vertical: AppSpacing.md,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -280,6 +289,10 @@ class _ProductDescriptionCardState extends State<ProductDescriptionCard> {
     final link = body.copyWith(color: AppColors.info);
 
     return ProductSectionCard(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.md,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

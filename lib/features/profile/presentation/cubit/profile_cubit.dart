@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// The account details the customer can edit themselves.
 class ProfileState extends Equatable {
@@ -30,9 +33,30 @@ class ProfileState extends Equatable {
 class ProfileCubit extends HydratedCubit<ProfileState> {
   ProfileCubit() : super(ProfileState.initial());
 
-  void save({required String name, required String? avatarPath}) => emit(
-    ProfileState(name: name, phone: state.phone, avatarPath: avatarPath),
-  );
+  Future<void> save({required String name, required String? avatarPath}) async {
+    final previous = state;
+    var savedPath = avatarPath;
+    if (avatarPath != null) {
+      final source = File(avatarPath);
+      if (await source.exists()) {
+        final documents = await getApplicationDocumentsDirectory();
+        final directory = Directory('${documents.path}/profile_avatars');
+        await directory.create(recursive: true);
+        if (source.parent.path != directory.path) {
+          // Picker and compressor files live in disposable cache storage.
+          final copy = await source.copy(
+            '${directory.path}/avatar_${DateTime.now().microsecondsSinceEpoch}',
+          );
+          savedPath = copy.path;
+        }
+      } else {
+        savedPath = null;
+      }
+    }
+    // A sign-out while copying must not restore the previous account.
+    if (isClosed || state != previous) return;
+    emit(ProfileState(name: name, phone: state.phone, avatarPath: savedPath));
+  }
 
   /// Takes what the signed-in account knows about the customer: always the
   /// number, since that is the account's identity, and the name only while

@@ -136,6 +136,24 @@ abstract class AppLocalizations {
   /// **'Favorites'**
   String get favoriteTitle;
 
+  /// No description provided for @favoriteEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Favorites Yet'**
+  String get favoriteEmptyTitle;
+
+  /// No description provided for @favoriteEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Save your favorite items and find them here whenever you need them.'**
+  String get favoriteEmptyMessage;
+
+  /// No description provided for @favoriteEmptyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get favoriteEmptyAction;
+
   /// No description provided for @navProfile.
   ///
   /// In en, this message translates to:
@@ -607,7 +625,7 @@ abstract class AppLocalizations {
   /// No description provided for @cartEmpty.
   ///
   /// In en, this message translates to:
-  /// **'Your cart is empty'**
+  /// **'Your Cart Is Empty'**
   String get cartEmpty;
 
   /// No description provided for @cartTitle.
@@ -619,13 +637,13 @@ abstract class AppLocalizations {
   /// No description provided for @cartEmptyMessage.
   ///
   /// In en, this message translates to:
-  /// **'Add products you like and they will wait for you here.'**
+  /// **'You haven’t added any items yet. Explore our collection and find your favorites.'**
   String get cartEmptyMessage;
 
   /// No description provided for @cartEmptyAction.
   ///
   /// In en, this message translates to:
-  /// **'Start shopping'**
+  /// **'Shopping'**
   String get cartEmptyAction;
 
   /// No description provided for @cartProductCount.
@@ -958,6 +976,18 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get settingsLanguage;
 
+  /// No description provided for @settingsLanguageDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change language'**
+  String get settingsLanguageDialogTitle;
+
+  /// No description provided for @settingsLanguageDialogSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the language you\'d like to use.'**
+  String get settingsLanguageDialogSubtitle;
+
   /// No description provided for @settingsTheme.
   ///
   /// In en, this message translates to:
@@ -1207,14 +1237,20 @@ abstract class AppLocalizations {
   /// No description provided for @profileGuestTitle.
   ///
   /// In en, this message translates to:
-  /// **'You are not signed in'**
+  /// **'Log in to your account'**
   String get profileGuestTitle;
 
   /// No description provided for @profileGuestMessage.
   ///
   /// In en, this message translates to:
-  /// **'Sign in to track your orders, save addresses and keep your favourites.'**
+  /// **'Clothing, products, home goods and more to order'**
   String get profileGuestMessage;
+
+  /// No description provided for @profileGuestAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get profileGuestAction;
 
   /// No description provided for @authSignIn.
   ///

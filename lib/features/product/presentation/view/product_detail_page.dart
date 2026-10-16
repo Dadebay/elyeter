@@ -17,7 +17,6 @@ import '../../domain/entities/product_detail.dart';
 import '../../domain/entities/product_variant.dart';
 import '../../domain/repositories/product_repository.dart';
 import '../model/variant_options.dart';
-import '../widgets/expandable_product_name.dart';
 import '../widgets/product_app_bar_actions.dart';
 import '../widgets/product_detail_sections.dart';
 import '../widgets/product_gallery.dart';
@@ -155,8 +154,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: AppSpacing.lg),
-                      ExpandableProductName(
-                        name: product.name,
+                      Text(
+                        product.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.headlineSmall
                             ?.copyWith(color: AppColors.black),
                       ),

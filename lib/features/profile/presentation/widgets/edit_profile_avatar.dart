@@ -98,6 +98,19 @@ class _Circle extends StatelessWidget {
     final url = imageUrl;
     final hasPhoto = path != null || url != null;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fallback = initials.isEmpty
+        ? HugeIcon(
+            icon: AppIcons.user,
+            size: size * 0.5,
+            color: const Color(0xFF6E3A1E),
+          )
+        : Text(
+            initials,
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              color: const Color(0xFF6E3A1E),
+              fontWeight: FontWeight.w600,
+            ),
+          );
 
     return Container(
       width: size,
@@ -105,7 +118,7 @@ class _Circle extends StatelessWidget {
       alignment: Alignment.center,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.55),
+        color: AppColors.primaryFade,
         shape: BoxShape.circle,
         boxShadow: hasPhoto
             ? [
@@ -132,6 +145,7 @@ class _Circle extends StatelessWidget {
           width: size,
           height: size,
           fit: BoxFit.cover,
+          errorBuilder: (_, _, _) => fallback,
         ),
         (_, final String remote) => AppNetworkImage(
           url: remote,
@@ -140,26 +154,13 @@ class _Circle extends StatelessWidget {
           radius: 0,
         ),
         // No photo: initials, or a glyph when the account has no name yet.
-        _ =>
-          initials.isEmpty
-              ? HugeIcon(
-                  icon: AppIcons.user,
-                  size: size * 0.5,
-                  color: AppColors.white,
-                )
-              : Text(
-                  initials,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: AppColors.black,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+        _ => fallback,
       },
     );
   }
 }
 
-/// The round button on the avatar's corner: a white ring so it reads against
+/// The round button on the avatar's corner: a page-colored ring so it reads against
 /// both a photo and the page, a soft shadow to lift it off the circle, and
 /// its glyph optically centred.
 class _CameraBadge extends StatelessWidget {
@@ -178,7 +179,10 @@ class _CameraBadge extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: AppColors.white, width: 2),
+        border: Border.all(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          width: 2,
+        ),
         boxShadow: [
           BoxShadow(
             color: AppColors.black.withValues(alpha: 0.18),

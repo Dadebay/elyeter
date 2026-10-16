@@ -27,6 +27,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get favoriteTitle => 'Избранное';
 
   @override
+  String get favoriteEmptyTitle => 'Пока нет избранного';
+
+  @override
+  String get favoriteEmptyMessage =>
+      'Сохраняйте понравившиеся товары, чтобы быстро находить их здесь.';
+
+  @override
+  String get favoriteEmptyAction => 'Смотреть';
+
+  @override
   String get navProfile => 'Профиль';
 
   @override
@@ -287,10 +297,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cartEmptyMessage =>
-      'Добавляйте понравившиеся товары — они будут ждать вас здесь.';
+      'Вы ещё ничего не добавили. Посмотрите товары и найдите то, что понравится.';
 
   @override
-  String get cartEmptyAction => 'Начать покупки';
+  String get cartEmptyAction => 'К покупкам';
 
   @override
   String cartProductCount(int count) {
@@ -496,6 +506,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsLanguage => 'Язык';
 
   @override
+  String get settingsLanguageDialogTitle => 'Выбрать язык';
+
+  @override
+  String get settingsLanguageDialogSubtitle =>
+      'Выберите язык, который хотите использовать.';
+
+  @override
   String get settingsTheme => 'Тема';
 
   @override
@@ -635,11 +652,14 @@ class AppLocalizationsRu extends AppLocalizations {
       'Чтобы войти снова, понадобится номер телефона.';
 
   @override
-  String get profileGuestTitle => 'Вы не вошли в аккаунт';
+  String get profileGuestTitle => 'Войдите в аккаунт';
 
   @override
   String get profileGuestMessage =>
-      'Войдите, чтобы отслеживать заказы, сохранять адреса и избранное.';
+      'Одежда, товары для дома и многое другое для заказа';
+
+  @override
+  String get profileGuestAction => 'Войти';
 
   @override
   String get authSignIn => 'Войти';

@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:elyeter/app/cubit/locale_cubit.dart';
 import 'package:elyeter/app/cubit/theme_cubit.dart';
 import 'package:elyeter/core/di/injector.dart';
-import 'package:elyeter/core/constants/app_icons.dart';
 import 'package:elyeter/core/network/api_client.dart';
 import 'package:elyeter/core/network/shop_api.dart';
 import 'package:elyeter/core/theme/app_theme.dart';
@@ -170,15 +169,10 @@ void main() {
     expect(appBarTheme.backgroundColor, AppTheme.dark.scaffoldBackgroundColor);
     expect(appBarTheme.scrolledUnderElevation, 0);
     expect(appBarTheme.surfaceTintColor, Colors.transparent);
-    final savedLocations = find.ancestor(
-      of: find.text('My saved locations'),
-      matching: find.byType(SettingsTile),
-    );
-    final locationIcons = tester.widgetList<HugeIcon>(
-      find.descendant(of: savedLocations, matching: find.byType(HugeIcon)),
-    );
-    expect(locationIcons.first.icon, AppIcons.location);
-    expect(locationIcons.first.strokeWidth, 2.5);
+    expect(find.text('My saved locations'), findsNothing);
+    expect(find.text('Active orders'), findsNothing);
+    expect(find.text('Order history'), findsNothing);
+    expect(find.text('Announcements'), findsNothing);
     final notifications = find.ancestor(
       of: find.text('Notifications'),
       matching: find.byType(SettingsTile),

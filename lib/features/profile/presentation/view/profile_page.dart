@@ -121,6 +121,13 @@ class _ProfileViewState extends State<_ProfileView> {
     final locale = context.watch<LocaleCubit>().state;
     final auth = context.watch<AuthCubit>().state;
     final signedIn = auth.isAuthenticated;
+    final guestTileWeight = signedIn ? null : FontWeight.w500;
+    final guestSectionTitleStyle = signedIn
+        ? null
+        : context.textTheme.titleMedium?.copyWith(
+            color: AppColors.iconSoft,
+            fontWeight: FontWeight.w600,
+          );
     if (_loadedAccountId != auth.user?.id) {
       _loadedAccountId = auth.user?.id;
       _orderCount = null;
@@ -140,15 +147,20 @@ class _ProfileViewState extends State<_ProfileView> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        toolbarHeight: signedIn ? null : 94,
+        titleSpacing: signedIn ? null : 20,
         title: Text(
           l10n.profileTitle,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: signedIn ? 20 : 24,
+          ),
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(
+        padding: EdgeInsets.fromLTRB(
           AppSpacing.page,
-          AppSpacing.sm,
+          signedIn ? AppSpacing.xxl : 0,
           AppSpacing.page,
           // Clearance for the floating navigation bar.
           120,
@@ -177,59 +189,68 @@ class _ProfileViewState extends State<_ProfileView> {
             GuestSummaryCard(
               title: l10n.profileGuestTitle,
               message: l10n.profileGuestMessage,
-              actionLabel: l10n.authSignIn,
+              actionLabel: l10n.profileGuestAction,
               onSignIn: () => context.pushNamed(AppRoutes.login.name),
             ),
+          if (!signedIn) const SizedBox(height: AppSpacing.lg),
           SettingsSection(
             title: l10n.profileSectionGeneral,
+            titleStyle: guestSectionTitleStyle,
             children: [
               SettingsTile(
                 icon: AppAssets.iconBell,
                 label: l10n.profileNotifications,
+                verticalPadding: signedIn ? null : 14,
+                labelWeight: guestTileWeight,
                 onTap: () => context.pushNamed(AppRoutes.notifications.name),
               ),
-              SettingsTile(
-                icon: AppAssets.iconCubic,
-                label: l10n.profileActiveOrders,
-                onTap: () => _openAccountPage(
-                  context,
-                  signedIn,
-                  AppRoutes.activeOrders.name,
+              if (signedIn) ...[
+                SettingsTile(
+                  icon: AppAssets.iconCubic,
+                  label: l10n.profileActiveOrders,
+                  onTap: () => _openAccountPage(
+                    context,
+                    signedIn,
+                    AppRoutes.activeOrders.name,
+                  ),
                 ),
-              ),
-              SettingsTile(
-                icon: AppAssets.iconPinLocation,
-                label: l10n.profileSavedLocations,
-                onTap: () => _openAccountPage(
-                  context,
-                  signedIn,
-                  AppRoutes.addresses.name,
+                SettingsTile(
+                  icon: AppAssets.iconPinLocation,
+                  label: l10n.profileSavedLocations,
+                  onTap: () => _openAccountPage(
+                    context,
+                    signedIn,
+                    AppRoutes.addresses.name,
+                  ),
                 ),
-              ),
-              SettingsTile(
-                icon: AppAssets.iconClock,
-                label: l10n.profileOrderHistory,
-                onTap: () =>
-                    _openAccountPage(context, signedIn, AppRoutes.orders.name),
-              ),
-              // Announcements read the same for everyone — no account needed.
-              SettingsTile(
-                icon: AppAssets.iconNews,
-                label: l10n.profileAnnouncements,
-                onTap: () => context.pushNamed(AppRoutes.announcements.name),
-              ),
+                SettingsTile(
+                  icon: AppAssets.iconClock,
+                  label: l10n.profileOrderHistory,
+                  onTap: () => _openAccountPage(
+                    context,
+                    signedIn,
+                    AppRoutes.orders.name,
+                  ),
+                ),
+                SettingsTile(
+                  icon: AppAssets.iconNews,
+                  label: l10n.profileAnnouncements,
+                  onTap: () => context.pushNamed(AppRoutes.announcements.name),
+                ),
+              ],
               SettingsTile(
                 icon: AppAssets.iconGlobe,
                 label: l10n.settingsLanguage,
-                trailing: TileFlag(
-                  label: _languageLabel(context, locale),
-                  languageCode: _languageCode(context, locale),
-                ),
+                trailing: TileValue(_languageLabel(context, locale)),
+                verticalPadding: signedIn ? null : 14,
+                labelWeight: guestTileWeight,
                 onTap: () => _pickLanguage(context),
               ),
               SettingsTile(
                 icon: AppAssets.iconMoon,
                 label: l10n.profileDarkMode,
+                verticalPadding: signedIn ? null : 6,
+                labelWeight: guestTileWeight,
                 trailing: TileSwitch(
                   value: _isDark(context, themeMode),
                   onChanged: (on) {
@@ -255,27 +276,37 @@ class _ProfileViewState extends State<_ProfileView> {
               ),
             ],
           ),
+          if (!signedIn) const SizedBox(height: AppSpacing.sm),
           SettingsSection(
             title: l10n.profileSectionOther,
+            titleStyle: guestSectionTitleStyle,
             children: [
               SettingsTile(
                 icon: AppAssets.iconPhone,
                 label: _pageTitle('about', l10n.profileAboutApp),
+                verticalPadding: signedIn ? null : 14,
+                labelWeight: guestTileWeight,
                 onTap: () => _openStaticPage(context, 'about'),
               ),
               SettingsTile(
                 icon: AppAssets.iconQuestion,
                 label: _pageTitle('faq', l10n.profileFaq),
+                verticalPadding: signedIn ? null : 14,
+                labelWeight: guestTileWeight,
                 onTap: () => _openStaticPage(context, 'faq'),
               ),
               SettingsTile(
                 icon: AppAssets.iconDocumentCheck,
                 label: _pageTitle('terms', l10n.profileTerms),
+                verticalPadding: signedIn ? null : 14,
+                labelWeight: guestTileWeight,
                 onTap: () => _openStaticPage(context, 'terms'),
               ),
               SettingsTile(
                 icon: AppAssets.iconLock,
                 label: _pageTitle('privacy', l10n.profilePrivacy),
+                verticalPadding: signedIn ? null : 14,
+                labelWeight: guestTileWeight,
                 onTap: () => _openStaticPage(context, 'privacy'),
               ),
             ],
@@ -284,15 +315,18 @@ class _ProfileViewState extends State<_ProfileView> {
               _contacts?.tiktokUrl != null ||
               _contacts?.whatsappUrl != null ||
               _contacts?.telegramUrl != null ||
-              _contacts?.imoUrl != null)
+              _contacts?.imoUrl != null) ...[
+            if (!signedIn) const SizedBox(height: AppSpacing.sm),
             SettingsSection(
               title: l10n.profileSectionContact,
+              titleStyle: guestSectionTitleStyle,
               children: [
                 if (_contacts?.instagramUrl case final url?)
                   SettingsTile(
                     icon: AppAssets.iconInstagram,
                     label: l10n.profileInstagram,
                     trailing: const TileExternal(),
+                    labelWeight: guestTileWeight,
                     onTap: () => _open(context, url),
                   ),
                 if (_contacts?.tiktokUrl case final url?)
@@ -300,6 +334,7 @@ class _ProfileViewState extends State<_ProfileView> {
                     icon: AppAssets.iconTiktok,
                     label: l10n.profileTiktok,
                     trailing: const TileExternal(),
+                    labelWeight: guestTileWeight,
                     onTap: () => _open(context, url),
                   ),
                 if (_contacts?.whatsappUrl case final url?)
@@ -307,6 +342,7 @@ class _ProfileViewState extends State<_ProfileView> {
                     icon: AppAssets.iconWhatsapp,
                     label: l10n.profileWhatsapp,
                     trailing: const TileExternal(),
+                    labelWeight: guestTileWeight,
                     onTap: () => _open(context, url),
                   ),
                 if (_contacts?.telegramUrl case final url?)
@@ -314,6 +350,7 @@ class _ProfileViewState extends State<_ProfileView> {
                     icon: AppAssets.iconNews,
                     label: 'Telegram',
                     trailing: const TileExternal(),
+                    labelWeight: guestTileWeight,
                     onTap: () => _open(context, url),
                   ),
                 if (_contacts?.imoUrl case final url?)
@@ -321,15 +358,17 @@ class _ProfileViewState extends State<_ProfileView> {
                     icon: AppAssets.iconPhone,
                     label: 'IMO',
                     trailing: const TileExternal(),
+                    labelWeight: guestTileWeight,
                     onTap: () => _open(context, url),
                   ),
               ],
             ),
+          ],
           for (final phone in [
             _contacts?.phonePrimary,
             _contacts?.phoneSecondary,
           ].whereType<String>()) ...[
-            const SizedBox(height: AppSpacing.xl),
+            SizedBox(height: signedIn ? AppSpacing.xl : AppSpacing.sm),
             SupportCallCard(
               title: l10n.profileCallTitle,
               phone: phone,
@@ -346,15 +385,17 @@ class _ProfileViewState extends State<_ProfileView> {
               onPressed: () => _deleteAccount(context, auth.user?.phone),
             ),
           ],
-          const SizedBox(height: AppSpacing.xl),
-          Center(
-            child: Text(
-              l10n.profileVersion(AppConstants.appVersion),
-              style: context.textTheme.bodySmall?.copyWith(
-                color: AppColors.grey500,
+          if (signedIn) ...[
+            const SizedBox(height: AppSpacing.xl),
+            Center(
+              child: Text(
+                l10n.profileVersion(AppConstants.appVersion),
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: AppColors.grey500,
+                ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     );

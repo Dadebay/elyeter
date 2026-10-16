@@ -27,6 +27,16 @@ class AppLocalizationsTk extends AppLocalizations {
   String get favoriteTitle => 'Halanlarym';
 
   @override
+  String get favoriteEmptyTitle => 'Halan harytlaryňyz ýok';
+
+  @override
+  String get favoriteEmptyMessage =>
+      'Halan harytlaryňyzy saklaň we gerek bolanda şu ýerden tapyň.';
+
+  @override
+  String get favoriteEmptyAction => 'Göz aýla';
+
+  @override
   String get navProfile => 'Profil';
 
   @override
@@ -288,10 +298,10 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get cartEmptyMessage =>
-      'Halan önümleriňizi goşuň, olar şu ýerde sizi garaşar.';
+      'Heniz hiç zat goşmadyňyz. Harytlara göz aýlap, halanlaryňyzy tapyň.';
 
   @override
-  String get cartEmptyAction => 'Söwda başla';
+  String get cartEmptyAction => 'Söwda et';
 
   @override
   String cartProductCount(int count) {
@@ -495,6 +505,13 @@ class AppLocalizationsTk extends AppLocalizations {
   String get settingsLanguage => 'Dil';
 
   @override
+  String get settingsLanguageDialogTitle => 'Dil çalyşmak';
+
+  @override
+  String get settingsLanguageDialogSubtitle =>
+      'Ulanmak isleýän diliňizi saýlaň.';
+
+  @override
   String get settingsTheme => 'Tema';
 
   @override
@@ -632,11 +649,14 @@ class AppLocalizationsTk extends AppLocalizations {
       'Täzeden girmek üçin telefon belgiňiz gerek bolar.';
 
   @override
-  String get profileGuestTitle => 'Siz ulgama girmediňiz';
+  String get profileGuestTitle => 'Hasabyňyza giriň';
 
   @override
   String get profileGuestMessage =>
-      'Sargytlaryňyzy yzarlamak, salgylary we halanlaryňyzy saklamak üçin giriň.';
+      'Geýim, öý harytlary we başga-da köp zatlary sargyt ediň';
+
+  @override
+  String get profileGuestAction => 'Gir';
 
   @override
   String get authSignIn => 'Gir';

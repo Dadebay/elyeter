@@ -46,13 +46,13 @@ class ProductColorPicker extends StatelessWidget {
                 height: _size,
                 padding: const EdgeInsets.all(AppSpacing.sm),
                 decoration: BoxDecoration(
-                  color: AppColors.grey100,
+                  color: Colors.transparent,
                   borderRadius: BorderRadius.circular(AppRadius.md),
                   // Black, not the brand orange: the swatch's own colour is
                   // what the customer is choosing, so the marker stays neutral.
                   border: Border.all(
-                    color: active ? AppColors.black : Colors.transparent,
-                    width: 1.5,
+                    color: active ? AppColors.black : const Color(0xFFE5E5E5),
+                    width: active ? 1.5 : 0.75,
                   ),
                 ),
                 // A swatch whose photo is missing keeps a small glyph in its tile,
@@ -60,6 +60,7 @@ class ProductColorPicker extends StatelessWidget {
                 child: ProductImageView(
                   source: images[index],
                   fallbackIconSize: 22,
+                  fallbackColor: Colors.transparent,
                 ),
               ),
             ),
@@ -108,13 +109,13 @@ class ProductSizePicker extends StatelessWidget {
                   vertical: AppSpacing.md,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.grey100,
+                  color: Colors.transparent,
                   borderRadius: BorderRadius.circular(AppRadius.md),
                   border: Border.all(
                     color: size == selected
                         ? AppColors.black
-                        : Colors.transparent,
-                    width: 1.5,
+                        : const Color(0xFFE5E5E5),
+                    width: size == selected ? 1.5 : 0.75,
                   ),
                 ),
                 child: Text(

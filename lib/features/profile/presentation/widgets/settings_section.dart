@@ -9,10 +9,12 @@ class SettingsSection extends StatelessWidget {
     super.key,
     required this.title,
     required this.children,
+    this.titleStyle,
   });
 
   final String title;
   final List<Widget> children;
+  final TextStyle? titleStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +33,9 @@ class SettingsSection extends StatelessWidget {
           ),
           child: Text(
             title,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: AppColors.grey500,
-            ),
+            style:
+                titleStyle ??
+                theme.textTheme.labelMedium?.copyWith(color: AppColors.grey500),
           ),
         ),
         Material(

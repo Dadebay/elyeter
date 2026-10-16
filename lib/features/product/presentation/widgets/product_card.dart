@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../core/constants/app_assets.dart';
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
@@ -140,6 +139,7 @@ class ProductCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: context.textTheme.bodyMedium?.copyWith(
               color: AppColors.grey700,
+              fontWeight: FontWeight.w400,
             ),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -230,67 +230,56 @@ class _GalleryState extends State<_Gallery> {
   Widget build(BuildContext context) {
     final count = _images.length;
 
-    return DecoratedBox(
-      // Even fainter than the card's: just enough that the photo tile
-      // does not sit flat on it.
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x08000000),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        child: ColoredBox(
-          color: AppColors.grey100,
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: count == 0
-                    ? const AppNetworkImage(url: null, radius: 0)
-                    : PageView.builder(
-                        controller: _controller,
-                        itemCount: count,
-                        onPageChanged: (i) => setState(() => _page = i),
-                        itemBuilder: (context, index) => _SwipeEffect(
-                          controller: _controller,
-                          index: index,
-                          fallbackPage: _page,
-                          child: _Photo(_images[index]),
-                        ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppRadius.lg),
+      child: ColoredBox(
+        color: AppColors.background,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: count == 0
+                  ? const AppNetworkImage(
+                      url: null,
+                      radius: 0,
+                      fallbackColor: AppColors.background,
+                    )
+                  : PageView.builder(
+                      controller: _controller,
+                      itemCount: count,
+                      onPageChanged: (i) => setState(() => _page = i),
+                      itemBuilder: (context, index) => _SwipeEffect(
+                        index: index,
+                        fallbackPage: _page,
+                        child: _Photo(_images[index]),
                       ),
+                    ),
+            ),
+            Positioned(
+              // The button carries its own transparent padding, so it sits
+              // closer to the corner than the badges do.
+              top: AppSpacing.xs,
+              right: AppSpacing.xs,
+              child: FavoriteButton(
+                active: widget.isFavorite,
+                onTap: widget.onFavoriteTap,
               ),
+            ),
+            if (widget.discountPercent != null)
               Positioned(
-                // The button carries its own transparent padding, so it sits
-                // closer to the corner than the badges do.
-                top: AppSpacing.xs,
-                right: AppSpacing.xs,
-                child: FavoriteButton(
-                  active: widget.isFavorite,
-                  onTap: widget.onFavoriteTap,
+                // Nearly flush: the artwork brings most of the inset itself.
+                left: 2,
+                bottom: 2,
+                child: _DiscountBadge(percent: widget.discountPercent!),
+              ),
+            if (count > 1)
+              Positioned(
+                right: AppSpacing.sm,
+                bottom: AppSpacing.sm,
+                child: IgnorePointer(
+                  child: _Dots(count: count, index: _page),
                 ),
               ),
-              if (widget.discountPercent != null)
-                Positioned(
-                  // Nearly flush: the artwork brings most of the inset itself.
-                  left: 2,
-                  bottom: 2,
-                  child: _DiscountBadge(percent: widget.discountPercent!),
-                ),
-              if (count > 1)
-                Positioned(
-                  right: AppSpacing.sm,
-                  bottom: AppSpacing.sm,
-                  child: IgnorePointer(
-                    child: _Dots(count: count, index: _page),
-                  ),
-                ),
-            ],
-          ),
+          ],
         ),
       ),
     );
@@ -304,7 +293,6 @@ class _GalleryState extends State<_Gallery> {
 /// other instead of just sliding past.
 class _SwipeEffect extends StatelessWidget {
   const _SwipeEffect({
-    required this.controller,
     required this.index,
     required this.fallbackPage,
     required this.child,
@@ -315,7 +303,6 @@ class _SwipeEffect extends StatelessWidget {
   static const _minScale = 0.88;
   static const _minOpacity = 0.35;
 
-  final PageController controller;
   final int index;
 
   /// Where the pager is before it has been laid out and has no position yet.
@@ -324,15 +311,15 @@ class _SwipeEffect extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Use the position of this photo's PageView. A controller can briefly be
+    // attached to more than one scroll view during a widget transition.
+    final position = Scrollable.of(context).position;
     return AnimatedBuilder(
-      animation: controller,
+      animation: position,
       child: child,
       builder: (context, child) {
-        final page =
-            controller.hasClients &&
-                controller.position.haveDimensions &&
-                controller.page != null
-            ? controller.page!
+        final page = position is PageMetrics && position.haveDimensions
+            ? (position as PageMetrics).page ?? fallbackPage.toDouble()
             : fallbackPage.toDouble();
         // -1 .. 1: negative while the photo is arriving from the right,
         // positive while it is leaving to the left; 0 when it is centred.
@@ -367,6 +354,7 @@ class _Photo extends StatelessWidget {
     // Edge to edge: the photo covers the whole tile, cropped to fit, with no
     // grey showing round it.
     fit: BoxFit.cover,
+    fallbackColor: AppColors.background,
     // Each photo that has not arrived yet — the second and third are fetched
     // as the customer swipes to them — shows the sweeping wordmark rather
     // than an empty grey tile.
@@ -466,9 +454,12 @@ class _Dots extends StatelessWidget {
   }
 }
 
-/// `7 526 TMT` — the amount and the currency are styled separately.
+/// `7 526 man` — the amount and the currency are styled separately.
 class _Price extends StatelessWidget {
   const _Price({required this.price});
+
+  static const _color = Color(0xFFED702D);
+  static const _currencyLabel = 'man';
 
   final num price;
 
@@ -480,16 +471,17 @@ class _Price extends StatelessWidget {
       children: [
         Text(
           CurrencyFormatter.amount(price),
-          style: context.textTheme.titleMedium?.copyWith(
-            color: AppColors.primary,
+          style: context.textTheme.titleLarge?.copyWith(
+            color: _color,
             fontWeight: FontWeight.w700,
           ),
         ),
         const SizedBox(width: 3),
         Text(
-          AppConstants.currencySymbol,
-          style: context.textTheme.labelSmall?.copyWith(
-            color: AppColors.primary,
+          _currencyLabel,
+          style: context.textTheme.bodyMedium?.copyWith(
+            color: _color,
+            fontWeight: FontWeight.w400,
           ),
         ),
       ],
@@ -509,7 +501,7 @@ class _AddToCartButton extends StatelessWidget {
 
   /// The glyph box, sized so both states lay out identically.
   static const _iconSlot = 24.0;
-  static const _iconSize = 20.0;
+  static const _iconSize = 18.0;
   static const _height = 40.0;
 
   /// How far the glyph sits from the button's left edge.
@@ -532,8 +524,8 @@ class _AddToCartButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground = added ? AppColors.white : AppColors.black;
-    final radius = BorderRadius.circular(AppRadius.sm);
+    final foreground = added ? AppColors.white : Colors.black;
+    final radius = BorderRadius.circular(AppRadius.md);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
@@ -544,7 +536,7 @@ class _AddToCartButton extends StatelessWidget {
       width: double.infinity,
       height: _height,
       decoration: BoxDecoration(
-        color: added ? AppColors.primary : AppColors.grey100,
+        color: added ? AppColors.primary : const Color(0xFFF3F5F7),
         borderRadius: radius,
       ),
       child: Material(
@@ -570,7 +562,7 @@ class _AddToCartButton extends StatelessWidget {
                             color: foreground,
                           )
                         : SvgPicture.asset(
-                            AppAssets.iconCart,
+                            AppAssets.iconShoppingBagOutline,
                             width: _iconSize,
                             height: _iconSize,
                             colorFilter: ColorFilter.mode(
@@ -595,6 +587,7 @@ class _AddToCartButton extends StatelessWidget {
                     maxLines: 1,
                     style: context.textTheme.titleSmall?.copyWith(
                       color: foreground,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),

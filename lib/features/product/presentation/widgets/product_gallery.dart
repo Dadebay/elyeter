@@ -80,6 +80,7 @@ class _ProductGalleryState extends State<ProductGallery> {
     return SizedBox(
       height: widget.height,
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           Positioned.fill(
             child: PageView.builder(
@@ -175,11 +176,18 @@ class _Counter extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(AppRadius.pill),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.black.withValues(alpha: 0.12),
+            blurRadius: 24,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm,
-          vertical: 3,
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
         ),
         child: Text(
           '$index of $total',

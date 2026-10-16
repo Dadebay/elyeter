@@ -18,6 +18,8 @@ class AppNetworkImage extends StatelessWidget {
     this.alignment = Alignment.center,
     this.radius = AppRadius.md,
     this.fallbackIconSize,
+    this.fallbackColor = AppColors.grey100,
+    this.onLoadFailed,
     this.wordmarkPlaceholder = false,
     this.wordmarkSize = 18,
   });
@@ -35,6 +37,8 @@ class AppNetworkImage extends StatelessWidget {
   /// Size of the glyph shown when there is no image. Null lets the icon
   /// take the package default.
   final double? fallbackIconSize;
+  final Color fallbackColor;
+  final VoidCallback? onLoadFailed;
 
   /// While the image loads, show the sweeping "elýeter" wordmark instead of a
   /// plain grey sweep. Worth it on a large photo, where an empty grey block
@@ -55,7 +59,12 @@ class AppNetworkImage extends StatelessWidget {
             placeholder: (_, _) => wordmarkPlaceholder
                 ? ElyeterShimmerBox(radius: 0, wordmarkSize: wordmarkSize)
                 : _shimmer(),
-            errorWidget: (_, _, _) => _fallback(),
+            errorWidget: (_, _, _) {
+              if (onLoadFailed != null) {
+                WidgetsBinding.instance.addPostFrameCallback((_) => onLoadFailed!());
+              }
+              return _fallback();
+            },
           );
 
     return ClipRRect(borderRadius: BorderRadius.circular(radius), child: child);
@@ -70,7 +79,7 @@ class AppNetworkImage extends StatelessWidget {
   Widget _fallback() => Container(
     width: width,
     height: height,
-    color: AppColors.grey100,
+    color: fallbackColor,
     // Without a size the glyph keeps filling its box, as it always has;
     // with one it is drawn at that size in the middle.
     child: fallbackIconSize == null

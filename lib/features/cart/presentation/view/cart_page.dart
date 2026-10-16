@@ -220,7 +220,7 @@ class _CartAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(
         // An empty cart has no count worth printing: just the heading.
         count == 0
-            ? context.l10n.cartTitle
+            ? context.l10n.navCart
             : context.l10n.cartProductCount(count),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,

@@ -27,6 +27,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get favoriteTitle => 'Favorites';
 
   @override
+  String get favoriteEmptyTitle => 'No Favorites Yet';
+
+  @override
+  String get favoriteEmptyMessage =>
+      'Save your favorite items and find them here whenever you need them.';
+
+  @override
+  String get favoriteEmptyAction => 'Explore';
+
+  @override
   String get navProfile => 'Profile';
 
   @override
@@ -279,17 +289,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cartSelectAll => 'Select All';
 
   @override
-  String get cartEmpty => 'Your cart is empty';
+  String get cartEmpty => 'Your Cart Is Empty';
 
   @override
   String get cartTitle => 'Product';
 
   @override
   String get cartEmptyMessage =>
-      'Add products you like and they will wait for you here.';
+      'You haven’t added any items yet. Explore our collection and find your favorites.';
 
   @override
-  String get cartEmptyAction => 'Start shopping';
+  String get cartEmptyAction => 'Shopping';
 
   @override
   String cartProductCount(int count) {
@@ -493,6 +503,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLanguage => 'Language';
 
   @override
+  String get settingsLanguageDialogTitle => 'Change language';
+
+  @override
+  String get settingsLanguageDialogSubtitle =>
+      'Choose the language you\'d like to use.';
+
+  @override
   String get settingsTheme => 'Theme';
 
   @override
@@ -631,11 +648,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'You will need your phone number to sign in again.';
 
   @override
-  String get profileGuestTitle => 'You are not signed in';
+  String get profileGuestTitle => 'Log in to your account';
 
   @override
   String get profileGuestMessage =>
-      'Sign in to track your orders, save addresses and keep your favourites.';
+      'Clothing, products, home goods and more to order';
+
+  @override
+  String get profileGuestAction => 'Sign In';
 
   @override
   String get authSignIn => 'Sign in';

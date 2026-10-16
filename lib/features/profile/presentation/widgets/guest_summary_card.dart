@@ -36,40 +36,48 @@ class GuestSummaryCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  alignment: Alignment.center,
-                  decoration: const BoxDecoration(
-                    color: AppColors.primarySoft,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const AppAssetImage(
-                    AppAssets.iconUser,
-                    width: 22,
-                    height: 22,
-                    color: AppColors.primary,
-                  ),
+                const AppAssetImage(
+                  AppAssets.guestUserAvatar,
+                  width: 48,
+                  height: 48,
                 ),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
-                  child: Text(title, style: theme.textTheme.titleSmall),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        message,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: isDark ? AppColors.grey300 : AppColors.grey700,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              message,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: AppColors.grey500,
-              ),
             ),
             const SizedBox(height: AppSpacing.lg),
             SizedBox(
               width: double.infinity,
               child: FilledButton(
                 onPressed: onSignIn,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.primaryVibrant,
+                  minimumSize: const Size.fromHeight(48),
+                  textStyle: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 child: Text(actionLabel),
               ),
             ),

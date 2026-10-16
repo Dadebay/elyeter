@@ -245,9 +245,26 @@ class _EditProfilePageState extends State<EditProfilePage> {
       }
     }
 
-    context.read<ProfileCubit>().save(name: name, avatarPath: _avatarPath);
-    AppSnackBar.show(context, context.l10n.editProfileSaved);
-    Navigator.of(context).pop();
+    setState(() => _saving = true);
+    try {
+      await context.read<ProfileCubit>().save(
+        name: name,
+        avatarPath: _avatarPath,
+      );
+      if (!mounted) return;
+      AppSnackBar.show(context, context.l10n.editProfileSaved);
+      Navigator.of(context).pop();
+    } on Exception {
+      if (!mounted) return;
+      AppSnackBar.show(
+        context,
+        context.l10n.errorCache,
+        icon: AppIcons.error,
+        iconColor: AppColors.error,
+      );
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 }
 

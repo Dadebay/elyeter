@@ -50,8 +50,11 @@ class ProfileSummaryCards extends StatelessWidget {
     final words = name
         .trim()
         .split(RegExp(r'\s+'))
-        .where((word) => word.isNotEmpty && RegExp('[a-zA-ZÀ-ÿňşýžçöüä]').hasMatch(word[0]));
-    return words.take(2).map((word) => word[0].toUpperCase()).join();
+        .where(
+          (word) =>
+              word.isNotEmpty && RegExp(r'^\p{L}', unicode: true).hasMatch(word),
+        );
+    return words.take(2).map((word) => word.characters.first.toUpperCase()).join();
   }
 
   /// The number, unless the title is already showing it — in which case the
@@ -74,10 +77,10 @@ class ProfileSummaryCards extends StatelessWidget {
             child: _Card(
               onTap: onEditProfile,
               leading: _Avatar(
-              initials: _initials,
-              imageUrl: avatarUrl,
-              imagePath: avatarPath,
-            ),
+                initials: _initials,
+                imageUrl: avatarUrl,
+                imagePath: avatarPath,
+              ),
               title: name,
               // The number identifies the account, so it is worth more
               // under a name than a label repeating what tapping does.
@@ -163,38 +166,44 @@ class _Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fallback = initials.isEmpty
+        ? const HugeIcon(
+            icon: AppIcons.user,
+            size: 24,
+            color: AppColors.white,
+          )
+        : Text(
+            initials,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: const Color(0xFF6E3A1E),
+              fontWeight: FontWeight.w600,
+            ),
+          );
     return Container(
       width: 44,
       height: 44,
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: AppColors.grey300,
+      clipBehavior: Clip.antiAlias,
+      decoration: const BoxDecoration(
+        color: AppColors.primaryFade,
         shape: BoxShape.circle,
-        image: switch ((imagePath, imageUrl)) {
-          (final String path, _) => DecorationImage(
-            image: FileImage(File(path)),
-            fit: BoxFit.cover,
-          ),
-          (_, final String url) => DecorationImage(
-            image: NetworkImage(url),
-            fit: BoxFit.cover,
-          ),
-          _ => null,
-        },
       ),
-      child: switch ((imagePath ?? imageUrl, initials)) {
-        (final String _, _) => null,
-        (_, '') => const HugeIcon(
-          icon: AppIcons.user,
-          size: 24,
-          color: AppColors.white,
+      child: switch ((imagePath, imageUrl)) {
+        (final String path, _) => Image.file(
+          File(path),
+          width: 44,
+          height: 44,
+          fit: BoxFit.cover,
+          errorBuilder: (_, _, _) => fallback,
         ),
-        _ => Text(
-          initials,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(color: AppColors.black),
+        (_, final String url) => Image.network(
+          url,
+          width: 44,
+          height: 44,
+          fit: BoxFit.cover,
+          errorBuilder: (_, _, _) => fallback,
         ),
+        _ => fallback,
       },
     );
   }

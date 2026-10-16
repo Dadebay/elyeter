@@ -5,15 +5,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
-import '../../../../core/constants/app_icons.dart';
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/shop_api.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
-import '../../../../core/widgets/app_empty_view.dart';
+import '../../../../core/widgets/catalog_empty_view.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
-import '../../../auth/presentation/widgets/sign_in_required_dialog.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../cart/presentation/cubit/cart_state.dart';
 import '../../../product/domain/entities/product.dart';
@@ -72,20 +71,29 @@ class _FavoritePageState extends State<FavoritePage> {
       if (auth.isAuthenticated) _load();
     },
     child: Scaffold(
-      appBar: AppBar(title: Text(context.l10n.favoriteTitle)),
+      appBar: AppBar(
+        titleSpacing: AppSpacing.page,
+        toolbarHeight: 76,
+        title: Text(
+          context.l10n.navFavorite,
+          style: context.textTheme.headlineLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
       body: Builder(
         builder: (context) {
+          final l10n = context.l10n;
+          Widget emptyState() => CatalogEmptyView(
+            illustration: AppAssets.favoriteEmptyIllustration,
+            title: l10n.favoriteEmptyTitle,
+            message: l10n.favoriteEmptyMessage,
+            actionLabel: l10n.favoriteEmptyAction,
+            onAction: () => context.goNamed(AppRoutes.home.name),
+          );
+
           if (!context.watch<AuthCubit>().state.isAuthenticated) {
-            return Center(
-              child: FilledButton(
-                onPressed: () async {
-                  if (await promptSignIn(context) && context.mounted) {
-                    unawaited(_load());
-                  }
-                },
-                child: Text(context.l10n.authSignIn),
-              ),
-            );
+            return emptyState();
           }
           if (_page == null && _loading) {
             return const Center(child: CircularProgressIndicator());
@@ -102,11 +110,12 @@ class _FavoritePageState extends State<FavoritePage> {
           if (items.isEmpty) {
             return RefreshIndicator(
               onRefresh: _load,
-              child: ListView(
-                children: const [
-                  SizedBox(
-                    height: 300,
-                    child: AppEmptyView(icon: AppIcons.favorite),
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: emptyState(),
                   ),
                 ],
               ),

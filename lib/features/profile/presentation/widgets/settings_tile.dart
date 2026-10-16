@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_asset_image.dart';
 import '../../../../core/constants/app_icons.dart';
@@ -50,6 +51,8 @@ class SettingsTile extends StatelessWidget {
     this.icon,
     this.hugeIcon,
     this.hugeIconStrokeWidth,
+    this.verticalPadding,
+    this.labelWeight,
     required this.label,
     this.trailing = const TileChevron(),
     this.onTap,
@@ -59,6 +62,8 @@ class SettingsTile extends StatelessWidget {
   final String? icon;
   final AppIconData? hugeIcon;
   final double? hugeIconStrokeWidth;
+  final double? verticalPadding;
+  final FontWeight? labelWeight;
   final String label;
   final TileTrailing trailing;
   final VoidCallback? onTap;
@@ -84,7 +89,8 @@ class SettingsTile extends StatelessWidget {
             horizontal: AppSpacing.lg,
             // The 34pt flag needs less inset than a 24pt chevron so both
             // settings rows keep the same overall height.
-            vertical: trailing is TileFlag ? 7 : AppSpacing.md,
+            vertical:
+                verticalPadding ?? (trailing is TileFlag ? 7 : AppSpacing.md),
           ),
           child: Row(
             children: [
@@ -104,7 +110,7 @@ class SettingsTile extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodyMedium!.copyWith(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: labelWeight ?? FontWeight.w600,
                   ),
                 ),
               ),
@@ -124,12 +130,14 @@ class SettingsTile extends StatelessWidget {
                       value,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: labelColor,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.xs),
-                    HugeIcon(
-                      icon: AppIcons.unfold,
-                      size: 18,
+                    AppAssetImage(
+                      AppAssets.iconChevronGrabberVertical,
+                      width: 22,
+                      height: 22,
                       color: chevronColor,
                     ),
                   ],
@@ -139,10 +147,15 @@ class SettingsTile extends StatelessWidget {
                   semanticsLabel: label,
                 ),
                 // iOS-style on every platform, as the design shows it.
-                TileSwitch(:final value, :final onChanged) => CupertinoSwitch(
-                  value: value,
-                  onChanged: onChanged,
-                  activeTrackColor: AppColors.primary,
+                TileSwitch(:final value, :final onChanged) => Transform.scale(
+                  scale: 0.8,
+                  alignment: Alignment.centerRight,
+                  transformHitTests: false,
+                  child: CupertinoSwitch(
+                    value: value,
+                    onChanged: onChanged,
+                    activeTrackColor: AppColors.primary,
+                  ),
                 ),
               },
             ],

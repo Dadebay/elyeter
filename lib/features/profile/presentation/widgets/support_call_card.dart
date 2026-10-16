@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/constants/app_icons.dart';
+import '../../../../core/widgets/app_asset_image.dart';
 
 /// Blue support panel at the bottom of the profile page.
 class SupportCallCard extends StatelessWidget {
@@ -58,10 +59,11 @@ class SupportCallCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppRadius.sm),
                 ),
                 child: const Center(
-                  child: HugeIcon(
-                    icon: AppIcons.support,
+                  child: AppAssetImage(
+                    AppAssets.iconQuestion,
                     color: AppColors.info,
-                    size: 20,
+                    width: 20,
+                    height: 20,
                   ),
                 ),
               ),
@@ -118,12 +120,15 @@ class SupportCallCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          _Hours(
-            text: hours,
-            highlight: hoursHighlight,
-            style: textTheme.bodySmall?.copyWith(
-              color: AppColors.white.withValues(alpha: 0.85),
-              height: 1.5,
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 270),
+            child: _Hours(
+              text: hours,
+              highlight: hoursHighlight,
+              style: textTheme.bodySmall?.copyWith(
+                color: AppColors.white.withValues(alpha: 0.85),
+                height: 1.5,
+              ),
             ),
           ),
         ],

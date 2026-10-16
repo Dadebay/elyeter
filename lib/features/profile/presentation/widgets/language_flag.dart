@@ -9,10 +9,12 @@ class LanguageFlag extends StatelessWidget {
     super.key,
     required this.languageCode,
     required this.semanticsLabel,
+    this.size = 34,
   });
 
   final String languageCode;
   final String semanticsLabel;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +25,8 @@ class LanguageFlag extends StatelessWidget {
     };
 
     return Container(
-      width: 34,
-      height: 34,
+      width: size,
+      height: size,
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         shape: BoxShape.circle,

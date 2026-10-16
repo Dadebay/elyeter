@@ -7,6 +7,7 @@ abstract final class AppAssets {
   static const iconHome = '$_icons/nav_home.svg';
   static const iconCategory = '$_icons/category.svg';
   static const iconCart = '$_icons/cart.svg';
+  static const iconShoppingBagOutline = '$_icons/shopping_bag_outline.svg';
   static const iconFavorite = '$_icons/heart.svg';
   static const iconProfile = '$_icons/people.svg';
 
@@ -45,6 +46,10 @@ abstract final class AppAssets {
   static const homeBackground = '$_images/background.png';
   static const emptyShoppingBag = '$_images/order_history_empty_3d_cutout.png';
   static const cartEmpty3d = '$_images/cart_empty_3d.png';
+  static const cartEmptyIllustration = '$_images/cart_empty_illustration.png';
+  static const favoriteEmptyIllustration =
+      '$_images/favorite_empty_illustration.png';
+  static const guestUserAvatar = '$_images/guest_user_avatar.png';
   static const iconMapPin = '$_icons/map_pin.svg';
 
   // Partner marketplaces, in the order the design shows them.
@@ -63,6 +68,8 @@ abstract final class AppAssets {
   static const iconClock = '$_icons/clock.svg';
   static const iconNews = '$_icons/news.svg';
   static const iconGlobe = '$_icons/globe.svg';
+  static const iconChevronGrabberVertical =
+      '$_icons/chevron_grabber_vertical.svg';
   static const iconMoon = '$_icons/moon.svg';
   static const iconPhone = '$_icons/phone.svg';
   static const iconQuestion = '$_icons/question_bubble.svg';
