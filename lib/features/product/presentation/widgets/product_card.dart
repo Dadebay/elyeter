@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../core/constants/app_assets.dart';
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
@@ -10,6 +9,10 @@ import '../../../../core/utils/formatters/currency_formatter.dart';
 import '../../../../core/widgets/app_network_image.dart';
 import '../../../../core/widgets/cart_fly_animation.dart';
 import '../../../../core/widgets/favorite_button.dart';
+import '../../../../core/constants/app_icons.dart';
+import 'product_image_view.dart';
+import 'product_photos.dart';
+import '../../domain/entities/product.dart';
 
 /// Minimal shape a card needs to render. Swap for the real entity once the
 /// product API lands — only this type changes, not the layout.
@@ -22,9 +25,27 @@ class ProductCardData {
     this.images = const [],
     this.specs = const [],
     this.attributes = const {},
+    this.apiId,
+    this.slug,
+    this.hasVariants = false,
   });
 
+  factory ProductCardData.fromProduct(Product product) => ProductCardData(
+    id: product.id.toString(),
+    slug: product.slug,
+    apiId: product.id,
+    hasVariants: product.hasVariants,
+    title: product.name,
+    price: product.price,
+    oldPrice: product.oldPrice,
+    images: product.mainImage == null ? const [] : [product.mainImage!],
+  );
+
   final String id;
+  final int? apiId;
+  final String? slug;
+  final bool hasVariants;
+  String get favoriteKey => (apiId?.toString() ?? id);
   final String title;
   final num price;
 
@@ -81,6 +102,7 @@ class ProductCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onAddToCart;
   final VoidCallback? onFavoriteTap;
+
   /// Both default to the localized strings; pass them only to override.
   final String? addToCartLabel;
   final String? addedLabel;
@@ -101,6 +123,7 @@ class ProductCard extends StatelessWidget {
               aspectRatio: 1,
               child: _Gallery(
                 images: data.images,
+                productId: data.apiId,
                 discountPercent: data.discountPercent,
                 isFavorite: isFavorite,
                 onFavoriteTap: onFavoriteTap,
@@ -114,7 +137,10 @@ class ProductCard extends StatelessWidget {
             data.title,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: context.textTheme.bodyMedium?.copyWith(color: AppColors.grey700),
+            style: context.textTheme.bodyMedium?.copyWith(
+              color: AppColors.grey700,
+              fontWeight: FontWeight.w400,
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
           _AddToCartButton(
@@ -138,12 +164,17 @@ class ProductCard extends StatelessWidget {
 class _Gallery extends StatefulWidget {
   const _Gallery({
     required this.images,
+    this.productId,
     required this.discountPercent,
     required this.isFavorite,
     this.onFavoriteTap,
   });
 
   final List<String> images;
+
+  /// The product's productId, for fetching its other photos. Null leaves the card
+  /// with the photos it was given.
+  final int? productId;
   final int? discountPercent;
   final bool isFavorite;
   final VoidCallback? onFavoriteTap;
@@ -156,6 +187,40 @@ class _GalleryState extends State<_Gallery> {
   final _controller = PageController();
   int _page = 0;
 
+  /// What the card swipes through: the photo it was given, then up to two
+  /// more once the product's own photos arrive.
+  late List<String> _images = _initialImages();
+
+  List<String> _initialImages() {
+    final productId = widget.productId;
+    final extra = productId == null ? null : ProductPhotos.cached(productId);
+    return ProductPhotos.merge(widget.images, extra ?? const []);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMore();
+  }
+
+  @override
+  void didUpdateWidget(_Gallery oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.productId != widget.productId ||
+        oldWidget.images != widget.images) {
+      _images = _initialImages();
+      _loadMore();
+    }
+  }
+
+  Future<void> _loadMore() async {
+    final productId = widget.productId;
+    if (productId == null || ProductPhotos.cached(productId) != null) return;
+    final extra = await ProductPhotos.load(productId);
+    if (!mounted || widget.productId != productId || extra.isEmpty) return;
+    setState(() => _images = ProductPhotos.merge(widget.images, extra));
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -164,22 +229,30 @@ class _GalleryState extends State<_Gallery> {
 
   @override
   Widget build(BuildContext context) {
-    final count = widget.images.length;
+    final count = _images.length;
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(AppRadius.md),
+      borderRadius: BorderRadius.circular(AppRadius.lg),
       child: ColoredBox(
-        color: AppColors.grey100,
+        color: AppColors.background,
         child: Stack(
           children: [
             Positioned.fill(
               child: count == 0
-                  ? const AppNetworkImage(url: null, radius: 0)
+                  ? const AppNetworkImage(
+                      url: null,
+                      radius: 0,
+                      fallbackColor: AppColors.background,
+                    )
                   : PageView.builder(
                       controller: _controller,
                       itemCount: count,
                       onPageChanged: (i) => setState(() => _page = i),
-                      itemBuilder: (context, index) => _Photo(widget.images[index]),
+                      itemBuilder: (context, index) => _SwipeEffect(
+                        index: index,
+                        fallbackPage: _page,
+                        child: _Photo(_images[index]),
+                      ),
                     ),
             ),
             Positioned(
@@ -187,7 +260,10 @@ class _GalleryState extends State<_Gallery> {
               // closer to the corner than the badges do.
               top: AppSpacing.xs,
               right: AppSpacing.xs,
-              child: FavoriteButton(active: widget.isFavorite, onTap: widget.onFavoriteTap),
+              child: FavoriteButton(
+                active: widget.isFavorite,
+                onTap: widget.onFavoriteTap,
+              ),
             ),
             if (widget.discountPercent != null)
               Positioned(
@@ -200,7 +276,9 @@ class _GalleryState extends State<_Gallery> {
               Positioned(
                 right: AppSpacing.sm,
                 bottom: AppSpacing.sm,
-                child: IgnorePointer(child: _Dots(count: count, index: _page)),
+                child: IgnorePointer(
+                  child: _Dots(count: count, index: _page),
+                ),
               ),
           ],
         ),
@@ -210,17 +288,80 @@ class _GalleryState extends State<_Gallery> {
 }
 
 /// One photo, from the bundle or the network depending on the path.
+/// How a photo behaves while the pager moves it: it eases out of the frame
+/// slower than the swipe (a touch of parallax), shrinks a little and fades,
+/// and does the reverse as it arrives — so the photos hand over to each
+/// other instead of just sliding past.
+class _SwipeEffect extends StatelessWidget {
+  const _SwipeEffect({
+    required this.index,
+    required this.fallbackPage,
+    required this.child,
+  });
+
+  /// How much of its own width a photo trails the swipe by.
+  static const _parallax = 0.25;
+  static const _minScale = 0.88;
+  static const _minOpacity = 0.35;
+
+  final int index;
+
+  /// Where the pager is before it has been laid out and has no position yet.
+  final int fallbackPage;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    // Use the position of this photo's PageView. A controller can briefly be
+    // attached to more than one scroll view during a widget transition.
+    final position = Scrollable.of(context).position;
+    return AnimatedBuilder(
+      animation: position,
+      child: child,
+      builder: (context, child) {
+        final page = position is PageMetrics && position.haveDimensions
+            ? (position as PageMetrics).page ?? fallbackPage.toDouble()
+            : fallbackPage.toDouble();
+        // -1 .. 1: negative while the photo is arriving from the right,
+        // positive while it is leaving to the left; 0 when it is centred.
+        final offset = (page - index).clamp(-1.0, 1.0);
+        final distance = offset.abs();
+
+        return LayoutBuilder(
+          builder: (context, constraints) => Opacity(
+            opacity: 1 - (1 - _minOpacity) * distance,
+            child: Transform.translate(
+              offset: Offset(offset * constraints.maxWidth * _parallax, 0),
+              child: Transform.scale(
+                scale: 1 - (1 - _minScale) * distance,
+                child: child,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _Photo extends StatelessWidget {
   const _Photo(this.source);
 
   final String source;
 
   @override
-  Widget build(BuildContext context) {
-    return source.startsWith('assets/')
-        ? Image.asset(source, fit: BoxFit.contain)
-        : AppNetworkImage(url: source, fit: BoxFit.contain, radius: 0);
-  }
+  Widget build(BuildContext context) => ProductImageView(
+    source: source,
+    // Edge to edge: the photo covers the whole tile, cropped to fit, with no
+    // grey showing round it.
+    fit: BoxFit.cover,
+    fallbackColor: AppColors.background,
+    // Each photo that has not arrived yet — the second and third are fetched
+    // as the customer swipes to them — shows the sweeping wordmark rather
+    // than an empty grey tile.
+    wordmarkPlaceholder: true,
+    wordmarkSize: 22,
+  );
 }
 
 /// `-20%`, bottom left of the photo: the supplied ticket artwork with the
@@ -247,7 +388,11 @@ class _DiscountBadge extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          SvgPicture.asset(AppAssets.iconDiscountBanner, width: _width, height: _height),
+          SvgPicture.asset(
+            AppAssets.iconDiscountBanner,
+            width: _width,
+            height: _height,
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: _textInset),
             child: FittedBox(
@@ -310,9 +455,12 @@ class _Dots extends StatelessWidget {
   }
 }
 
-/// `7 526 TMT` — the amount and the currency are styled separately.
+/// `7 526 man` — the amount and the currency are styled separately.
 class _Price extends StatelessWidget {
   const _Price({required this.price});
+
+  static const _color = AppColors.primaryVibrant;
+  static const _currencyLabel = 'man';
 
   final num price;
 
@@ -323,16 +471,19 @@ class _Price extends StatelessWidget {
       textBaseline: TextBaseline.alphabetic,
       children: [
         Text(
-          CurrencyFormatter.amount(price),
-          style: context.textTheme.titleMedium?.copyWith(
-            color: AppColors.primary,
+          CurrencyFormatter.amount(price, locale: context.l10n.localeName),
+          style: context.textTheme.titleLarge?.copyWith(
+            color: _color,
             fontWeight: FontWeight.w700,
           ),
         ),
         const SizedBox(width: 3),
         Text(
-          AppConstants.currencySymbol,
-          style: context.textTheme.labelSmall?.copyWith(color: AppColors.primary),
+          _currencyLabel,
+          style: context.textTheme.bodyMedium?.copyWith(
+            color: _color,
+            fontWeight: FontWeight.w400,
+          ),
         ),
       ],
     );
@@ -342,11 +493,20 @@ class _Price extends StatelessWidget {
 /// Grey while the product can still be added, brand-orange with a tick once
 /// it is in the cart. Tapping it again takes the product back out.
 class _AddToCartButton extends StatelessWidget {
-  const _AddToCartButton({required this.label, required this.added, this.flyImage, this.onTap});
+  const _AddToCartButton({
+    required this.label,
+    required this.added,
+    this.flyImage,
+    this.onTap,
+  });
 
   /// The glyph box, sized so both states lay out identically.
-  static const _iconSlot = 20.0;
+  static const _iconSlot = 24.0;
   static const _iconSize = 18.0;
+  static const _height = 40.0;
+
+  /// How far the glyph sits from the button's left edge.
+  static const _edgeInset = AppSpacing.md;
 
   final String label;
   final bool added;
@@ -365,57 +525,78 @@ class _AddToCartButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground = added ? AppColors.white : AppColors.black;
+    final foreground = added ? AppColors.white : Colors.black;
+    final radius = BorderRadius.circular(AppRadius.md);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
       curve: Curves.easeOut,
+      // Always the cell's full width. The Column above hands its children
+      // loose width, and a Stack would otherwise shrink to its label — so
+      // "Added" came out narrower than "Add to Card".
+      width: double.infinity,
+      height: _height,
       decoration: BoxDecoration(
-        color: added ? AppColors.primary : AppColors.grey100,
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        color: added ? AppColors.primary : const Color(0xFFF3F5F7),
+        borderRadius: radius,
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap == null ? null : () => _handleTap(context),
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // A fixed slot for either glyph: the two states differ in
-                // artwork, so without it the button's height would jump as it
-                // flips.
-                SizedBox(
+          borderRadius: radius,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // The glyph holds the left edge and the label the middle, as
+              // the design draws it, rather than the two huddled together.
+              Positioned(
+                left: _edgeInset,
+                child: SizedBox(
                   width: _iconSlot,
                   height: _iconSlot,
                   child: Center(
                     child: added
-                        ? Icon(Icons.check_rounded, size: _iconSize, color: foreground)
+                        ? HugeIcon(
+                            icon: AppIcons.check,
+                            size: _iconSize,
+                            color: foreground,
+                          )
                         : SvgPicture.asset(
-                            AppAssets.iconCart,
+                            AppAssets.iconShoppingBagOutline,
                             width: _iconSize,
                             height: _iconSize,
-                            colorFilter: ColorFilter.mode(foreground, BlendMode.srcIn),
+                            colorFilter: ColorFilter.mode(
+                              foreground,
+                              BlendMode.srcIn,
+                            ),
                           ),
                   ),
                 ),
-                const SizedBox(width: AppSpacing.sm),
-                Flexible(
+              ),
+              // Clear of the glyph on both sides, so the label stays centred
+              // and never runs under it. Scaled down rather than cut if the
+              // cell is too narrow for it: the whole label always shows.
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: _iconSlot + _edgeInset + AppSpacing.xs,
+                ),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
                   child: Text(
                     label,
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.textTheme.labelLarge?.copyWith(color: foreground),
+                    style: context.textTheme.titleSmall?.copyWith(
+                      color: foreground,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 }
-

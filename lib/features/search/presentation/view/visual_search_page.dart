@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -11,6 +11,7 @@ import '../../../../core/utils/app_logger.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../widgets/visual_search_controls.dart';
 import '../widgets/visual_search_frame.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// Full-screen in-app camera for searching by photo.
 ///
@@ -24,7 +25,10 @@ class VisualSearchPage extends StatefulWidget {
     // The root navigator, so the camera covers the shell's bottom nav bar
     // instead of opening inside the Home tab underneath it.
     return Navigator.of(context, rootNavigator: true).push<XFile>(
-      MaterialPageRoute(builder: (_) => const VisualSearchPage(), fullscreenDialog: true),
+      MaterialPageRoute(
+        builder: (_) => const VisualSearchPage(),
+        fullscreenDialog: true,
+      ),
     );
   }
 
@@ -32,7 +36,8 @@ class VisualSearchPage extends StatefulWidget {
   State<VisualSearchPage> createState() => _VisualSearchPageState();
 }
 
-class _VisualSearchPageState extends State<VisualSearchPage> with WidgetsBindingObserver {
+class _VisualSearchPageState extends State<VisualSearchPage>
+    with WidgetsBindingObserver {
   CameraController? _controller;
   List<CameraDescription> _cameras = const [];
   int _cameraIndex = 0;
@@ -109,11 +114,14 @@ class _VisualSearchPageState extends State<VisualSearchPage> with WidgetsBinding
       await controller.setFlashMode(_flash);
     } on Object catch (error, stack) {
       AppLogger.e('Could not open the camera', error, stack);
-      final denied = error is CameraException && error.code.contains('AccessDenied');
+      final denied =
+          error is CameraException && error.code.contains('AccessDenied');
       await controller.dispose();
       if (!mounted) return;
       setState(() {
-        _blocked = denied ? context.l10n.visualSearchDenied : context.l10n.visualSearchNoCamera;
+        _blocked = denied
+            ? context.l10n.visualSearchDenied
+            : context.l10n.visualSearchNoCamera;
       });
       return;
     }
@@ -178,7 +186,7 @@ class _VisualSearchPageState extends State<VisualSearchPage> with WidgetsBinding
           else if (_ready && _controller != null)
             _Preview(controller: _controller!)
           else
-            const Center(child: CircularProgressIndicator(color: AppColors.white)),
+            const Center(child: AppLoader(color: AppColors.white)),
 
           // The scan window dims everything around the product.
           if (scanning) ...[
@@ -234,7 +242,9 @@ class _FrameHint extends StatelessWidget {
         child: Text(
           text,
           textAlign: TextAlign.center,
-          style: AppTypography.textTheme.bodyMedium?.copyWith(color: AppColors.white),
+          style: AppTypography.textTheme.bodyMedium?.copyWith(
+            color: AppColors.white,
+          ),
         ),
       ),
     );
@@ -276,12 +286,18 @@ class _Blocked extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const HugeIcon(icon: HugeIcons.strokeRoundedCameraOff01, color: AppColors.grey500, size: 40),
+            const HugeIcon(
+              icon: AppIcons.cameraOff,
+              color: AppColors.grey500,
+              size: 40,
+            ),
             const SizedBox(height: AppSpacing.lg),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: AppTypography.textTheme.bodyMedium?.copyWith(color: AppColors.white),
+              style: AppTypography.textTheme.bodyMedium?.copyWith(
+                color: AppColors.white,
+              ),
             ),
           ],
         ),

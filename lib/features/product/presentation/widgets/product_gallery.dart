@@ -5,16 +5,26 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_network_image.dart';
 import '../view/product_photo_viewer_page.dart';
+import 'product_image_view.dart';
 
 /// The detail page's photo pager.
 ///
 /// Each photo is its own card and the next one is left showing at the right
 /// edge, so it is obvious there is more to swipe to without a row of dots.
 class ProductGallery extends StatefulWidget {
-  const ProductGallery({super.key, required this.images, this.height = 320});
+  const ProductGallery({
+    super.key,
+    required this.images,
+    this.height = 320,
+    this.focusImage,
+  });
 
   final List<String> images;
   final double height;
+
+  /// A photo to bring to the front when it changes — the one belonging to
+  /// the variant just picked. Ignored if it is not one of [images].
+  final String? focusImage;
 
   /// Share of the width one card takes; the rest is the next card peeking.
   static const _viewportFraction = 0.9;
@@ -32,8 +42,24 @@ class ProductGallery extends StatefulWidget {
 }
 
 class _ProductGalleryState extends State<ProductGallery> {
-  final _controller = PageController(viewportFraction: ProductGallery._viewportFraction);
+  final _controller = PageController(
+    viewportFraction: ProductGallery._viewportFraction,
+  );
   int _page = 0;
+
+  @override
+  void didUpdateWidget(ProductGallery oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final focus = widget.focusImage;
+    if (focus == null || focus == oldWidget.focusImage) return;
+    final index = widget.images.indexOf(focus);
+    if (index < 0 || !_controller.hasClients) return;
+    _controller.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeOutCubic,
+    );
+  }
 
   @override
   void dispose() {
@@ -54,6 +80,7 @@ class _ProductGalleryState extends State<ProductGallery> {
     return SizedBox(
       height: widget.height,
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           Positioned.fill(
             child: PageView.builder(
@@ -64,7 +91,13 @@ class _ProductGalleryState extends State<ProductGallery> {
               // the peeking one is always on the right.
               padEnds: false,
               itemBuilder: (context, index) => Padding(
-                padding: const EdgeInsets.only(left: ProductGallery._cardMargin),
+                // The last card is the only one with nothing peeking after
+                // it, so it is also the one that would sit hard against the
+                // screen's edge — it gets the same margin on the right.
+                padding: EdgeInsets.only(
+                  left: ProductGallery._cardMargin,
+                  right: index == count - 1 ? ProductGallery._cardMargin : 0,
+                ),
                 child: _Photo(
                   image: widget.images[index],
                   heroTag: 'product-photo-$index',
@@ -112,11 +145,16 @@ class _Photo extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.lg),
         child: ColoredBox(
           color: AppColors.grey100,
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.xl),
-            child: Hero(
-              tag: heroTag,
-              child: Image.asset(image, fit: BoxFit.contain),
+          // Edge to edge: the photo covers the whole card, cropped to fit,
+          // rather than floating on the grey inside a margin.
+          child: Hero(
+            tag: heroTag,
+            child: SizedBox.expand(
+              child: ProductImageView(
+                source: image,
+                fit: BoxFit.cover,
+                wordmarkPlaceholder: true,
+              ),
             ),
           ),
         ),
@@ -138,9 +176,19 @@ class _Counter extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(AppRadius.pill),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.black.withValues(alpha: 0.12),
+            blurRadius: 24,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 3),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
         child: Text(
           '$index of $total',
           style: context.textTheme.labelMedium?.copyWith(

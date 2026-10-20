@@ -1,6 +1,7 @@
 /// Route names and paths. Navigate with `context.goNamed(AppRoutes.cart.name)`
 /// so a path change never breaks call sites.
 enum AppRoutes {
+  onboarding('/onboarding', 'onboarding'),
   home('/', 'home'),
   category('/category', 'category'),
   cart('/cart', 'cart'),
@@ -15,7 +16,9 @@ enum AppRoutes {
   brand('brand/:id', 'brand'),
   search('/search', 'search'),
   orders('orders', 'orders'),
-  orderDetail('order', 'order-detail'),
+  checkout('checkout', 'checkout'),
+  orderDetail('/order/:id', 'order-detail'),
+  orderTrack('/order/:id/track', 'order-track'),
   activeOrders('active-orders', 'active-orders'),
   announcements('announcements', 'announcements'),
   editProfile('edit', 'edit-profile'),
@@ -25,6 +28,7 @@ enum AppRoutes {
   faq('faq', 'faq'),
   terms('terms', 'terms'),
   privacy('privacy', 'privacy'),
+  staticPage('pages/:slug', 'static-page'),
   login('/login', 'login');
 
   const AppRoutes(this.path, this.name);

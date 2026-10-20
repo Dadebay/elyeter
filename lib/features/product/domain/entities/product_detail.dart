@@ -6,7 +6,7 @@ import 'product_attribute.dart';
 import 'product_image.dart';
 import 'product_variant.dart';
 
-/// `GET /products/:slug` — the list item plus everything the detail page adds.
+/// `GET /products/:id` — the list item plus everything the detail page adds.
 class ProductDetail extends Equatable {
   const ProductDetail({
     required this.product,
@@ -35,10 +35,11 @@ class ProductDetail extends Equatable {
 
   /// Every photo in display order, main first.
   List<String> get gallery {
-    final sorted = [...images]..sort((a, b) {
-      if (a.isMain != b.isMain) return a.isMain ? -1 : 1;
-      return a.sortOrder.compareTo(b.sortOrder);
-    });
+    final sorted = [...images]
+      ..sort((a, b) {
+        if (a.isMain != b.isMain) return a.isMain ? -1 : 1;
+        return a.sortOrder.compareTo(b.sortOrder);
+      });
     final urls = sorted.map((image) => image.url).toList();
     final main = product.mainImage;
     if (urls.isEmpty && main != null) return [main];

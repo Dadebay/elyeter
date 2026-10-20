@@ -27,10 +27,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get favoriteTitle => 'Favorites';
 
   @override
+  String get favoriteEmptyTitle => 'No Favorites Yet';
+
+  @override
+  String get favoriteEmptyMessage =>
+      'Save your favorite items and find them here whenever you need them.';
+
+  @override
+  String get favoriteEmptyAction => 'Explore';
+
+  @override
   String get navProfile => 'Profile';
 
   @override
   String get commonRetry => 'Retry';
+
+  @override
+  String get notificationsEmptyTitle => 'No notifications yet';
+
+  @override
+  String get notificationsEmptyMessage => 'New updates will appear here.';
+
+  @override
+  String get announcementsEmptyTitle => 'No announcements yet';
+
+  @override
+  String get announcementsEmptyMessage => 'New announcements will appear here.';
 
   @override
   String get commonCancel => 'Cancel';
@@ -190,10 +212,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryFilters => 'Filters';
 
   @override
+  String get categoryOnlyFeatured => 'Featured products only';
+
+  @override
   String get categorySortTitle => 'Sort by';
 
   @override
+  String get categorySortNewest => 'Newest';
+
+  @override
   String get categorySortPopular => 'Popular';
+
+  @override
+  String get categoryPriceMin => 'Minimum price';
+
+  @override
+  String get categoryPriceRange => 'Price range';
+
+  @override
+  String get categoryPriceMax => 'Maximum price';
 
   @override
   String get categorySortPriceAsc => 'Price: low to high';
@@ -214,6 +251,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryNoResults => 'Nothing matches these filters';
 
   @override
+  String get categoryProductsEmptyTitle => 'No products yet';
+
+  @override
+  String get categoryProductsEmptyMessage =>
+      'This category has no products right now. Explore another category.';
+
+  @override
   String get categoryNoResultsHint => 'Try removing one of them.';
 
   @override
@@ -230,6 +274,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchTitle => 'Search';
 
   @override
+  String get searchClear => 'Clear search';
+
+  @override
+  String get searchNotFoundTitle => 'Not found';
+
+  @override
+  String get searchNotFoundMessage =>
+      'Please make sure the words are spelled correctly or use fewer or different keywords.';
+
+  @override
+  String get searchErrorTitle => 'Error';
+
+  @override
+  String get searchErrorMessage => 'An error occurred. Please try again.';
+
+  @override
+  String get searchConnectionErrorTitle => 'Connection Error';
+
+  @override
+  String get searchConnectionErrorMessage =>
+      'Unable to connect to the server. Please check your internet connection and try again.';
+
+  @override
   String get commonSeeAll => 'See all';
 
   @override
@@ -243,6 +310,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cartSelectAll => 'Select All';
+
+  @override
+  String get cartEmpty => 'Your Cart Is Empty';
+
+  @override
+  String get cartTitle => 'Product';
+
+  @override
+  String get cartEmptyMessage =>
+      'You haven’t added any items yet. Explore our collection and find your favorites.';
+
+  @override
+  String get cartEmptyAction => 'Shopping';
 
   @override
   String cartProductCount(int count) {
@@ -294,6 +374,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get productArticle => 'Item Article:';
 
   @override
+  String get productPriceDetails => 'Price details';
+
+  @override
+  String get productPricePerItem => 'Price per item';
+
+  @override
+  String get productRegularPrice => 'Regular price';
+
+  @override
+  String productDiscountPercent(int percent) {
+    return '$percent% discount';
+  }
+
+  @override
   String get productCopy => 'Copy';
 
   @override
@@ -301,6 +395,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productShared => 'Product link copied';
+
+  @override
+  String get productSharePrice => 'Price';
+
+  @override
+  String get productSharePhoto => 'Product photo';
+
+  @override
+  String get productShareOpen => 'Open in the Elýeter app';
+
+  @override
+  String get productShareFailed => 'Could not open sharing. Please try again.';
 
   @override
   String get productDescription => 'Description';
@@ -321,6 +427,75 @@ class AppLocalizationsEn extends AppLocalizations {
   String get productReviews => 'Reviews';
 
   @override
+  String get reviewEmpty => 'No reviews yet';
+
+  @override
+  String get reviewWrite => 'Write a review';
+
+  @override
+  String get reviewEdit => 'Edit my review';
+
+  @override
+  String get reviewDelete => 'Delete my review';
+
+  @override
+  String get reviewRating => 'Your rating';
+
+  @override
+  String get reviewComment => 'Your review (optional)';
+
+  @override
+  String get reviewIntro => 'Share your experience with this product.';
+
+  @override
+  String get reviewRatingPrompt => 'Tap a star to choose your rating';
+
+  @override
+  String get reviewRatingPoor => 'Poor';
+
+  @override
+  String get reviewRatingFair => 'Fair';
+
+  @override
+  String get reviewRatingGood => 'Good';
+
+  @override
+  String get reviewRatingVeryGood => 'Very good';
+
+  @override
+  String get reviewRatingExcellent => 'Excellent';
+
+  @override
+  String get reviewCommentHint => 'What did you like? What could be better?';
+
+  @override
+  String get reviewSubmit => 'Send review';
+
+  @override
+  String get reviewAnonymous => 'Customer';
+
+  @override
+  String get reviewLoadMore => 'Load more';
+
+  @override
+  String get reviewLoadError => 'Could not load reviews.';
+
+  @override
+  String get reviewActionError => 'Could not update your review.';
+
+  @override
+  String get reviewSaved => 'Review saved';
+
+  @override
+  String get reviewDeleted => 'Review deleted';
+
+  @override
+  String get reviewDeleteConfirm => 'Delete your review?';
+
+  @override
+  String get reviewDeleteMessage => 'You can write a new review later.';
+
+  @override
   String productRatingCount(int count) {
     return '$count ratings';
   }
@@ -338,7 +513,94 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orderCancelled => 'Order Cancelled';
 
   @override
+  String get orderStatusCancelled => 'Cancelled';
+
+  @override
+  String get orderCancelTitle => 'Cancel this order?';
+
+  @override
+  String get orderCancelMessage =>
+      'Once cancelled, an order cannot be restored. You can place it again from your cart.';
+
+  @override
+  String get orderCancelKeep => 'Keep order';
+
+  @override
+  String get orderCancelConfirm => 'Cancel order';
+
+  @override
+  String get orderRepeatDone => 'Items added to your cart';
+
+  @override
+  String get orderNotFound => 'This order could not be loaded';
+
+  @override
+  String get orderComment => 'Comment';
+
+  @override
+  String get orderStatusNew => 'Waiting for a call';
+
+  @override
+  String get orderStatusConfirmed => 'Confirmed';
+
+  @override
+  String get orderStatusOrdered => 'Ordered';
+
+  @override
+  String get orderStatusCompleted => 'Completed';
+
+  @override
+  String get orderReceiptTitle => 'Order receipt';
+
+  @override
+  String get orderReceiptItems => 'Items';
+
+  @override
+  String get orderReceiptQty => 'Qty';
+
+  @override
+  String get orderReceiptPrice => 'Price';
+
+  @override
+  String get orderReceiptAmount => 'Amount';
+
+  @override
+  String get orderReceiptThanks => 'Thank you for your order';
+
+  @override
+  String get orderReceiptFailed => 'Could not create the receipt';
+
+  @override
+  String get orderTrackRefresh => 'Updates every 15 seconds';
+
+  @override
+  String get orderTrackNoPoint => 'No delivery point was set';
+
+  @override
+  String get orderTrackMapPoint => 'Delivery point on the map';
+
+  @override
+  String get orderTrackNoCourier =>
+      'Live courier location and arrival time are not available yet.';
+
+  @override
+  String get orderTrackCancelled => 'This order was cancelled.';
+
+  @override
   String get orderHistory => 'Order history';
+
+  @override
+  String get orderHistoryEmptyTitle => 'No orders yet';
+
+  @override
+  String get orderHistoryEmptyMessage =>
+      'Your orders will appear here after you place one.';
+
+  @override
+  String get activeOrdersEmptyTitle => 'No active orders';
+
+  @override
+  String get activeOrdersEmptyMessage => 'Orders in progress will appear here.';
 
   @override
   String orderItemCount(int count) {
@@ -356,7 +618,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileTitle => 'Profile';
 
   @override
+  String get onboardingWelcome => 'Welcome!';
+
+  @override
+  String get onboardingSubtitle =>
+      'You can quickly and securely log in to your account.';
+
+  @override
+  String get onboardingStart => 'Get started';
+
+  @override
   String get settingsLanguage => 'Language';
+
+  @override
+  String get settingsLanguageDialogTitle => 'Change language';
+
+  @override
+  String get settingsLanguageDialogSubtitle =>
+      'Choose the language you\'d like to use.';
 
   @override
   String get settingsTheme => 'Theme';
@@ -428,6 +707,97 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileSavedLocations => 'My saved locations';
 
   @override
+  String get addressListTitle => 'Addresses';
+
+  @override
+  String get addressAddWork => 'Add Work Address';
+
+  @override
+  String get addressAddHome => 'Add Home Address';
+
+  @override
+  String get addressAddNew => 'Add New Address';
+
+  @override
+  String get addressNameWork => 'Work';
+
+  @override
+  String get addressNameHome => 'Home';
+
+  @override
+  String get addressEdit => 'Edit';
+
+  @override
+  String get addressMakeDefault => 'Make default';
+
+  @override
+  String get addressDelete => 'Delete';
+
+  @override
+  String get addressMapLocation => 'Location on map';
+
+  @override
+  String get addressMapHint => 'Street, building, city';
+
+  @override
+  String get addressApartmentFlat => 'Apartment / Flat';
+
+  @override
+  String get addressApartmentHint => 'e.g. 35/1';
+
+  @override
+  String get addressFloor => 'Floor';
+
+  @override
+  String get addressFloorHint => 'e.g. 3';
+
+  @override
+  String get addressNameLabel => 'Address name';
+
+  @override
+  String get addressSaveButton => 'Save address';
+
+  @override
+  String get addressResolving => 'Finding address…';
+
+  @override
+  String get addressTypeHome => 'Home';
+
+  @override
+  String get addressTypeWork => 'Work';
+
+  @override
+  String get addressTypeOther => 'Other';
+
+  @override
+  String get addressPointRequired => 'Choose a point on the map first.';
+
+  @override
+  String get addressNameRequired => 'Enter an address name.';
+
+  @override
+  String get addressLocationApproximate =>
+      'Location is approximate. Move the pin to the exact spot.';
+
+  @override
+  String get addressLocationFailed =>
+      'Could not get your location. Choose it on the map.';
+
+  @override
+  String get addressLookupFailed =>
+      'Street address unavailable. Coordinates added; enter the address manually.';
+
+  @override
+  String get addressEmptyTitle => 'No saved addresses yet';
+
+  @override
+  String get addressEmptyMessage =>
+      'Tap + to save your first delivery address.';
+
+  @override
+  String get addressDeleteDone => 'Address deleted.';
+
+  @override
   String get profileOrderHistory => 'Order history';
 
   @override
@@ -447,6 +817,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profilePrivacy => 'Privacy policy';
+
+  @override
+  String get staticPageEmpty =>
+      'Content will appear here when it is available.';
 
   @override
   String get profileWhatsapp => 'WhatsApp';
@@ -471,6 +845,95 @@ class AppLocalizationsEn extends AppLocalizations {
   String profileVersion(String version) {
     return 'Version $version';
   }
+
+  @override
+  String get profileSignOut => 'Sign out';
+
+  @override
+  String get profileSignOutTitle => 'Sign out?';
+
+  @override
+  String get profileSignOutMessage =>
+      'You will need your phone number to sign in again.';
+
+  @override
+  String get profileGuestTitle => 'Log in to your account';
+
+  @override
+  String get profileGuestMessage =>
+      'Clothing, products, home goods and more to order';
+
+  @override
+  String get profileGuestAction => 'Sign In';
+
+  @override
+  String get authSignIn => 'Sign in';
+
+  @override
+  String get authSignInRequiredTitle => 'Sign in required';
+
+  @override
+  String get authSignInRequiredMessage =>
+      'Sign in to use this part of the app.';
+
+  @override
+  String get loginTitle => 'Sign in';
+
+  @override
+  String get loginPhoneTitle => 'Sign in';
+
+  @override
+  String get loginPhoneMessage =>
+      'You can quickly and securely log in to your account by entering your phone number.';
+
+  @override
+  String get loginPhoneLabel => 'Phone number';
+
+  @override
+  String get loginPhoneHint => 'Your phone number';
+
+  @override
+  String get loginSendCode => 'Continue';
+
+  @override
+  String get loginLegalNotice =>
+      'By using Elyeter, you agree to the Terms of use and Privacy policy.';
+
+  @override
+  String get loginReadTerms => 'Read the terms';
+
+  @override
+  String get loginCodeTitle => 'Verification';
+
+  @override
+  String loginCodeMessage(String phone) {
+    return 'Enter the code sent to $phone';
+  }
+
+  @override
+  String get loginCodeLabel => 'Confirmation code';
+
+  @override
+  String get loginVerify => 'Continue';
+
+  @override
+  String get loginResend => 'Resend code';
+
+  @override
+  String loginResendCountdown(String time) {
+    return 'Resend code $time';
+  }
+
+  @override
+  String loginResendIn(int seconds) {
+    return 'Resend in $seconds s';
+  }
+
+  @override
+  String get loginChangePhone => 'Change number';
+
+  @override
+  String get loginSignedIn => 'You are signed in';
 
   @override
   String get settingsLanguageEnglish => 'English';
@@ -507,6 +970,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editProfilePhotoRemove => 'Remove photo';
+
+  @override
+  String get editProfilePhotoTooLarge =>
+      'This photo could not be reduced below 1 MB. Choose another photo.';
 
   @override
   String get editProfileSaved => 'Profile updated';
@@ -689,4 +1156,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorValidation => 'Please check the details you entered.';
+
+  @override
+  String get profileDeleteAccount => 'Delete account';
+
+  @override
+  String get profileDeleteTitle => 'Delete your account?';
+
+  @override
+  String get profileDeleteMessage =>
+      'This is permanent. Your account and everything in it is removed from Elyeter and cannot be restored.';
+
+  @override
+  String get profileDeleteLossOrders => 'Your order history';
+
+  @override
+  String get profileDeleteLossProfile => 'Your name, photo and saved details';
+
+  @override
+  String get profileDeleteLossAccess => 'Access to the account on this number';
+
+  @override
+  String profileDeleteAccountOn(String phone) {
+    return 'Account: $phone';
+  }
+
+  @override
+  String get profileDeleteKeep => 'Keep my account';
+
+  @override
+  String get profileDeleteConfirm => 'Delete permanently';
+
+  @override
+  String get profileDeleteDone => 'Your account has been deleted.';
 }

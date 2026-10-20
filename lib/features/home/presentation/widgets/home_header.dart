@@ -4,6 +4,7 @@ import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import 'category_strip.dart';
+import 'home_section_shimmer.dart';
 import 'home_search_field.dart';
 import 'location_bar.dart';
 import 'marketplace_strip.dart';
@@ -15,11 +16,11 @@ class HomeHeader extends StatelessWidget {
     super.key,
     required this.marketplaces,
     required this.categories,
+    this.categoriesLoading = false,
     required this.city,
     required this.address,
     this.onCategoryTap,
     this.onLocationTap,
-    this.onCameraTap,
     this.onMarketplaceTap,
   });
 
@@ -27,6 +28,10 @@ class HomeHeader extends StatelessWidget {
   /// past this when the content needs more room — on a short screen the
   /// category row must still sit inside the gradient, as in the design.
   static const minHeightFraction = 2 / 6;
+
+  // Temporarily hidden on Home; enable these to restore the existing controls.
+  static const showMarketplaces = false;
+  static const showLocation = false;
 
   static const _logoHeight = 24.0;
 
@@ -36,6 +41,7 @@ class HomeHeader extends StatelessWidget {
 
   final List<MarketplaceItem> marketplaces;
   final List<CategoryItem> categories;
+  final bool categoriesLoading;
   final String city;
   final String address;
   final ValueChanged<CategoryItem>? onCategoryTap;
@@ -43,16 +49,15 @@ class HomeHeader extends StatelessWidget {
   /// Opens the delivery-address picker; see `LocationPickerDialog`.
   final VoidCallback? onLocationTap;
 
-  /// Opens the in-app camera; see `VisualSearchPage`.
-  final VoidCallback? onCameraTap;
-
   /// Opens a partner marketplace; see `MarketplacePage`.
   final ValueChanged<MarketplaceItem>? onMarketplaceTap;
 
   @override
   Widget build(BuildContext context) {
     final topInset = MediaQuery.viewPaddingOf(context).top;
-    final minHeight = MediaQuery.sizeOf(context).height * minHeightFraction;
+    final minHeight = showMarketplaces || showLocation
+        ? MediaQuery.sizeOf(context).height * minHeightFraction
+        : 0.0;
 
     return ConstrainedBox(
       // Content decides the height; the fraction is only a floor.
@@ -60,7 +65,11 @@ class HomeHeader extends StatelessWidget {
       child: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(AppAssets.homeBackground, fit: BoxFit.cover, alignment: Alignment.topCenter),
+            child: Image.asset(
+              AppAssets.homeBackground,
+              fit: BoxFit.cover,
+              alignment: Alignment.topCenter,
+            ),
           ),
 
           SafeArea(
@@ -69,19 +78,39 @@ class HomeHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Room for the logo when the status bar is too short to hold it.
-                if (topInset < _minStatusBar) const SizedBox(height: _logoHeight + 8),
+                if (topInset < _minStatusBar)
+                  const SizedBox(height: _logoHeight + 8),
                 const SizedBox(height: AppSpacing.lg),
-                MarketplaceStrip(items: marketplaces, onTap: onMarketplaceTap),
-                const SizedBox(height: AppSpacing.lg),
-                LocationBar(city: city, address: address, onTap: onLocationTap),
-                const SizedBox(height: AppSpacing.lg),
+                if (showMarketplaces) ...[
+                  MarketplaceStrip(
+                    items: marketplaces,
+                    onTap: onMarketplaceTap,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
+                if (showLocation) ...[
+                  LocationBar(
+                    city: city,
+                    address: address,
+                    onTap: onLocationTap,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
-                  child: HomeSearchField(onCameraTap: onCameraTap),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.page,
+                  ),
+                  child: const HomeSearchField(),
                 ),
                 const SizedBox(height: AppSpacing.xl),
                 // Categories live on the gradient, so their labels are white.
-                CategoryStrip(items: categories, onTap: onCategoryTap, labelColor: AppColors.white),
+                categoriesLoading
+                    ? const CategoryStripShimmer()
+                    : CategoryStrip(
+                        items: categories,
+                        onTap: onCategoryTap,
+                        labelColor: AppColors.white,
+                      ),
                 // Clearance for the sheet lip that overlaps the gradient.
                 const SizedBox(height: _SheetTop.height),
               ],
@@ -121,7 +150,11 @@ class HeaderGradientFallback extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const DecoratedBox(
     decoration: BoxDecoration(
-      gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AppColors.primary, AppColors.primaryDark]),
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [AppColors.primary, AppColors.primaryDark],
+      ),
     ),
   );
 }

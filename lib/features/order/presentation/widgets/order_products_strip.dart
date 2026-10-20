@@ -4,6 +4,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../../../product/presentation/widgets/product_card.dart';
+import '../../../product/presentation/widgets/product_image_view.dart';
+import '../../../../core/constants/app_icons.dart';
 
 /// A row of thumbnails for what is in the order, with the overflow counted
 /// in a chip at the end rather than scrolled to.
@@ -65,17 +67,29 @@ class _Thumb extends StatelessWidget {
   Widget build(BuildContext context) {
     final image = product.images.isEmpty ? null : product.images.first;
 
-    return Container(
-      width: OrderProductsStrip._thumbSize,
-      height: OrderProductsStrip._thumbSize,
-      padding: const EdgeInsets.all(AppSpacing.xs),
-      decoration: BoxDecoration(
-        color: AppColors.grey100,
-        borderRadius: BorderRadius.circular(AppRadius.md),
+    // Edge to edge: the photo covers its whole tile, rounded with it, with
+    // no grey showing round it.
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      child: SizedBox.square(
+        dimension: OrderProductsStrip._thumbSize,
+        child: ColoredBox(
+          color: AppColors.grey100,
+          child: image == null
+              ? const Center(
+                  child: HugeIcon(
+                    icon: AppIcons.image,
+                    color: AppColors.grey500,
+                    size: 20,
+                  ),
+                )
+              : ProductImageView(
+                  source: image,
+                  fit: BoxFit.cover,
+                  fallbackIconSize: 20,
+                ),
+        ),
       ),
-      child: image == null
-          ? const Icon(Icons.image_outlined, color: AppColors.grey500, size: 20)
-          : Image.asset(image, fit: BoxFit.contain),
     );
   }
 }

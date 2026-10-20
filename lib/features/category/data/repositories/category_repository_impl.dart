@@ -10,17 +10,19 @@ class CategoryRepositoryImpl implements CategoryRepository {
 
   final CategoryRemoteDataSource _remote;
 
-  /// The tree is the same for every screen that needs it and changes rarely,
-  /// so it is fetched once per launch and served from memory afterwards.
-  List<Category>? _cachedTree;
+  /// Keep the home subset separate from the full category tree.
+  final Map<bool, List<Category>> _cachedTrees = {};
 
   @override
-  Future<Result<List<Category>>> tree() async {
-    final cached = _cachedTree;
-    if (cached != null) return Success(cached);
+  Future<Result<List<Category>>> tree({
+    bool featuredOnly = false,
+    bool forceRefresh = false,
+  }) async {
+    final cached = _cachedTrees[featuredOnly];
+    if (!forceRefresh && cached != null) return Success(cached);
     try {
-      final tree = await _remote.tree();
-      _cachedTree = tree;
+      final tree = await _remote.tree(featuredOnly: featuredOnly);
+      _cachedTrees[featuredOnly] = tree;
       return Success(tree);
     } on AppException catch (e) {
       return Error(e.toFailure());
@@ -28,9 +30,9 @@ class CategoryRepositoryImpl implements CategoryRepository {
   }
 
   @override
-  Future<Result<Category>> bySlug(String slug) async {
+  Future<Result<Category>> byId(int id) async {
     try {
-      return Success(await _remote.bySlug(slug));
+      return Success(await _remote.byId(id));
     } on AppException catch (e) {
       return Error(e.toFailure());
     }

@@ -27,10 +27,33 @@ class AppLocalizationsTk extends AppLocalizations {
   String get favoriteTitle => 'Halanlarym';
 
   @override
+  String get favoriteEmptyTitle => 'Halan harytlaryňyz ýok';
+
+  @override
+  String get favoriteEmptyMessage =>
+      'Halan harytlaryňyzy saklaň we gerek bolanda şu ýerden tapyň.';
+
+  @override
+  String get favoriteEmptyAction => 'Göz aýla';
+
+  @override
   String get navProfile => 'Profil';
 
   @override
   String get commonRetry => 'Gaýtadan synanyş';
+
+  @override
+  String get notificationsEmptyTitle => 'Heniz bildiriş ýok';
+
+  @override
+  String get notificationsEmptyMessage =>
+      'Täze bildirişler şu ýerde peýda bolar.';
+
+  @override
+  String get announcementsEmptyTitle => 'Heniz habar ýok';
+
+  @override
+  String get announcementsEmptyMessage => 'Täze habarlar şu ýerde peýda bolar.';
 
   @override
   String get commonCancel => 'Ýatyr';
@@ -191,10 +214,25 @@ class AppLocalizationsTk extends AppLocalizations {
   String get categoryFilters => 'Süzgüçler';
 
   @override
+  String get categoryOnlyFeatured => 'Diňe öňe çykarylan harytlar';
+
+  @override
   String get categorySortTitle => 'Tertipleme';
 
   @override
+  String get categorySortNewest => 'Iň täzeler';
+
+  @override
   String get categorySortPopular => 'Meşhur';
+
+  @override
+  String get categoryPriceMin => 'Iň pes baha';
+
+  @override
+  String get categoryPriceRange => 'Baha aralygy';
+
+  @override
+  String get categoryPriceMax => 'Iň ýokary baha';
 
   @override
   String get categorySortPriceAsc => 'Baha: arzandan gymmada';
@@ -215,6 +253,13 @@ class AppLocalizationsTk extends AppLocalizations {
   String get categoryNoResults => 'Bu süzgüçlere hiç zat gabat gelmedi';
 
   @override
+  String get categoryProductsEmptyTitle => 'Häzirlikçe haryt ýok';
+
+  @override
+  String get categoryProductsEmptyMessage =>
+      'Bu kategoriýada häzir haryt ýok. Beýleki kategoriýalara serediň.';
+
+  @override
   String get categoryNoResultsHint => 'Birini aýryp görüň.';
 
   @override
@@ -231,6 +276,29 @@ class AppLocalizationsTk extends AppLocalizations {
   String get searchTitle => 'Gözleg';
 
   @override
+  String get searchClear => 'Gözlegi arassala';
+
+  @override
+  String get searchNotFoundTitle => 'Tapylmady';
+
+  @override
+  String get searchNotFoundMessage =>
+      'Sözleriň dogry ýazylandygyny barlaň ýa-da başga açar sözleri ulanyp görüň.';
+
+  @override
+  String get searchErrorTitle => 'Ýalňyşlyk';
+
+  @override
+  String get searchErrorMessage => 'Ýalňyşlyk ýüze çykdy. Täzeden synanyşyň.';
+
+  @override
+  String get searchConnectionErrorTitle => 'Baglanyşyk ýalňyşlygy';
+
+  @override
+  String get searchConnectionErrorMessage =>
+      'Serwere birigip bolmady. Internet birikmesini barlap, täzeden synanyşyň.';
+
+  @override
   String get commonSeeAll => 'Hemmesi';
 
   @override
@@ -244,6 +312,19 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get cartSelectAll => 'Hemmesini saýla';
+
+  @override
+  String get cartEmpty => 'Sebediňiz boş';
+
+  @override
+  String get cartTitle => 'Önümler';
+
+  @override
+  String get cartEmptyMessage =>
+      'Heniz hiç zat goşmadyňyz. Harytlara göz aýlap, halanlaryňyzy tapyň.';
+
+  @override
+  String get cartEmptyAction => 'Söwda et';
 
   @override
   String cartProductCount(int count) {
@@ -295,6 +376,20 @@ class AppLocalizationsTk extends AppLocalizations {
   String get productArticle => 'Haryt kody:';
 
   @override
+  String get productPriceDetails => 'Bahanyň jikme-jigi';
+
+  @override
+  String get productPricePerItem => 'Bir harydyň bahasy';
+
+  @override
+  String get productRegularPrice => 'Adaty baha';
+
+  @override
+  String productDiscountPercent(int percent) {
+    return '$percent% arzanladyş';
+  }
+
+  @override
   String get productCopy => 'Göçür';
 
   @override
@@ -302,6 +397,19 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get productShared => 'Haryt salgysy göçürildi';
+
+  @override
+  String get productSharePrice => 'Bahasy';
+
+  @override
+  String get productSharePhoto => 'Harydyň suraty';
+
+  @override
+  String get productShareOpen => 'Elýeter programmasynda aç';
+
+  @override
+  String get productShareFailed =>
+      'Paýlaşmak penjiresini açyp bolmady. Täzeden synanyşyň.';
 
   @override
   String get productDescription => 'Beýany';
@@ -322,6 +430,76 @@ class AppLocalizationsTk extends AppLocalizations {
   String get productReviews => 'Teswirler';
 
   @override
+  String get reviewEmpty => 'Entek teswir ýok';
+
+  @override
+  String get reviewWrite => 'Teswir ýaz';
+
+  @override
+  String get reviewEdit => 'Teswirimi üýtget';
+
+  @override
+  String get reviewDelete => 'Teswirimi poz';
+
+  @override
+  String get reviewRating => 'Siziň bahaňyz';
+
+  @override
+  String get reviewComment => 'Teswiriňiz (hökmany däl)';
+
+  @override
+  String get reviewIntro => 'Haryt baradaky pikiriňizi paýlaşyň.';
+
+  @override
+  String get reviewRatingPrompt => 'Baha bermek üçin ýyldyza basyň';
+
+  @override
+  String get reviewRatingPoor => 'Erbet';
+
+  @override
+  String get reviewRatingFair => 'Kanagatlanarly';
+
+  @override
+  String get reviewRatingGood => 'Gowy';
+
+  @override
+  String get reviewRatingVeryGood => 'Örän gowy';
+
+  @override
+  String get reviewRatingExcellent => 'Ajaýyp';
+
+  @override
+  String get reviewCommentHint =>
+      'Näme göwnüňize ýarady? Nämäni gowulandyryp bolar?';
+
+  @override
+  String get reviewSubmit => 'Teswiri iber';
+
+  @override
+  String get reviewAnonymous => 'Alyjy';
+
+  @override
+  String get reviewLoadMore => 'Ýene görkez';
+
+  @override
+  String get reviewLoadError => 'Teswirleri ýükläp bolmady.';
+
+  @override
+  String get reviewActionError => 'Teswiri üýtgedip bolmady.';
+
+  @override
+  String get reviewSaved => 'Teswir ýazdyryldy';
+
+  @override
+  String get reviewDeleted => 'Teswir pozuldy';
+
+  @override
+  String get reviewDeleteConfirm => 'Teswiriňiz pozulsynmy?';
+
+  @override
+  String get reviewDeleteMessage => 'Soňra täze teswir ýazyp bilersiňiz.';
+
+  @override
   String productRatingCount(int count) {
     return '$count baha';
   }
@@ -339,7 +517,94 @@ class AppLocalizationsTk extends AppLocalizations {
   String get orderCancelled => 'Sargyt ýatyryldy';
 
   @override
+  String get orderStatusCancelled => 'Ýatyryldy';
+
+  @override
+  String get orderCancelTitle => 'Sargyt ýatyrylsynmy?';
+
+  @override
+  String get orderCancelMessage =>
+      'Ýatyrylan sargyt dikeldilip bilinmeýär. Ony sebediňizden täzeden bermek bolar.';
+
+  @override
+  String get orderCancelKeep => 'Sargyt galsyn';
+
+  @override
+  String get orderCancelConfirm => 'Sargyt ýatyr';
+
+  @override
+  String get orderRepeatDone => 'Önümler sebede goşuldy';
+
+  @override
+  String get orderNotFound => 'Sargyt ýüklenip bilmedi';
+
+  @override
+  String get orderComment => 'Bellik';
+
+  @override
+  String get orderStatusNew => 'Jaň garaşylýar';
+
+  @override
+  String get orderStatusConfirmed => 'Tassyklandy';
+
+  @override
+  String get orderStatusOrdered => 'Sargyt edildi';
+
+  @override
+  String get orderStatusCompleted => 'Tamamlandy';
+
+  @override
+  String get orderReceiptTitle => 'Sargyt çegi';
+
+  @override
+  String get orderReceiptItems => 'Önümler';
+
+  @override
+  String get orderReceiptQty => 'Sany';
+
+  @override
+  String get orderReceiptPrice => 'Baha';
+
+  @override
+  String get orderReceiptAmount => 'Jemi';
+
+  @override
+  String get orderReceiptThanks => 'Sargydyňyz üçin sagboluň';
+
+  @override
+  String get orderReceiptFailed => 'Çek döredilip bilmedi';
+
+  @override
+  String get orderTrackRefresh => 'Her 15 sekuntdan täzelenýär';
+
+  @override
+  String get orderTrackNoPoint => 'Eltip bermek nokady görkezilmedi';
+
+  @override
+  String get orderTrackMapPoint => 'Kartadaky eltip bermek nokady';
+
+  @override
+  String get orderTrackNoCourier => 'Kurýeriň ýeri we gelmeli wagty heniz ýok.';
+
+  @override
+  String get orderTrackCancelled => 'Bu sargyt ýatyryldy.';
+
+  @override
   String get orderHistory => 'Sargytlaryň taryhy';
+
+  @override
+  String get orderHistoryEmptyTitle => 'Heniz sargyt ýok';
+
+  @override
+  String get orderHistoryEmptyMessage =>
+      'Sargyt bereniňizden soň, ol şu ýerde görüner.';
+
+  @override
+  String get activeOrdersEmptyTitle => 'Işjeň sargyt ýok';
+
+  @override
+  String get activeOrdersEmptyMessage =>
+      'Dowam edýän sargytlaryňyz şu ýerde görüner.';
 
   @override
   String orderItemCount(int count) {
@@ -357,7 +622,24 @@ class AppLocalizationsTk extends AppLocalizations {
   String get profileTitle => 'Profil';
 
   @override
+  String get onboardingWelcome => 'Hoş geldiňiz!';
+
+  @override
+  String get onboardingSubtitle =>
+      'Hasabyňyza çalt we ygtybarly girip bilersiňiz.';
+
+  @override
+  String get onboardingStart => 'Başlamak';
+
+  @override
   String get settingsLanguage => 'Dil';
+
+  @override
+  String get settingsLanguageDialogTitle => 'Dil çalyşmak';
+
+  @override
+  String get settingsLanguageDialogSubtitle =>
+      'Ulanmak isleýän diliňizi saýlaň.';
 
   @override
   String get settingsTheme => 'Tema';
@@ -429,6 +711,97 @@ class AppLocalizationsTk extends AppLocalizations {
   String get profileSavedLocations => 'Saklanan salgylarym';
 
   @override
+  String get addressListTitle => 'Salgylar';
+
+  @override
+  String get addressAddWork => 'Iş salgysyny goş';
+
+  @override
+  String get addressAddHome => 'Öý salgysyny goş';
+
+  @override
+  String get addressAddNew => 'Täze salgy goş';
+
+  @override
+  String get addressNameWork => 'Iş';
+
+  @override
+  String get addressNameHome => 'Öý';
+
+  @override
+  String get addressEdit => 'Üýtget';
+
+  @override
+  String get addressMakeDefault => 'Esasy salgy et';
+
+  @override
+  String get addressDelete => 'Poz';
+
+  @override
+  String get addressMapLocation => 'Kartadaky salgy';
+
+  @override
+  String get addressMapHint => 'Köçe, jaý, şäher';
+
+  @override
+  String get addressApartmentFlat => 'Kwartira / öý';
+
+  @override
+  String get addressApartmentHint => 'mysal: 35/1';
+
+  @override
+  String get addressFloor => 'Gat';
+
+  @override
+  String get addressFloorHint => 'mysal: 3';
+
+  @override
+  String get addressNameLabel => 'Salgynyň ady';
+
+  @override
+  String get addressSaveButton => 'Salgyny sakla';
+
+  @override
+  String get addressResolving => 'Salgy gözlenýär…';
+
+  @override
+  String get addressTypeHome => 'Öý';
+
+  @override
+  String get addressTypeWork => 'Iş';
+
+  @override
+  String get addressTypeOther => 'Başga';
+
+  @override
+  String get addressPointRequired => 'Ilki kartadan bir nokat saýlaň.';
+
+  @override
+  String get addressNameRequired => 'Salgynyň adyny ýazyň.';
+
+  @override
+  String get addressLocationApproximate =>
+      'Ýerleşiş takmynan. Belligi dogry ýere süýşüriň.';
+
+  @override
+  String get addressLocationFailed =>
+      'Ýerleşişi alyp bolmady. Kartadan saýlaň.';
+
+  @override
+  String get addressLookupFailed =>
+      'Köçe salgysy tapylmady. Koordinatlar goşuldy; salgyny özüňiz ýazyň.';
+
+  @override
+  String get addressEmptyTitle => 'Heniz salgy saklanmady';
+
+  @override
+  String get addressEmptyMessage =>
+      'Ilkinji eltip beriş salgyňyzy saklamak üçin + basyň.';
+
+  @override
+  String get addressDeleteDone => 'Salgy pozuldy.';
+
+  @override
   String get profileOrderHistory => 'Sargytlaryň taryhy';
 
   @override
@@ -448,6 +821,9 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get profilePrivacy => 'Gizlinlik syýasaty';
+
+  @override
+  String get staticPageEmpty => 'Mazmun taýýar bolanda şu ýerde görkeziler.';
 
   @override
   String get profileWhatsapp => 'WhatsApp';
@@ -472,6 +848,95 @@ class AppLocalizationsTk extends AppLocalizations {
   String profileVersion(String version) {
     return 'Wersiýa $version';
   }
+
+  @override
+  String get profileSignOut => 'Çykmak';
+
+  @override
+  String get profileSignOutTitle => 'Hasapdan çykmalymy?';
+
+  @override
+  String get profileSignOutMessage =>
+      'Täzeden girmek üçin telefon belgiňiz gerek bolar.';
+
+  @override
+  String get profileGuestTitle => 'Hasabyňyza giriň';
+
+  @override
+  String get profileGuestMessage =>
+      'Geýim, öý harytlary we başga-da köp zatlary sargyt ediň';
+
+  @override
+  String get profileGuestAction => 'Gir';
+
+  @override
+  String get authSignIn => 'Gir';
+
+  @override
+  String get authSignInRequiredTitle => 'Girmek talap edilýär';
+
+  @override
+  String get authSignInRequiredMessage =>
+      'Bu bölümi ulanmak üçin ulgama giriň.';
+
+  @override
+  String get loginTitle => 'Ulgama giriş';
+
+  @override
+  String get loginPhoneTitle => 'Hasaba girmek';
+
+  @override
+  String get loginPhoneMessage =>
+      'Telefon belgiňizi girizip, hasabyňyza çalt we ygtybarly girip bilersiňiz.';
+
+  @override
+  String get loginPhoneLabel => 'Telefon belgisi';
+
+  @override
+  String get loginPhoneHint => 'Telefon belgiňiz';
+
+  @override
+  String get loginSendCode => 'Dowam etmek';
+
+  @override
+  String get loginLegalNotice =>
+      'Elyeter programmasyny ulanmak bilen, Ulanyş şertlerini we Gizlinlik syýasatyny kabul edýärsiňiz.';
+
+  @override
+  String get loginReadTerms => 'Şertleri okaň';
+
+  @override
+  String get loginCodeTitle => 'Tassyklamak';
+
+  @override
+  String loginCodeMessage(String phone) {
+    return '$phone belgisine iberilen kody giriziň';
+  }
+
+  @override
+  String get loginCodeLabel => 'Tassyklaýyş kody';
+
+  @override
+  String get loginVerify => 'Dowam et';
+
+  @override
+  String get loginResend => 'Kody täzeden ugrat';
+
+  @override
+  String loginResendCountdown(String time) {
+    return 'Kody täzeden ugrat $time';
+  }
+
+  @override
+  String loginResendIn(int seconds) {
+    return '$seconds sekuntdan gaýtadan';
+  }
+
+  @override
+  String get loginChangePhone => 'Belgini üýtget';
+
+  @override
+  String get loginSignedIn => 'Ulgama girdiňiz';
 
   @override
   String get settingsLanguageEnglish => 'Iňlisçe';
@@ -509,6 +974,10 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get editProfilePhotoRemove => 'Suraty aýyr';
+
+  @override
+  String get editProfilePhotoTooLarge =>
+      'Suraty 1 MB-dan kiçeldip bolmady. Başga surat saýlaň.';
 
   @override
   String get editProfileSaved => 'Profil täzelendi';
@@ -690,4 +1159,39 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get errorValidation => 'Giren maglumatlaryňyzy barlaň.';
+
+  @override
+  String get profileDeleteAccount => 'Hasaby pozmak';
+
+  @override
+  String get profileDeleteTitle => 'Hasabyňyzy pozmalymy?';
+
+  @override
+  String get profileDeleteMessage =>
+      'Bu hemişelik. Hasabyňyz we ondaky ähli zat Elyeter-den aýrylar, yzyna gaýtaryp bolmaýar.';
+
+  @override
+  String get profileDeleteLossOrders => 'Sargyt taryhyňyz';
+
+  @override
+  String get profileDeleteLossProfile =>
+      'Adyňyz, suratyňyz we ýatda saklanan maglumatlaryňyz';
+
+  @override
+  String get profileDeleteLossAccess =>
+      'Şu belgidäki hasaba girmek mümkinçiligi';
+
+  @override
+  String profileDeleteAccountOn(String phone) {
+    return 'Hasap: $phone';
+  }
+
+  @override
+  String get profileDeleteKeep => 'Hasabymy saklaýaryn';
+
+  @override
+  String get profileDeleteConfirm => 'Hemişelik poz';
+
+  @override
+  String get profileDeleteDone => 'Hasabyňyz pozuldy.';
 }

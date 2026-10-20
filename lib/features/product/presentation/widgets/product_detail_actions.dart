@@ -68,7 +68,9 @@ class ProductPillButton extends StatelessWidget {
         child: SizedBox(
           width: ProductDetailActions.buttonSize + horizontalPadding * 2,
           height: ProductDetailActions.buttonSize,
-          child: Center(child: _Icon(asset: asset, tint: tint)),
+          child: Center(
+            child: _Icon(asset: asset, tint: tint),
+          ),
         ),
       ),
     );

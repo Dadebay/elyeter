@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/di/injector.dart';
 import '../../../../core/error/failure.dart';
+import '../../../../core/services/push_service.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/app_user.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -104,6 +106,7 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> sendCode(String rawPhone) async {
+    if (state.submitting) return;
     final phone = normalize(rawPhone);
     if (!isValidPhone(phone)) {
       return emit(
@@ -140,6 +143,9 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> verify(String code) async {
+    if (state.submitting || state.signedIn || state.step != LoginStep.code) {
+      return;
+    }
     emit(state.copyWith(submitting: true, clearFailure: true));
 
     final result = await _repository.verifyCode(
@@ -149,6 +155,8 @@ class LoginCubit extends Cubit<LoginState> {
     switch (result) {
       case Success(:final data):
         _auth.onSignedIn(data.user);
+        // Register the device token only for a verified OTP login.
+        unawaited(getIt<PushService>().registerTokenAfterOtp());
         emit(
           state.copyWith(
             submitting: false,

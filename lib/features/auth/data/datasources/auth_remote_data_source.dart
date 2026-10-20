@@ -14,7 +14,8 @@ abstract interface class AuthRemoteDataSource {
   Future<AuthSession> verifyCode({required String phone, required String code});
   Future<AppUser> me();
   Future<AppUser> updateMe({String? username, String? image});
-  Future<void> updateFcmToken(String token);
+  Future<void> updateFcmToken(String token, {String? lang});
+  Future<void> deleteFcmToken();
   Future<void> deleteMe();
 }
 
@@ -56,16 +57,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       ApiEndpoints.me,
       // Only the fields being changed: the API rejects unknown or empty ones.
       data: {
-        if (username != null) 'username': username,
-        if (image != null) 'image': image,
+        'username': ?username,
+        'image': ?image,
       },
     );
     return UserModel.fromJson(asMap(data));
   }
 
   @override
-  Future<void> updateFcmToken(String token) =>
-      _client.patch(ApiEndpoints.fcmToken, data: {'fcm_token': token});
+  Future<void> updateFcmToken(String token, {String? lang}) => _client.patch(
+    ApiEndpoints.fcmToken,
+    data: {'fcm_token': token, 'lang': ?lang},
+  );
+
+  @override
+  Future<void> deleteFcmToken() => _client.delete(ApiEndpoints.fcmToken);
 
   @override
   Future<void> deleteMe() => _client.delete(ApiEndpoints.me);

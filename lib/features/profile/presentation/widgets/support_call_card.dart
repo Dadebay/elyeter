@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/app_asset_image.dart';
 
 /// Blue support panel at the bottom of the profile page.
 class SupportCallCard extends StatelessWidget {
@@ -33,7 +34,9 @@ class SupportCallCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -56,10 +59,11 @@ class SupportCallCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(AppRadius.sm),
                 ),
                 child: const Center(
-                  child: HugeIcon(
-                    icon: HugeIcons.strokeRoundedCustomerService01,
+                  child: AppAssetImage(
+                    AppAssets.iconQuestion,
                     color: AppColors.info,
-                    size: 20,
+                    width: 20,
+                    height: 20,
                   ),
                 ),
               ),
@@ -100,8 +104,10 @@ class SupportCallCard extends StatelessWidget {
               FilledButton(
                 onPressed: onCall,
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.white,
-                  foregroundColor: AppColors.black,
+                  backgroundColor: isDark
+                      ? AppColors.surfaceDark
+                      : AppColors.white,
+                  foregroundColor: isDark ? AppColors.white : AppColors.black,
                   minimumSize: const Size(0, 40),
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.lg,
@@ -114,12 +120,15 @@ class SupportCallCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          _Hours(
-            text: hours,
-            highlight: hoursHighlight,
-            style: textTheme.bodySmall?.copyWith(
-              color: AppColors.white.withValues(alpha: 0.85),
-              height: 1.5,
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 270),
+            child: _Hours(
+              text: hours,
+              highlight: hoursHighlight,
+              style: textTheme.bodySmall?.copyWith(
+                color: AppColors.white.withValues(alpha: 0.85),
+                height: 1.5,
+              ),
             ),
           ),
         ],

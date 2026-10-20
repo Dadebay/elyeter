@@ -29,7 +29,7 @@ class Category extends Equatable {
 
   final List<Category> children;
 
-  /// Root -> current; only `GET /categories/:slug` fills this.
+  /// Root -> current; only `GET /categories/:id` fills this.
   final List<CategoryCrumb> breadcrumbs;
 
   bool get hasChildren => children.isNotEmpty;

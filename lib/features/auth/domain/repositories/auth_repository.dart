@@ -21,7 +21,7 @@ abstract interface class AuthRepository {
   Future<Result<AppUser>> updateProfile({String? username, String? image});
 
   /// `PATCH /auth/fcm-token` — stored but not yet delivered to.
-  Future<Result<void>> updateFcmToken(String token);
+  Future<Result<void>> updateFcmToken(String token, {String? lang});
 
   /// `DELETE /auth/me` — deletes the account and clears the session.
   Future<Result<void>> deleteAccount();

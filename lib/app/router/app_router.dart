@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/utils/extensions/context_extensions.dart';
+import '../../core/di/injector.dart';
+import '../../core/storage/local_storage.dart';
+import '../../core/storage/storage_keys.dart';
 import '../../features/address/presentation/view/address_list_page.dart';
 import '../../features/auth/presentation/view/login_page.dart';
 import '../../features/brand/presentation/view/brand_page.dart';
@@ -9,19 +12,22 @@ import '../../features/cart/presentation/view/cart_page.dart';
 import '../../features/category/presentation/view/category_detail_page.dart';
 import '../../features/category/presentation/view/category_page.dart';
 import '../../features/favorite/presentation/view/favorite_page.dart';
-import '../../features/legal/presentation/view/faq_page.dart';
-import '../../features/legal/presentation/view/privacy_page.dart';
-import '../../features/legal/presentation/view/terms_page.dart';
+import '../../features/legal/presentation/view/static_page_view.dart';
 import '../../features/home/presentation/view/home_page.dart';
 import '../../features/marketplace/presentation/view/marketplace_page.dart';
 import '../../features/notification/presentation/view/notification_page.dart';
+import '../../features/onboarding/presentation/view/onboarding_page.dart';
 import '../../features/order/presentation/view/order_detail_page.dart';
+import '../../features/order/presentation/view/order_track_page.dart';
+import '../../features/order/presentation/view/checkout_page.dart';
 import '../../features/order/presentation/view/order_list_page.dart';
+import '../../features/product/domain/entities/product_id.dart';
 import '../../features/product/presentation/view/product_detail_page.dart';
 import '../../features/product/presentation/view/product_reviews_page.dart';
 import '../../features/profile/presentation/view/edit_profile_page.dart';
 import '../../features/profile/presentation/view/profile_page.dart';
 import '../../features/search/presentation/view/search_page.dart';
+import '../../features/search/presentation/widgets/search_reveal_transition.dart';
 import '../../features/settings/presentation/view/settings_page.dart';
 import '../view/home_shell.dart';
 import 'app_routes.dart';
@@ -37,9 +43,14 @@ abstract final class AppRouter {
 
   static final GoRouter router = GoRouter(
     navigatorKey: rootNavigatorKey,
-    initialLocation: AppRoutes.home.path,
+    initialLocation: _initialLocation(),
     debugLogDiagnostics: true,
     routes: [
+      GoRoute(
+        path: AppRoutes.onboarding.path,
+        name: AppRoutes.onboarding.name,
+        builder: (context, state) => const OnboardingPage(),
+      ),
       GoRoute(
         path: AppRoutes.login.path,
         name: AppRoutes.login.name,
@@ -59,14 +70,27 @@ abstract final class AppRouter {
                   GoRoute(
                     path: AppRoutes.productDetail.path,
                     name: AppRoutes.productDetail.name,
+                    redirect: (context, state) =>
+                        ProductId.tryParse(state.pathParameters['id']) == null
+                        ? AppRoutes.home.path
+                        : null,
                     parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) => ProductDetailPage(
-                      productId: state.pathParameters['id']!,
+                      initialVariantId: ProductId.tryParse(
+                        state.uri.queryParameters['variant'],
+                      ),
+                      productId: ProductId.tryParse(
+                        state.pathParameters['id'],
+                      )!,
                     ),
                   ),
                   GoRoute(
                     path: AppRoutes.productReviews.path,
                     name: AppRoutes.productReviews.name,
+                    redirect: (context, state) =>
+                        ProductId.tryParse(state.pathParameters['id']) == null
+                        ? AppRoutes.home.path
+                        : null,
                     parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) => ProductReviewsPage(
                       productId: state.pathParameters['id']!,
@@ -77,7 +101,7 @@ abstract final class AppRouter {
                     name: AppRoutes.brand.name,
                     parentNavigatorKey: rootNavigatorKey,
                     // `extra` carries the display name, so the app bar reads
-                    // "Loro Piana" rather than the slug.
+                    // "Loro Piana" rather than the numeric ID.
                     builder: (context, state) => BrandPage(
                       id: state.pathParameters['id']!,
                       title: state.extra as String?,
@@ -126,12 +150,12 @@ abstract final class AppRouter {
                 builder: (context, state) => const CartPage(),
                 routes: [
                   GoRoute(
-                    path: AppRoutes.orderDetail.path,
-                    name: AppRoutes.orderDetail.name,
+                    path: AppRoutes.checkout.path,
+                    name: AppRoutes.checkout.name,
                     // Over the shell: an order being read is not a tab, and
                     // the nav bar would only offer a way to lose it.
                     parentNavigatorKey: rootNavigatorKey,
-                    builder: (context, state) => const OrderDetailPage(),
+                    builder: (context, state) => const CheckoutPage(),
                   ),
                 ],
               ),
@@ -167,8 +191,10 @@ abstract final class AppRouter {
                     path: AppRoutes.activeOrders.path,
                     name: AppRoutes.activeOrders.name,
                     parentNavigatorKey: rootNavigatorKey,
-                    builder: (context, state) =>
-                        OrderListPage(title: context.l10n.profileActiveOrders),
+                    builder: (context, state) => OrderListPage(
+                      title: context.l10n.profileActiveOrders,
+                      activeOnly: true,
+                    ),
                   ),
                   GoRoute(
                     path: AppRoutes.editProfile.path,
@@ -180,9 +206,7 @@ abstract final class AppRouter {
                     path: AppRoutes.addresses.path,
                     name: AppRoutes.addresses.name,
                     parentNavigatorKey: rootNavigatorKey,
-                    builder: (context, state) => AddressListPage(
-                      title: context.l10n.profileSavedLocations,
-                    ),
+                    builder: (context, state) => const AddressListPage(),
                   ),
                   GoRoute(
                     path: AppRoutes.notifications.path,
@@ -198,25 +222,36 @@ abstract final class AppRouter {
                     parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) => NotificationPage(
                       title: context.l10n.profileAnnouncements,
+                      isAnnouncement: true,
                     ),
+                  ),
+                  GoRoute(
+                    path: AppRoutes.staticPage.path,
+                    name: AppRoutes.staticPage.name,
+                    parentNavigatorKey: rootNavigatorKey,
+                    builder: (context, state) =>
+                        StaticPageView(slug: state.pathParameters['slug']!),
                   ),
                   GoRoute(
                     path: AppRoutes.faq.path,
                     name: AppRoutes.faq.name,
                     parentNavigatorKey: rootNavigatorKey,
-                    builder: (context, state) => const FaqPage(),
+                    builder: (context, state) =>
+                        const StaticPageView(slug: 'faq'),
                   ),
                   GoRoute(
                     path: AppRoutes.terms.path,
                     name: AppRoutes.terms.name,
                     parentNavigatorKey: rootNavigatorKey,
-                    builder: (context, state) => const TermsPage(),
+                    builder: (context, state) =>
+                        const StaticPageView(slug: 'terms'),
                   ),
                   GoRoute(
                     path: AppRoutes.privacy.path,
                     name: AppRoutes.privacy.name,
                     parentNavigatorKey: rootNavigatorKey,
-                    builder: (context, state) => const PrivacyPage(),
+                    builder: (context, state) =>
+                        const StaticPageView(slug: 'privacy'),
                   ),
                   GoRoute(
                     path: AppRoutes.settings.path,
@@ -231,13 +266,72 @@ abstract final class AppRouter {
         ],
       ),
       GoRoute(
+        path: AppRoutes.orderDetail.path,
+        name: AppRoutes.orderDetail.name,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) =>
+            OrderDetailPage(orderId: int.parse(state.pathParameters['id']!)),
+      ),
+      GoRoute(
+        path: AppRoutes.orderTrack.path,
+        name: AppRoutes.orderTrack.name,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) =>
+            OrderTrackPage(orderId: int.parse(state.pathParameters['id']!)),
+      ),
+      GoRoute(
         path: AppRoutes.search.path,
         name: AppRoutes.search.name,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const SearchPage(),
+        pageBuilder: (context, state) {
+          final buttonOrigin = state.extra is SearchButtonOrigin
+              ? state.extra as SearchButtonOrigin
+              : null;
+          final anchor = state.extra is Rect ? state.extra as Rect : null;
+          final reduceMotion = MediaQuery.disableAnimationsOf(context);
+          return CustomTransitionPage<void>(
+            key: state.pageKey,
+            transitionDuration: reduceMotion
+                ? SearchRevealTransition.reducedMotionDuration
+                : SearchRevealTransition.duration,
+            reverseTransitionDuration: reduceMotion
+                ? SearchRevealTransition.reducedMotionDuration
+                : SearchRevealTransition.reverseDuration,
+            child: const SearchPage(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  if (buttonOrigin != null) {
+                    return SearchButtonExpandTransition(
+                      animation: animation,
+                      buttonBounds: buttonOrigin.bounds,
+                      child: child,
+                    );
+                  }
+                  return SearchRevealTransition(
+                    animation: animation,
+                    fieldBounds:
+                        anchor ??
+                        Rect.fromLTWH(
+                          16,
+                          MediaQuery.paddingOf(context).top + 8,
+                          MediaQuery.sizeOf(context).width - 32,
+                          48,
+                        ),
+                    child: child,
+                  );
+                },
+          );
+        },
       ),
     ],
     errorBuilder: (context, state) =>
         Scaffold(body: Center(child: Text(state.error.toString()))),
   );
+
+  static String _initialLocation() {
+    if (!getIt.isRegistered<LocalStorage>()) return AppRoutes.home.path;
+    return getIt<LocalStorage>().getBool(StorageKeys.onboardingSeen) == true
+        ? AppRoutes.home.path
+        : AppRoutes.onboarding.path;
+  }
 }

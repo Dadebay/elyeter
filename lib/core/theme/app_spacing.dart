@@ -32,7 +32,7 @@ abstract final class AppNavBar {
   static const double rowHeight = 52;
 
   /// Padding inside the capsule, above and below the row.
-  static const double verticalPadding = AppSpacing.sm;
+  static const double verticalPadding = 5;
 
   /// Gap left under the capsule, on top of the system inset.
   static const double bottomGap = 10;

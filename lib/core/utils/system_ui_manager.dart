@@ -1,23 +1,30 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 /// Keeps Android's navigation bar hidden.
 ///
-/// [SystemUiMode.manual] hides the bar, but a swipe from the bottom edge
-/// brings it back *and leaves it there* — Android only re-hides it by
-/// itself in the immersive modes, and those also take the status bar with
-/// them, which the design keeps. So the bar coming back is detected and the
-/// mode re-applied a few seconds later.
+/// Recent Android targets ignore Flutter's manual system UI mode. The Android
+/// activity hides only the navigation bar through native window insets. If the
+/// bar returns after a gesture, this manager requests the native setting again.
 ///
-/// [SystemChrome.setSystemUIChangeCallback] is not an option here: with
-/// [SystemUiMode.manual] it only fires when *every* overlay is hidden.
+/// [SystemChrome.setSystemUIChangeCallback] does not report the navigation bar
+/// alone while the status bar remains visible, so we watch window metrics.
 class SystemUiManager with WidgetsBindingObserver {
-  SystemUiManager({this.hideDelay = const Duration(seconds: 3)});
+  SystemUiManager({
+    this.hideDelay = const Duration(seconds: 3),
+    TargetPlatform? platform,
+  }) : _platform = platform ?? defaultTargetPlatform;
+
+  static const _androidChannel = MethodChannel(
+    'com.gurbanov.elyeter/system_ui',
+  );
 
   /// How long the bar stays visible after the user swipes it up.
   final Duration hideDelay;
+  final TargetPlatform _platform;
 
   Timer? _timer;
 
@@ -33,12 +40,17 @@ class SystemUiManager with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
   }
 
-  /// Status bar stays, navigation bar goes. A no-op on iOS, which has no
-  /// navigation bar to hide.
-  Future<void> apply() => SystemChrome.setEnabledSystemUIMode(
-    SystemUiMode.manual,
-    overlays: [SystemUiOverlay.top],
-  );
+  /// Android's native insets API works even when edge-to-edge is enforced.
+  /// Keep the previous overlay setting on other platforms.
+  Future<void> apply() {
+    if (_platform == TargetPlatform.android) {
+      return _androidChannel.invokeMethod<void>('hideNavigationBar');
+    }
+    return SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: [SystemUiOverlay.top],
+    );
+  }
 
   @override
   void didChangeMetrics() {

@@ -80,9 +80,4 @@ class AuthCubit extends Cubit<AuthState> {
       return null;
     }, (failure) => failure);
   }
-
-  /// `PATCH /auth/fcm-token` — safe to call whenever the device token
-  /// changes; delivery is not implemented on the backend yet.
-  Future<void> registerFcmToken(String token) =>
-      _repository.updateFcmToken(token);
 }

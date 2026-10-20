@@ -34,9 +34,7 @@ abstract final class ProductModel {
     return ProductDetail(
       product: fromJson(json),
       description: json.strOrNull('description'),
-      category: category == null
-          ? null
-          : CategoryModel.crumbFromJson(category),
+      category: category == null ? null : CategoryModel.crumbFromJson(category),
       breadcrumbs: json
           .listOf('breadcrumbs')
           .map(CategoryModel.crumbFromJson)

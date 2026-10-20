@@ -38,12 +38,18 @@ class PromoCarousel extends StatefulWidget {
   /// Half the gap between two cards.
   static const _cardGap = AppSpacing.xs;
 
+  /// The reference artwork is roughly 2.4 times wider than it is tall.
+  static double heightForWidth(double width) =>
+      (width * _viewportFraction - 2 * _cardGap) / 2.4;
+
   @override
   State<PromoCarousel> createState() => _PromoCarouselState();
 }
 
 class _PromoCarouselState extends State<PromoCarousel> {
-  final _controller = PageController(viewportFraction: PromoCarousel._viewportFraction);
+  final _controller = PageController(
+    viewportFraction: PromoCarousel._viewportFraction,
+  );
   int _page = 0;
 
   @override
@@ -69,12 +75,16 @@ class _PromoCarouselState extends State<PromoCarousel> {
               itemBuilder: (context, index) {
                 final banner = widget.banners[index];
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: PromoCarousel._cardGap),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: PromoCarousel._cardGap,
+                  ),
                   child: PromoBannerCard(
                     banner: banner,
                     fit: widget.fit,
                     alignment: widget.alignment,
-                    onTap: widget.onTap == null ? null : () => widget.onTap!(banner),
+                    onTap: widget.onTap == null
+                        ? null
+                        : () => widget.onTap!(banner),
                   ),
                 );
               },
@@ -84,7 +94,7 @@ class _PromoCarouselState extends State<PromoCarousel> {
               Positioned(
                 left: 0,
                 right: 0,
-                bottom: AppSpacing.md,
+                bottom: AppSpacing.sm,
                 child: IgnorePointer(
                   child: Center(
                     child: _Dots(count: widget.banners.length, index: _page),
@@ -98,7 +108,7 @@ class _PromoCarouselState extends State<PromoCarousel> {
   }
 }
 
-/// Page dots in a translucent pill, so they read over any photo.
+/// Small white circles directly on the artwork, with no pill or shadow.
 class _Dots extends StatelessWidget {
   const _Dots({required this.count, required this.index});
 
@@ -106,24 +116,21 @@ class _Dots extends StatelessWidget {
   final int index;
 
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: BoxDecoration(color: AppColors.black.withValues(alpha: 0.28), borderRadius: BorderRadius.circular(AppRadius.pill)),
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 5),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var i = 0; i < count; i++)
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              curve: Curves.easeOut,
-              margin: const EdgeInsets.symmetric(horizontal: 2.5),
-              height: 6,
-              width: i == index ? 16 : 6,
-              decoration: BoxDecoration(color: i == index ? AppColors.white : AppColors.white.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(AppRadius.pill)),
-            ),
-        ],
-      ),
-    ),
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      for (var i = 0; i < count; i++)
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
+          margin: const EdgeInsets.symmetric(horizontal: 1),
+          height: i == index ? 7 : 5,
+          width: i == index ? 7 : 5,
+          decoration: const BoxDecoration(
+            color: AppColors.white,
+            shape: BoxShape.circle,
+          ),
+        ),
+    ],
   );
 }

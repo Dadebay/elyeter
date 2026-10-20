@@ -1,0 +1,764 @@
+import 'dart:async';
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:latlong2/latlong.dart';
+
+import '../../../../core/widgets/app_loader.dart';
+import '../../../../core/constants/app_assets.dart';
+import '../../../../core/constants/app_icons.dart';
+import '../../../../core/network/shop_api.dart';
+import '../../../../core/services/address_lookup_service.dart';
+import '../../../../core/services/device_location_service.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
+import '../../../../core/utils/extensions/context_extensions.dart';
+import '../../../../core/widgets/elyeter_map.dart';
+
+class AddressMapPickerPage extends StatefulWidget {
+  const AddressMapPickerPage({
+    super.key,
+    this.current,
+    this.initialType = 'home',
+    this.initialName,
+    this.locationService,
+    this.addressLookupService,
+  });
+  final SavedLocation? current;
+  final String initialType;
+  final String? initialName;
+  final DeviceLocationService? locationService;
+  final AddressLookupService? addressLookupService;
+
+  @override
+  State<AddressMapPickerPage> createState() => _AddressMapPickerPageState();
+}
+
+class _AddressMapPickerPageState extends State<AddressMapPickerPage> {
+  static const _floorSeparator = ' · Floor: ';
+
+  final _mapController = MapController();
+  late final _location = widget.locationService ?? DeviceLocationService();
+  late final _addressLookup =
+      widget.addressLookupService ?? DeviceAddressLookupService();
+  late final _name = TextEditingController(
+    text: widget.current?.name ?? widget.initialName,
+  );
+  late final _address = TextEditingController(text: widget.current?.address);
+  late final _apartment = TextEditingController(text: _initialApartment());
+  late final _floor = TextEditingController(text: _initialFloor());
+  late LatLng _point = widget.current == null
+      ? ElyeterMap.defaultCenter
+      : LatLng(widget.current!.latitude, widget.current!.longitude);
+  late String _type = widget.current?.type ?? widget.initialType;
+  late bool _pointConfirmed = widget.current != null;
+  bool _locating = false;
+  bool _dragging = false;
+  bool _resolvingAddress = false;
+  String? _message;
+  int _lookupRequest = 0;
+  Timer? _mapLookupTimer;
+
+  String _initialApartment() {
+    final details = widget.current?.details ?? '';
+    if (details.startsWith('Floor: ')) return '';
+    final separator = details.lastIndexOf(_floorSeparator);
+    return separator < 0 ? details : details.substring(0, separator);
+  }
+
+  String _initialFloor() {
+    final details = widget.current?.details ?? '';
+    if (details.startsWith('Floor: ')) return details.substring(7);
+    final separator = details.lastIndexOf(_floorSeparator);
+    return separator < 0
+        ? ''
+        : details.substring(separator + _floorSeparator.length);
+  }
+
+  String _combinedDetails() {
+    final apartment = _apartment.text.trim();
+    final floor = _floor.text.trim();
+    if (floor.isEmpty) return apartment;
+    if (apartment.isEmpty) return 'Floor: $floor';
+    return '$apartment$_floorSeparator$floor';
+  }
+
+  @override
+  void dispose() {
+    _mapLookupTimer?.cancel();
+    _mapController.dispose();
+    _name.dispose();
+    _address.dispose();
+    _apartment.dispose();
+    _floor.dispose();
+    super.dispose();
+  }
+
+  Future<void> _locate() async {
+    if (_locating) return;
+    _mapLookupTimer?.cancel();
+    final request = ++_lookupRequest;
+    setState(() {
+      _locating = true;
+      _dragging = false;
+      _resolvingAddress = false;
+      _message = null;
+    });
+    try {
+      final point = await _location.locate();
+      if (!mounted) return;
+      _mapController.move(point, 16);
+      _address.clear();
+      setState(() {
+        _point = point;
+        _pointConfirmed = true;
+        _resolvingAddress = true;
+        if (_location.lastFixWasApproximate) {
+          _message = context.l10n.addressLocationApproximate;
+        }
+      });
+      await _resolveAddress(point, request, _address.text);
+    } on LocationLookupException catch (error) {
+      if (mounted) setState(() => _message = error.message);
+    } on Object {
+      if (mounted) {
+        setState(() => _message = context.l10n.addressLocationFailed);
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _locating = false;
+          if (request == _lookupRequest) _resolvingAddress = false;
+        });
+      }
+    }
+  }
+
+  void _mapMoved(LatLng point, bool hasGesture) {
+    _point = point;
+    if (!hasGesture || !mounted) return;
+    final request = ++_lookupRequest;
+    _mapLookupTimer?.cancel();
+    if (!_dragging) {
+      _address.clear();
+    }
+    setState(() {
+      _dragging = true;
+      _resolvingAddress = true;
+      _pointConfirmed = true;
+      _message = null;
+    });
+    final addressBeforeLookup = _address.text;
+    _mapLookupTimer = Timer(const Duration(milliseconds: 500), () {
+      if (!mounted || request != _lookupRequest) return;
+      setState(() => _dragging = false);
+      unawaited(_resolveAddress(point, request, addressBeforeLookup));
+    });
+  }
+
+  Future<void> _resolveAddress(
+    LatLng point,
+    int request,
+    String addressBeforeLookup,
+  ) async {
+    String? resolved;
+    try {
+      resolved = await _addressLookup
+          .reverse(point, Localizations.localeOf(context))
+          .timeout(const Duration(seconds: 8));
+    } on Object {
+      // The selected point is still usable when the device has no geocoder.
+    }
+    if (!mounted || request != _lookupRequest) return;
+    setState(() => _resolvingAddress = false);
+    if (_address.text != addressBeforeLookup) return;
+    _fillAddress(resolved ?? _coordinateText(point));
+    if (resolved == null) {
+      setState(() => _message = context.l10n.addressLookupFailed);
+    }
+  }
+
+  void _fillAddress(String text) {
+    _address.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+
+  String _coordinateText(LatLng point) =>
+      '${point.latitude.toStringAsFixed(5)}, ${point.longitude.toStringAsFixed(5)}';
+
+  void _save() {
+    if (_resolvingAddress) return;
+    if (!_pointConfirmed) {
+      setState(() => _message = context.l10n.addressPointRequired);
+      return;
+    }
+    if (_name.text.trim().isEmpty) {
+      setState(() => _message = context.l10n.addressNameRequired);
+      return;
+    }
+    Navigator.of(context).pop(<String, dynamic>{
+      'name': _name.text.trim(),
+      'type': _type,
+      'address': _address.text.trim(),
+      'details': _combinedDetails(),
+      'latitude': _point.latitude,
+      'longitude': _point.longitude,
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final panel = isDark ? AppColors.surfaceDark : AppColors.white;
+
+    return Scaffold(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final sheetHeight = math.min(
+            constraints.maxHeight,
+            math.max(500.0, constraints.maxHeight * 0.62),
+          );
+          final showMapControls = constraints.maxHeight - sheetHeight >= 80;
+          const overlap = 24.0;
+          return Stack(
+            children: [
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: sheetHeight - overlap,
+                child: Stack(
+                  children: [
+                    ElyeterMap(
+                      center: _point,
+                      showAttributionButton: false,
+                      controller: _mapController,
+                      onPositionChanged: (camera, hasGesture) =>
+                          _mapMoved(camera.center, hasGesture),
+                    ),
+                    IgnorePointer(
+                      child: Center(
+                        child: Transform.translate(
+                          offset: const Offset(0, -18),
+                          child: AnimatedScale(
+                            scale: _dragging ? 1.08 : 1,
+                            duration: const Duration(milliseconds: 180),
+                            curve: Curves.easeOut,
+                            child: AnimatedSlide(
+                              offset: Offset(0, _dragging ? -0.12 : 0),
+                              duration: const Duration(milliseconds: 180),
+                              curve: Curves.easeOut,
+                              child: const _MapPin(),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (showMapControls)
+                Positioned(
+                  left: AppSpacing.page,
+                  bottom: sheetHeight + AppSpacing.md,
+                  child: _MapButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: HugeIcon(
+                      icon: AppIcons.back,
+                      size: 24,
+                      color: isDark ? AppColors.white : AppColors.ink,
+                    ),
+                  ),
+                ),
+              if (showMapControls)
+                Positioned(
+                  right: AppSpacing.page,
+                  bottom: sheetHeight + AppSpacing.md,
+                  child: _MapButton(
+                    onPressed: _locating ? null : _locate,
+                    child: _locating
+                        ? const SizedBox.square(
+                            dimension: 20,
+                            child: AppLoader(color: AppColors.primary),
+                          )
+                        : SvgPicture.asset(
+                            AppAssets.iconCurrentLocation,
+                            key: const Key('address-current-location'),
+                            width: 24,
+                            height: 24,
+                            colorFilter: ColorFilter.mode(
+                              isDark ? AppColors.white : AppColors.ink,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                  ),
+                ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: sheetHeight,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: panel,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(40),
+                    ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x1A000000),
+                        blurRadius: 24,
+                        offset: Offset(0, -6),
+                      ),
+                    ],
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.page,
+                        AppSpacing.lg,
+                        AppSpacing.page,
+                        AppSpacing.lg,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (showMapControls)
+                            const Center(child: _SheetHandle())
+                          else
+                            Row(
+                              children: [
+                                IconButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  icon: HugeIcon(
+                                    icon: AppIcons.back,
+                                    size: 24,
+                                    color: isDark
+                                        ? AppColors.white
+                                        : AppColors.ink,
+                                  ),
+                                ),
+                                const Expanded(
+                                  child: Center(child: _SheetHandle()),
+                                ),
+                                IconButton(
+                                  onPressed: _locating ? null : _locate,
+                                  icon: _locating
+                                      ? const SizedBox.square(
+                                          dimension: 20,
+                                          child: AppLoader(),
+                                        )
+                                      : SvgPicture.asset(
+                                          AppAssets.iconCurrentLocation,
+                                          key: const Key(
+                                            'address-current-location',
+                                          ),
+                                          width: 24,
+                                          height: 24,
+                                          colorFilter: ColorFilter.mode(
+                                            isDark
+                                                ? AppColors.white
+                                                : AppColors.ink,
+                                            BlendMode.srcIn,
+                                          ),
+                                        ),
+                                ),
+                              ],
+                            ),
+                          const SizedBox(height: AppSpacing.xl),
+                          _AddressField(
+                            label: context.l10n.addressMapLocation,
+                            controller: _address,
+                            hint: context.l10n.addressMapHint,
+                            loading: _resolvingAddress,
+                            maxLength: 500,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _AddressField(
+                                  label: context.l10n.addressApartmentFlat,
+                                  controller: _apartment,
+                                  hint: context.l10n.addressApartmentHint,
+                                  maxLength: 150,
+                                  textInputAction: TextInputAction.next,
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              Expanded(
+                                child: _AddressField(
+                                  label: context.l10n.addressFloor,
+                                  controller: _floor,
+                                  hint: context.l10n.addressFloorHint,
+                                  maxLength: 30,
+                                  textInputAction: TextInputAction.next,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                          _AddressField(
+                            label: context.l10n.addressNameLabel,
+                            controller: _name,
+                            maxLength: 60,
+                            textInputAction: TextInputAction.done,
+                          ),
+                          if (widget.current != null) ...[
+                            const SizedBox(height: AppSpacing.lg),
+                            Row(
+                              children: [
+                                for (final (value, label, icon) in [
+                                  (
+                                    'home',
+                                    context.l10n.addressTypeHome,
+                                    AppIcons.home,
+                                  ),
+                                  (
+                                    'work',
+                                    context.l10n.addressTypeWork,
+                                    AppIcons.work,
+                                  ),
+                                  (
+                                    'other',
+                                    context.l10n.addressTypeOther,
+                                    AppIcons.location,
+                                  ),
+                                ]) ...[
+                                  Expanded(
+                                    child: _TypeChip(
+                                      label: label,
+                                      icon: icon,
+                                      selected: _type == value,
+                                      onTap: () =>
+                                          setState(() => _type = value),
+                                    ),
+                                  ),
+                                  if (value != 'other')
+                                    const SizedBox(width: AppSpacing.sm),
+                                ],
+                              ],
+                            ),
+                          ],
+                          if (_message != null) ...[
+                            const SizedBox(height: AppSpacing.md),
+                            _Notice(_message!),
+                          ],
+                          const SizedBox(height: AppSpacing.xl),
+                          _SaveAddressButton(
+                            label: _resolvingAddress
+                                ? context.l10n.addressResolving
+                                : context.l10n.addressSaveButton,
+                            onPressed: _resolvingAddress ? null : _save,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _SheetHandle extends StatelessWidget {
+  const _SheetHandle();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 46,
+    height: 6,
+    decoration: BoxDecoration(
+      color: AppColors.grey300,
+      borderRadius: BorderRadius.circular(AppRadius.pill),
+    ),
+  );
+}
+
+/// The supplied orange pin stays fixed while the map moves beneath it.
+class _MapPin extends StatelessWidget {
+  const _MapPin();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 70,
+      height: 74,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Positioned(
+            bottom: 15,
+            child: Container(
+              width: 12,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.25),
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 12,
+                    spreadRadius: 4,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SvgPicture.asset(
+            AppAssets.iconAddressMapPin,
+            key: const Key('address-map-pin'),
+            width: 70,
+            height: 74,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Round white button floating over the map.
+class _MapButton extends StatelessWidget {
+  const _MapButton({required this.child, this.onPressed});
+
+  final Widget child;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Material(
+      color: isDark ? AppColors.surfaceDark : AppColors.white,
+      borderRadius: BorderRadius.circular(AppRadius.pill),
+      elevation: 3,
+      shadowColor: Colors.black.withValues(alpha: 0.25),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+        onTap: onPressed,
+        child: SizedBox(width: 68, height: 48, child: Center(child: child)),
+      ),
+    );
+  }
+}
+
+class _AddressField extends StatelessWidget {
+  const _AddressField({
+    required this.label,
+    required this.controller,
+    this.hint,
+    this.loading = false,
+    this.maxLength,
+    this.textInputAction,
+  });
+
+  final String label;
+  final TextEditingController controller;
+  final String? hint;
+  final bool loading;
+  final int? maxLength;
+  final TextInputAction? textInputAction;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontFamily: AppTypography.fontFamily,
+            fontWeight: FontWeight.w400,
+            height: 1.2,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Semantics(
+          label: label,
+          child: TextField(
+            controller: controller,
+            maxLength: maxLength,
+            textInputAction: textInputAction,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              fontFamily: AppTypography.fontFamily,
+              fontWeight: FontWeight.w500,
+            ),
+            decoration: InputDecoration(
+              hintText: hint,
+              suffixIcon: loading
+                  ? const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: SizedBox.square(dimension: 20, child: AppLoader()),
+                    )
+                  : null,
+              counterText: '',
+              filled: true,
+              fillColor: isDark ? AppColors.backgroundDark : AppColors.grey100,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.xl,
+                vertical: AppSpacing.lg,
+              ),
+              border: const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(AppRadius.pill)),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(AppRadius.pill)),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: const OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(AppRadius.pill)),
+                borderSide: BorderSide(color: AppColors.primary),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SaveAddressButton extends StatelessWidget {
+  const _SaveAddressButton({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: Colors.transparent,
+    borderRadius: BorderRadius.circular(AppRadius.pill),
+    clipBehavior: Clip.antiAlias,
+    child: Ink(
+      decoration: const BoxDecoration(
+        gradient: AppColors.primaryGradient,
+        borderRadius: BorderRadius.all(Radius.circular(AppRadius.pill)),
+      ),
+      child: InkWell(
+        onTap: onPressed,
+        child: SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: Center(
+            child: Text(
+              label,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontFamily: AppTypography.fontFamily,
+                color: AppColors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/// One of the Home / Work / Other choices.
+class _TypeChip extends StatelessWidget {
+  const _TypeChip({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final AppIconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final idle = isDark ? AppColors.white : AppColors.ink;
+
+    return Material(
+      color: selected
+          ? AppColors.primary
+          : (isDark ? AppColors.backgroundDark : AppColors.grey100),
+      borderRadius: BorderRadius.circular(AppRadius.pill),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              HugeIcon(
+                icon: icon,
+                size: 18,
+                color: selected ? AppColors.white : idle,
+              ),
+              const SizedBox(width: AppSpacing.xs + 2),
+              Text(
+                label,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  fontFamily: AppTypography.fontFamily,
+                  color: selected ? AppColors.white : idle,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Inline validation / location message.
+class _Notice extends StatelessWidget {
+  const _Notice(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm + 2,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.errorSoft,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: Row(
+        children: [
+          const HugeIcon(
+            icon: AppIcons.information,
+            size: 18,
+            color: AppColors.error,
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              text,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontFamily: AppTypography.fontFamily,
+                color: AppColors.error,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

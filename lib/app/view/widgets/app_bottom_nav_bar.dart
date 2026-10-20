@@ -87,7 +87,7 @@ class AppBottomNavBar extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: 10,
+            horizontal: AppNavBar.verticalPadding,
             vertical: AppNavBar.verticalPadding,
           ),
           // A fixed height is what lets the highlight below size itself as a
@@ -136,7 +136,6 @@ class AppBottomNavBar extends StatelessWidget {
     );
   }
 
-
   Alignment _highlightAlignment(int index, int itemCount) {
     if (itemCount <= 1) return Alignment.center;
     return Alignment(-1 + (2 * index / (itemCount - 1)), 0);
@@ -168,7 +167,7 @@ class _Highlight extends StatelessWidget {
         decoration: ShapeDecoration(
           color: accentColor.withValues(alpha: isDark ? 0.22 : 0.12),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
+            borderRadius: BorderRadius.circular(27),
           ),
           shadows: [
             BoxShadow(

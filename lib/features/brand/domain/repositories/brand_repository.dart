@@ -3,8 +3,8 @@ import '../entities/brand.dart';
 
 abstract interface class BrandRepository {
   /// `GET /brands` — not paginated; only brands with published products.
-  Future<Result<List<Brand>>> list({String? search});
+  Future<Result<List<Brand>>> list({String? search, bool featuredOnly = false});
 
-  /// `GET /brands/:slug`
-  Future<Result<Brand>> bySlug(String slug);
+  /// `GET /brands/:id`
+  Future<Result<Brand>> byId(int id);
 }

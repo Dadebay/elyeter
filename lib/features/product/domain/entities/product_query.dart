@@ -19,9 +19,8 @@ enum ProductSort {
 class ProductQuery extends Equatable {
   const ProductQuery({
     this.categoryId,
-    this.categorySlug,
     this.brandId,
-    this.brandSlug,
+    this.brandIds = const [],
     this.search,
     this.minPrice,
     this.maxPrice,
@@ -29,12 +28,29 @@ class ProductQuery extends Equatable {
     this.sort = ProductSort.newest,
   });
 
-  /// A category id or slug matches that category **and all descendants**.
+  /// A category id matches that category **and all descendants**.
   final int? categoryId;
-  final String? categorySlug;
 
   final int? brandId;
-  final String? brandSlug;
+
+  /// The API accepts one `brand_id` per request. The data source splits a
+  /// selection of several brands into separate requests and merges them.
+  final List<int> brandIds;
+
+  /// Every selected brand id, without repeats.
+  List<int> get allBrandIds => {?brandId, ...brandIds}.toList();
+
+  /// This query narrowed to the one brand [id] — what a single request
+  /// can actually say.
+  ProductQuery forBrand(int id) => ProductQuery(
+    categoryId: categoryId,
+    brandId: id,
+    search: search,
+    minPrice: minPrice,
+    maxPrice: maxPrice,
+    onlyFeatured: onlyFeatured,
+    sort: sort,
+  );
 
   /// Matches product name (both languages) and SKU.
   final String? search;
@@ -55,9 +71,7 @@ class ProductQuery extends Equatable {
     'size': size,
     'sort': sort.value,
     if (categoryId != null) 'category_id': categoryId,
-    if (categorySlug != null) 'category_slug': categorySlug,
-    if (brandId != null) 'brand_id': brandId,
-    if (brandSlug != null) 'brand_slug': brandSlug,
+    if (allBrandIds.length == 1) 'brand_id': allBrandIds.single,
     if (search != null && search!.trim().isNotEmpty) 'search': search!.trim(),
     if (minPrice != null) 'min_price': minPrice,
     if (maxPrice != null) 'max_price': maxPrice,
@@ -67,9 +81,8 @@ class ProductQuery extends Equatable {
 
   ProductQuery copyWith({
     int? categoryId,
-    String? categorySlug,
     int? brandId,
-    String? brandSlug,
+    List<int>? brandIds,
     String? search,
     num? minPrice,
     num? maxPrice,
@@ -79,9 +92,8 @@ class ProductQuery extends Equatable {
     bool clearSearch = false,
   }) => ProductQuery(
     categoryId: categoryId ?? this.categoryId,
-    categorySlug: categorySlug ?? this.categorySlug,
     brandId: brandId ?? this.brandId,
-    brandSlug: brandSlug ?? this.brandSlug,
+    brandIds: brandIds ?? this.brandIds,
     search: clearSearch ? null : (search ?? this.search),
     minPrice: clearPrices ? null : (minPrice ?? this.minPrice),
     maxPrice: clearPrices ? null : (maxPrice ?? this.maxPrice),
@@ -92,9 +104,8 @@ class ProductQuery extends Equatable {
   @override
   List<Object?> get props => [
     categoryId,
-    categorySlug,
     brandId,
-    brandSlug,
+    brandIds,
     search,
     minPrice,
     maxPrice,

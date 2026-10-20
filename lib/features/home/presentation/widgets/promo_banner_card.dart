@@ -9,16 +9,31 @@ import '../../../../core/widgets/app_network_image.dart';
 /// Artwork that already carries its own headline passes only an image; the
 /// [title]/[subtitle] overlay is for banners whose text comes from the API.
 class PromoBanner {
-  const PromoBanner({required this.id, this.title, this.subtitle, this.imageUrl, this.imageAsset});
+  const PromoBanner({
+    required this.id,
+    this.title,
+    this.subtitle,
+    this.imageUrl,
+    this.imageAsset,
+    this.targetType,
+    this.target,
+    this.showTextOverlay = true,
+  });
 
   final String id;
   final String? title;
   final String? subtitle;
   final String? imageUrl;
   final String? imageAsset;
+  final String? targetType;
+  final String? target;
+  // Objects retained by hot reload may predate this field. Keep their original
+  // overlay behavior until the banners are fetched again.
+  final bool? showTextOverlay;
 
   /// Whether anything is drawn on top of the artwork.
-  bool get hasOverlay => title != null || subtitle != null;
+  bool get hasOverlay =>
+      (showTextOverlay ?? true) && (title != null || subtitle != null);
 }
 
 /// One banner on its own: rounded artwork, optional headline over it.
@@ -26,7 +41,14 @@ class PromoBanner {
 /// Usable outside [PromoCarousel] — it fills whatever box it is given, so the
 /// caller decides size and spacing.
 class PromoBannerCard extends StatelessWidget {
-  const PromoBannerCard({super.key, required this.banner, this.onTap, this.radius = AppRadius.lg, this.fit = BoxFit.cover, this.alignment = Alignment.centerLeft});
+  const PromoBannerCard({
+    super.key,
+    required this.banner,
+    this.onTap,
+    this.radius = AppRadius.lg,
+    this.fit = BoxFit.cover,
+    this.alignment = Alignment.centerLeft,
+  });
 
   final PromoBanner banner;
   final VoidCallback? onTap;
@@ -43,16 +65,28 @@ class PromoBannerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            if (banner.imageAsset != null) Image.asset(banner.imageAsset!, fit: fit, alignment: alignment) else AppNetworkImage(url: banner.imageUrl, fit: fit, alignment: alignment, radius: 0),
-            if (banner.hasOverlay) _BannerText(banner: banner),
-          ],
+    return Semantics(
+      label: banner.title,
+      button: onTap != null,
+      child: GestureDetector(
+        onTap: onTap,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(radius),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (banner.imageAsset != null)
+                Image.asset(banner.imageAsset!, fit: fit, alignment: alignment)
+              else
+                AppNetworkImage(
+                  url: banner.imageUrl,
+                  fit: fit,
+                  alignment: alignment,
+                  radius: 0,
+                ),
+              if (banner.hasOverlay) _BannerText(banner: banner),
+            ],
+          ),
         ),
       ),
     );
@@ -79,7 +113,11 @@ class _BannerText extends StatelessWidget {
           // Keeps the headline readable over any artwork.
           const DecoratedBox(
             decoration: BoxDecoration(
-              gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [Color(0xB3000000), Color(0x00000000)]),
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [Color(0xB3000000), Color(0x00000000)],
+              ),
             ),
           ),
           Padding(
@@ -91,8 +129,24 @@ class _BannerText extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (banner.title != null) Text(banner.title!, style: textTheme.headlineSmall?.copyWith(color: AppColors.white)),
-                  if (banner.subtitle != null) ...[const SizedBox(height: AppSpacing.sm), Text(banner.subtitle!, style: textTheme.bodySmall?.copyWith(color: AppColors.white.withValues(alpha: 0.9)))],
+                  if (banner.title != null)
+                    Text(
+                      banner.title!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.headlineSmall?.copyWith(
+                        color: AppColors.white,
+                      ),
+                    ),
+                  if (banner.subtitle != null) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      banner.subtitle!,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: AppColors.white.withValues(alpha: 0.9),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

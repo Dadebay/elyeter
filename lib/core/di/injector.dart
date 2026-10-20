@@ -1,10 +1,12 @@
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
-import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../services/local_notifications_service.dart';
+import '../services/push_service.dart';
 import '../../app/cubit/locale_cubit.dart';
 import '../../app/cubit/theme_cubit.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
@@ -19,6 +21,7 @@ import '../../features/cart/presentation/cubit/cart_cubit.dart';
 import '../../features/category/data/datasources/category_remote_data_source.dart';
 import '../../features/category/data/repositories/category_repository_impl.dart';
 import '../../features/category/domain/repositories/category_repository.dart';
+import '../../features/category/presentation/cubit/category_cubit.dart';
 import '../../features/favorite/presentation/cubit/favorite_cubit.dart';
 import '../../features/order/data/datasources/pre_order_remote_data_source.dart';
 import '../../features/order/data/repositories/pre_order_repository_impl.dart';
@@ -32,6 +35,8 @@ import '../../features/search/data/repositories/search_repository_impl.dart';
 import '../../features/search/domain/repositories/search_repository.dart';
 import '../constants/app_environment.dart';
 import '../network/api_client.dart';
+import '../network/shop_api.dart';
+import '../network/interceptors/api_log_interceptor.dart';
 import '../network/interceptors/auth_interceptor.dart';
 import '../network/interceptors/language_interceptor.dart';
 import '../network/network_info.dart';
@@ -87,13 +92,18 @@ void _registerCore() {
             onUnauthorized: (failure) =>
                 getIt<AuthCubit>().onSessionExpired(failure),
           ),
-          LanguageInterceptor(getIt<LocalStorage>()),
-          if (AppEnvironment.enableLogging)
-            PrettyDioLogger(requestBody: true, compact: true),
+          LanguageInterceptor(
+            getIt<LocalStorage>(),
+            languageCode: () =>
+                getIt<LocaleCubit>().state?.languageCode ??
+                PlatformDispatcher.instance.locale.languageCode,
+          ),
+          if (AppEnvironment.enableLogging) ApiLogInterceptor(),
         ],
       ),
     )
-    ..registerLazySingleton<ApiClient>(() => ApiClient(getIt<Dio>()));
+    ..registerLazySingleton<ApiClient>(() => ApiClient(getIt<Dio>()))
+    ..registerLazySingleton<ShopApi>(() => ShopApi(getIt<ApiClient>()));
 }
 
 void _registerGlobalCubits() {
@@ -106,7 +116,9 @@ void _registerFeatures() {
   // Favourites and the cart are read and written from several tabs, so these
   // cubits outlive any one page — singletons rather than per-page factories.
   getIt
-    ..registerLazySingleton<FavoriteCubit>(FavoriteCubit.new)
+    ..registerLazySingleton<FavoriteCubit>(
+      () => FavoriteCubit(getIt<ShopApi>(), getIt<AuthCubit>()),
+    )
     ..registerLazySingleton<CartCubit>(CartCubit.new)
     ..registerLazySingleton<ProfileCubit>(ProfileCubit.new);
 
@@ -132,6 +144,19 @@ void _registerAuth() {
     // One per login screen: it owns a resend countdown.
     ..registerFactory<LoginCubit>(
       () => LoginCubit(getIt<AuthRepository>(), getIt<AuthCubit>()),
+    )
+    // Push rides on the session: the topic is joined by everyone, but the
+    // device token is only worth sending once an account exists.
+    ..registerLazySingleton<LocalNotificationsService>(
+      LocalNotificationsService.new,
+    )
+    ..registerLazySingleton<PushService>(
+      () => PushService(
+        getIt<AuthRepository>(),
+        getIt<LocalNotificationsService>(),
+        getIt<LocaleCubit>(),
+        getIt<AuthCubit>(),
+      ),
     );
 }
 
@@ -143,6 +168,11 @@ void _registerCatalog() {
     )
     ..registerLazySingleton<CategoryRepository>(
       () => CategoryRepositoryImpl(getIt<CategoryRemoteDataSource>()),
+    )
+    // One per page: the tab's cubit dies with the page, while the tree it
+    // loaded stays cached in the repository.
+    ..registerFactory<CategoryCubit>(
+      () => CategoryCubit(getIt<CategoryRepository>()),
     )
     ..registerLazySingleton<ProductRemoteDataSource>(
       () => ProductRemoteDataSourceImpl(getIt<ApiClient>()),

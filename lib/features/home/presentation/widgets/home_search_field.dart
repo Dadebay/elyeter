@@ -1,41 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../app/router/app_routes.dart';
+import '../../../../core/theme/app_typography.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 
-/// Pill search box with a camera (visual search) action.
+/// Pill search box that opens the search page.
 class HomeSearchField extends StatelessWidget {
-  const HomeSearchField({super.key, this.onTap, this.onCameraTap, this.controller});
+  const HomeSearchField({super.key, this.onTap, this.controller});
 
   final VoidCallback? onTap;
-  final VoidCallback? onCameraTap;
   final TextEditingController? controller;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
-      onTap: onTap,
-      readOnly: onTap != null,
+      onTap:
+          onTap ??
+          () {
+            final box = context.findRenderObject() as RenderBox?;
+            final anchor = box == null
+                ? null
+                : box.localToGlobal(Offset.zero) & box.size;
+            context.pushNamed(AppRoutes.search.name, extra: anchor);
+          },
+      readOnly: true,
+      canRequestFocus: false,
       textInputAction: TextInputAction.search,
-      style: context.textTheme.bodyMedium,
+      style: context.textTheme.bodyMedium?.copyWith(
+        fontFamily: AppTypography.fontFamily,
+        color: AppColors.ink,
+        fontSize: 16,
+      ),
       decoration: InputDecoration(
         hintText: context.l10n.homeSearchHint,
-        hintStyle: context.textTheme.bodyMedium?.copyWith(color: AppColors.black, fontSize: 16, fontWeight: FontWeight.w600),
+        hintStyle: context.textTheme.bodyMedium?.copyWith(
+          fontFamily: AppTypography.fontFamily,
+          color: AppColors.black,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
         filled: true,
         contentPadding: const EdgeInsets.symmetric(vertical: 14),
         fillColor: AppColors.white,
         prefixIcon: Padding(
           padding: const EdgeInsets.all(12.0).copyWith(right: 8.0),
-          child: const _SearchIcon(AppAssets.iconSearch, color: AppColors.black),
-        ),
-        suffixIcon: IconButton(
-          padding: const EdgeInsets.all(10.0).copyWith(right: 16.0),
-          onPressed: onCameraTap,
-          icon: const _SearchIcon(AppAssets.iconCamera, color: AppColors.black),
+          child: const _SearchIcon(
+            AppAssets.iconSearch,
+            color: AppColors.black,
+          ),
         ),
         border: _border,
         enabledBorder: _border,
@@ -44,7 +63,10 @@ class HomeSearchField extends StatelessWidget {
     );
   }
 
-  static final OutlineInputBorder _border = OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.pill), borderSide: BorderSide.none);
+  static final OutlineInputBorder _border = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(AppRadius.pill),
+    borderSide: BorderSide.none,
+  );
 }
 
 /// One of the field's SVG icons, tinted and sized like the [Icon]s the rest
@@ -57,7 +79,13 @@ class _SearchIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SvgPicture.asset(asset, width: _size, height: _size, fit: BoxFit.contain, colorFilter: ColorFilter.mode(color, BlendMode.srcIn));
+    return SvgPicture.asset(
+      asset,
+      width: _size,
+      height: _size,
+      fit: BoxFit.contain,
+      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+    );
   }
 
   /// Matches the default [IconThemeData.size] the icons replace.
