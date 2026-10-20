@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/localization/failure_localizer.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -169,10 +170,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
                   ? const SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppColors.error,
-                      ),
+                      child: AppLoader(color: AppColors.error),
                     )
                   : Text(l10n.profileDeleteConfirm),
             ),

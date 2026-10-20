@@ -106,6 +106,7 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> sendCode(String rawPhone) async {
+    if (state.submitting) return;
     final phone = normalize(rawPhone);
     if (!isValidPhone(phone)) {
       return emit(
@@ -142,6 +143,9 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> verify(String code) async {
+    if (state.submitting || state.signedIn || state.step != LoginStep.code) {
+      return;
+    }
     emit(state.copyWith(submitting: true, clearFailure: true));
 
     final result = await _repository.verifyCode(
@@ -151,10 +155,8 @@ class LoginCubit extends Cubit<LoginState> {
     switch (result) {
       case Success(:final data):
         _auth.onSignedIn(data.user);
-        // The account exists on this device now, so the token the app got at
-        // boot finally has somewhere to go — `PATCH /auth/fcm-token` is a
-        // no-op without a session, and the next rotation could be days away.
-        unawaited(getIt<PushService>().syncToken());
+        // Register the device token only for a verified OTP login.
+        unawaited(getIt<PushService>().registerTokenAfterOtp());
         emit(
           state.copyWith(
             submitting: false,

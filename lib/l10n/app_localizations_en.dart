@@ -274,6 +274,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchTitle => 'Search';
 
   @override
+  String get searchClear => 'Clear search';
+
+  @override
+  String get searchNotFoundTitle => 'Not found';
+
+  @override
+  String get searchNotFoundMessage =>
+      'Please make sure the words are spelled correctly or use fewer or different keywords.';
+
+  @override
+  String get searchErrorTitle => 'Error';
+
+  @override
+  String get searchErrorMessage => 'An error occurred. Please try again.';
+
+  @override
+  String get searchConnectionErrorTitle => 'Connection Error';
+
+  @override
+  String get searchConnectionErrorMessage =>
+      'Unable to connect to the server. Please check your internet connection and try again.';
+
+  @override
   String get commonSeeAll => 'See all';
 
   @override
@@ -351,6 +374,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get productArticle => 'Item Article:';
 
   @override
+  String get productPriceDetails => 'Price details';
+
+  @override
+  String get productPricePerItem => 'Price per item';
+
+  @override
+  String get productRegularPrice => 'Regular price';
+
+  @override
+  String productDiscountPercent(int percent) {
+    return '$percent% discount';
+  }
+
+  @override
   String get productCopy => 'Copy';
 
   @override
@@ -358,6 +395,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productShared => 'Product link copied';
+
+  @override
+  String get productSharePrice => 'Price';
+
+  @override
+  String get productSharePhoto => 'Product photo';
+
+  @override
+  String get productShareOpen => 'Open in the Elýeter app';
+
+  @override
+  String get productShareFailed => 'Could not open sharing. Please try again.';
 
   @override
   String get productDescription => 'Description';
@@ -376,6 +425,75 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productReviews => 'Reviews';
+
+  @override
+  String get reviewEmpty => 'No reviews yet';
+
+  @override
+  String get reviewWrite => 'Write a review';
+
+  @override
+  String get reviewEdit => 'Edit my review';
+
+  @override
+  String get reviewDelete => 'Delete my review';
+
+  @override
+  String get reviewRating => 'Your rating';
+
+  @override
+  String get reviewComment => 'Your review (optional)';
+
+  @override
+  String get reviewIntro => 'Share your experience with this product.';
+
+  @override
+  String get reviewRatingPrompt => 'Tap a star to choose your rating';
+
+  @override
+  String get reviewRatingPoor => 'Poor';
+
+  @override
+  String get reviewRatingFair => 'Fair';
+
+  @override
+  String get reviewRatingGood => 'Good';
+
+  @override
+  String get reviewRatingVeryGood => 'Very good';
+
+  @override
+  String get reviewRatingExcellent => 'Excellent';
+
+  @override
+  String get reviewCommentHint => 'What did you like? What could be better?';
+
+  @override
+  String get reviewSubmit => 'Send review';
+
+  @override
+  String get reviewAnonymous => 'Customer';
+
+  @override
+  String get reviewLoadMore => 'Load more';
+
+  @override
+  String get reviewLoadError => 'Could not load reviews.';
+
+  @override
+  String get reviewActionError => 'Could not update your review.';
+
+  @override
+  String get reviewSaved => 'Review saved';
+
+  @override
+  String get reviewDeleted => 'Review deleted';
+
+  @override
+  String get reviewDeleteConfirm => 'Delete your review?';
+
+  @override
+  String get reviewDeleteMessage => 'You can write a new review later.';
 
   @override
   String productRatingCount(int count) {
@@ -500,6 +618,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileTitle => 'Profile';
 
   @override
+  String get onboardingWelcome => 'Welcome!';
+
+  @override
+  String get onboardingSubtitle =>
+      'You can quickly and securely log in to your account.';
+
+  @override
+  String get onboardingStart => 'Get started';
+
+  @override
   String get settingsLanguage => 'Language';
 
   @override
@@ -577,6 +705,87 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileSavedLocations => 'My saved locations';
+
+  @override
+  String get addressListTitle => 'Addresses';
+
+  @override
+  String get addressAddWork => 'Add Work Address';
+
+  @override
+  String get addressAddHome => 'Add Home Address';
+
+  @override
+  String get addressAddNew => 'Add New Address';
+
+  @override
+  String get addressNameWork => 'Work';
+
+  @override
+  String get addressNameHome => 'Home';
+
+  @override
+  String get addressEdit => 'Edit';
+
+  @override
+  String get addressMakeDefault => 'Make default';
+
+  @override
+  String get addressDelete => 'Delete';
+
+  @override
+  String get addressMapLocation => 'Location on map';
+
+  @override
+  String get addressMapHint => 'Street, building, city';
+
+  @override
+  String get addressApartmentFlat => 'Apartment / Flat';
+
+  @override
+  String get addressApartmentHint => 'e.g. 35/1';
+
+  @override
+  String get addressFloor => 'Floor';
+
+  @override
+  String get addressFloorHint => 'e.g. 3';
+
+  @override
+  String get addressNameLabel => 'Address name';
+
+  @override
+  String get addressSaveButton => 'Save address';
+
+  @override
+  String get addressResolving => 'Finding address…';
+
+  @override
+  String get addressTypeHome => 'Home';
+
+  @override
+  String get addressTypeWork => 'Work';
+
+  @override
+  String get addressTypeOther => 'Other';
+
+  @override
+  String get addressPointRequired => 'Choose a point on the map first.';
+
+  @override
+  String get addressNameRequired => 'Enter an address name.';
+
+  @override
+  String get addressLocationApproximate =>
+      'Location is approximate. Move the pin to the exact spot.';
+
+  @override
+  String get addressLocationFailed =>
+      'Could not get your location. Choose it on the map.';
+
+  @override
+  String get addressLookupFailed =>
+      'Street address unavailable. Coordinates added; enter the address manually.';
 
   @override
   String get addressEmptyTitle => 'No saved addresses yet';
@@ -671,26 +880,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginTitle => 'Sign in';
 
   @override
-  String get loginPhoneTitle => 'Enter your phone number';
+  String get loginPhoneTitle => 'Sign in';
 
   @override
-  String get loginPhoneMessage => 'We will text you a confirmation code.';
+  String get loginPhoneMessage =>
+      'You can quickly and securely log in to your account by entering your phone number.';
 
   @override
   String get loginPhoneLabel => 'Phone number';
 
   @override
-  String get loginPhoneHint => '6X XXXXXX';
+  String get loginPhoneHint => 'Your phone number';
 
   @override
-  String get loginSendCode => 'Send code';
+  String get loginSendCode => 'Continue';
 
   @override
-  String get loginCodeTitle => 'Enter the code';
+  String get loginLegalNotice =>
+      'By using Elyeter, you agree to the Terms of use and Privacy policy.';
+
+  @override
+  String get loginReadTerms => 'Read the terms';
+
+  @override
+  String get loginCodeTitle => 'Verification';
 
   @override
   String loginCodeMessage(String phone) {
-    return 'Code sent to $phone';
+    return 'Enter the code sent to $phone';
   }
 
   @override
@@ -701,6 +918,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginResend => 'Resend code';
+
+  @override
+  String loginResendCountdown(String time) {
+    return 'Resend code $time';
+  }
 
   @override
   String loginResendIn(int seconds) {

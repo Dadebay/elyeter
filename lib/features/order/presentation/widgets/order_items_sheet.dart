@@ -12,13 +12,13 @@ import '../../domain/entities/pre_order.dart';
 /// Every line of an order, as it was when it was placed: photo, name, the
 /// variant that was picked, quantity at price, and what the line came to.
 ///
-/// [photos] maps a product slug to the photo to show for it; a line without
+/// [photos] maps a product ID to the photo to show for it; a line without
 /// one falls back to the photo the order itself carries.
 Future<void> showOrderItemsSheet(
   BuildContext context, {
   required PreOrder order,
-  required Map<String, String> photos,
-  required void Function(String slug) onOpenProduct,
+  required Map<int, String> photos,
+  required void Function(int productId) onOpenProduct,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -34,9 +34,9 @@ Future<void> showOrderItemsSheet(
     builder: (sheetContext) => _ItemsSheet(
       order: order,
       photos: photos,
-      onOpenProduct: (slug) {
+      onOpenProduct: (productId) {
         Navigator.of(sheetContext).pop();
-        onOpenProduct(slug);
+        onOpenProduct(productId);
       },
     ),
   );
@@ -50,8 +50,8 @@ class _ItemsSheet extends StatelessWidget {
   });
 
   final PreOrder order;
-  final Map<String, String> photos;
-  final void Function(String slug) onOpenProduct;
+  final Map<int, String> photos;
+  final void Function(int productId) onOpenProduct;
 
   @override
   Widget build(BuildContext context) {
@@ -145,10 +145,10 @@ class _ItemsSheet extends StatelessWidget {
                 return _ItemRow(
                   item: item,
                   currency: order.currency,
-                  photo: photos[item.productSlug] ?? item.image,
+                  photo: photos[item.productId] ?? item.image,
                   onTap: item.productSlug == null
                       ? null
-                      : () => onOpenProduct(item.productSlug!),
+                      : () => onOpenProduct(item.productId),
                 );
               },
             ),
@@ -170,7 +170,7 @@ class _ItemsSheet extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${CurrencyFormatter.amount(order.totalPrice, decimals: 2)} ${order.currency}',
+                  '${CurrencyFormatter.amount(order.totalPrice, locale: l10n.localeName, decimals: 2)} ${order.currency}',
                   style: theme.titleLarge?.copyWith(
                     color: AppColors.black,
                     fontWeight: FontWeight.w800,
@@ -274,14 +274,14 @@ class _ItemRow extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        '${item.quantity} × ${CurrencyFormatter.amount(item.price)} $currency',
+                        '${item.quantity} × ${CurrencyFormatter.amount(item.price, locale: context.l10n.localeName)} $currency',
                         style: theme.bodySmall?.copyWith(
                           color: AppColors.grey500,
                         ),
                       ),
                       const Spacer(),
                       Text(
-                        '${CurrencyFormatter.amount(item.lineTotal)} ${AppConstants.currencySymbol}',
+                        '${CurrencyFormatter.amount(item.lineTotal, locale: context.l10n.localeName)} ${AppConstants.currencySymbol}',
                         style: theme.titleSmall?.copyWith(
                           color: AppColors.black,
                           fontWeight: FontWeight.w800,

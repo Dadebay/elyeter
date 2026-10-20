@@ -31,7 +31,7 @@ class ProductCardData {
   });
 
   factory ProductCardData.fromProduct(Product product) => ProductCardData(
-    id: product.slug,
+    id: product.id.toString(),
     slug: product.slug,
     apiId: product.id,
     hasVariants: product.hasVariants,
@@ -123,7 +123,7 @@ class ProductCard extends StatelessWidget {
               aspectRatio: 1,
               child: _Gallery(
                 images: data.images,
-                slug: data.slug,
+                productId: data.apiId,
                 discountPercent: data.discountPercent,
                 isFavorite: isFavorite,
                 onFavoriteTap: onFavoriteTap,
@@ -164,7 +164,7 @@ class ProductCard extends StatelessWidget {
 class _Gallery extends StatefulWidget {
   const _Gallery({
     required this.images,
-    this.slug,
+    this.productId,
     required this.discountPercent,
     required this.isFavorite,
     this.onFavoriteTap,
@@ -172,9 +172,9 @@ class _Gallery extends StatefulWidget {
 
   final List<String> images;
 
-  /// The product's slug, for fetching its other photos. Null leaves the card
+  /// The product's productId, for fetching its other photos. Null leaves the card
   /// with the photos it was given.
-  final String? slug;
+  final int? productId;
   final int? discountPercent;
   final bool isFavorite;
   final VoidCallback? onFavoriteTap;
@@ -192,8 +192,8 @@ class _GalleryState extends State<_Gallery> {
   late List<String> _images = _initialImages();
 
   List<String> _initialImages() {
-    final slug = widget.slug;
-    final extra = slug == null ? null : ProductPhotos.cached(slug);
+    final productId = widget.productId;
+    final extra = productId == null ? null : ProductPhotos.cached(productId);
     return ProductPhotos.merge(widget.images, extra ?? const []);
   }
 
@@ -206,17 +206,18 @@ class _GalleryState extends State<_Gallery> {
   @override
   void didUpdateWidget(_Gallery oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.slug != widget.slug || oldWidget.images != widget.images) {
+    if (oldWidget.productId != widget.productId ||
+        oldWidget.images != widget.images) {
       _images = _initialImages();
       _loadMore();
     }
   }
 
   Future<void> _loadMore() async {
-    final slug = widget.slug;
-    if (slug == null || ProductPhotos.cached(slug) != null) return;
-    final extra = await ProductPhotos.load(slug);
-    if (!mounted || widget.slug != slug || extra.isEmpty) return;
+    final productId = widget.productId;
+    if (productId == null || ProductPhotos.cached(productId) != null) return;
+    final extra = await ProductPhotos.load(productId);
+    if (!mounted || widget.productId != productId || extra.isEmpty) return;
     setState(() => _images = ProductPhotos.merge(widget.images, extra));
   }
 
@@ -458,7 +459,7 @@ class _Dots extends StatelessWidget {
 class _Price extends StatelessWidget {
   const _Price({required this.price});
 
-  static const _color = Color(0xFFED702D);
+  static const _color = AppColors.primaryVibrant;
   static const _currencyLabel = 'man';
 
   final num price;
@@ -470,7 +471,7 @@ class _Price extends StatelessWidget {
       textBaseline: TextBaseline.alphabetic,
       children: [
         Text(
-          CurrencyFormatter.amount(price),
+          CurrencyFormatter.amount(price, locale: context.l10n.localeName),
           style: context.textTheme.titleLarge?.copyWith(
             color: _color,
             fontWeight: FontWeight.w700,

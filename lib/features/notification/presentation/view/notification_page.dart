@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/widgets/app_loader.dart';
+import '../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/shop_api.dart';
@@ -70,12 +72,12 @@ class _NotificationPageState extends State<NotificationPage> {
     return Scaffold(
       appBar: AppPageAppBar(title: widget.title),
       body: _page == null && _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: AppLoader())
           : _page == null && _error != null
           ? Center(
               child: TextButton(onPressed: _load, child: Text(_error!)),
             )
-          : RefreshIndicator(
+          : AppRefreshIndicator(
               onRefresh: _load,
               child: items.isEmpty
                   ? CustomScrollView(

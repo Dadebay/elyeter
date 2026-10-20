@@ -11,32 +11,32 @@ abstract final class ProductPhotos {
   /// ends up downloading photos nobody swipes to.
   static const max = 3;
 
-  static final _loaded = <String, List<String>>{};
-  static final _loading = <String, Future<List<String>>>{};
+  static final _loaded = <int, List<String>>{};
+  static final _loading = <int, Future<List<String>>>{};
 
-  /// What is already known for [slug], or null if it has not been asked for.
-  static List<String>? cached(String slug) => _loaded[slug];
+  /// What is already known for [id], or null if it has not been asked for.
+  static List<String>? cached(int id) => _loaded[id];
 
-  /// Up to [max] photos for [slug], main one first. Empty when they cannot be
+  /// Up to [max] photos for [id], main one first. Empty when they cannot be
   /// had — the card then simply keeps the one photo it already has.
-  static Future<List<String>> load(String slug) {
-    final known = _loaded[slug];
+  static Future<List<String>> load(int id) {
+    final known = _loaded[id];
     if (known != null) return Future.value(known);
-    return _loading[slug] ??= _fetch(slug).whenComplete(() {
+    return _loading[id] ??= _fetch(id).whenComplete(() {
       // A block, not an expression body: `remove` returns the very future
       // being completed here, and whenComplete would wait on it forever.
-      _loading.remove(slug);
+      _loading.remove(id);
     });
   }
 
-  static Future<List<String>> _fetch(String slug) async {
-    final result = await getIt<ProductRepository>().bySlug(slug);
+  static Future<List<String>> _fetch(int id) async {
+    final result = await getIt<ProductRepository>().byId(id);
     final photos = (result.dataOrNull?.gallery ?? const <String>[])
         .take(max)
         .toList();
     // A failure is remembered too: a card scrolled past and back should not
     // ask again, and a retry storm helps nobody.
-    _loaded[slug] = photos;
+    _loaded[id] = photos;
     return photos;
   }
 

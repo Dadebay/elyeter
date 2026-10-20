@@ -7,7 +7,12 @@ import '../../../../core/utils/extensions/context_extensions.dart';
 /// The quiet full-width action the detail page repeats: a white card lifted
 /// off the grey block by a soft shadow rather than outlined.
 class ProductOutlineButton extends StatelessWidget {
-  const ProductOutlineButton({super.key, required this.label, this.onTap, this.height = 48});
+  const ProductOutlineButton({
+    super.key,
+    required this.label,
+    this.onTap,
+    this.height = 48,
+  });
 
   final String label;
   final VoidCallback? onTap;
@@ -20,7 +25,9 @@ class ProductOutlineButton extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       elevation: 2,
       shadowColor: AppColors.black.withValues(alpha: 0.18),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
       child: InkWell(
         onTap: onTap,
         child: SizedBox(
@@ -29,7 +36,9 @@ class ProductOutlineButton extends StatelessWidget {
           child: Center(
             child: Text(
               label,
-              style: context.textTheme.labelLarge?.copyWith(color: AppColors.black),
+              style: context.textTheme.labelLarge?.copyWith(
+                color: AppColors.black,
+              ),
             ),
           ),
         ),

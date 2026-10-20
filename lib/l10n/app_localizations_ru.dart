@@ -275,6 +275,29 @@ class AppLocalizationsRu extends AppLocalizations {
   String get searchTitle => 'Поиск';
 
   @override
+  String get searchClear => 'Очистить поиск';
+
+  @override
+  String get searchNotFoundTitle => 'Ничего не найдено';
+
+  @override
+  String get searchNotFoundMessage =>
+      'Проверьте правильность написания или попробуйте другие ключевые слова.';
+
+  @override
+  String get searchErrorTitle => 'Ошибка';
+
+  @override
+  String get searchErrorMessage => 'Произошла ошибка. Попробуйте ещё раз.';
+
+  @override
+  String get searchConnectionErrorTitle => 'Ошибка подключения';
+
+  @override
+  String get searchConnectionErrorMessage =>
+      'Не удалось подключиться к серверу. Проверьте интернет-соединение и повторите попытку.';
+
+  @override
   String get commonSeeAll => 'Все';
 
   @override
@@ -352,6 +375,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get productArticle => 'Артикул:';
 
   @override
+  String get productPriceDetails => 'Детали цены';
+
+  @override
+  String get productPricePerItem => 'Цена за штуку';
+
+  @override
+  String get productRegularPrice => 'Обычная цена';
+
+  @override
+  String productDiscountPercent(int percent) {
+    return 'Скидка $percent%';
+  }
+
+  @override
   String get productCopy => 'Копировать';
 
   @override
@@ -359,6 +396,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get productShared => 'Ссылка на товар скопирована';
+
+  @override
+  String get productSharePrice => 'Цена';
+
+  @override
+  String get productSharePhoto => 'Фото товара';
+
+  @override
+  String get productShareOpen => 'Открыть в приложении Elýeter';
+
+  @override
+  String get productShareFailed =>
+      'Не удалось открыть меню отправки. Попробуйте ещё раз.';
 
   @override
   String get productDescription => 'Описание';
@@ -377,6 +427,75 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get productReviews => 'Отзывы';
+
+  @override
+  String get reviewEmpty => 'Пока нет отзывов';
+
+  @override
+  String get reviewWrite => 'Написать отзыв';
+
+  @override
+  String get reviewEdit => 'Изменить мой отзыв';
+
+  @override
+  String get reviewDelete => 'Удалить мой отзыв';
+
+  @override
+  String get reviewRating => 'Ваша оценка';
+
+  @override
+  String get reviewComment => 'Ваш отзыв (необязательно)';
+
+  @override
+  String get reviewIntro => 'Поделитесь впечатлениями о товаре.';
+
+  @override
+  String get reviewRatingPrompt => 'Нажмите на звезду, чтобы оценить';
+
+  @override
+  String get reviewRatingPoor => 'Плохо';
+
+  @override
+  String get reviewRatingFair => 'Так себе';
+
+  @override
+  String get reviewRatingGood => 'Хорошо';
+
+  @override
+  String get reviewRatingVeryGood => 'Очень хорошо';
+
+  @override
+  String get reviewRatingExcellent => 'Отлично';
+
+  @override
+  String get reviewCommentHint => 'Что понравилось? Что можно улучшить?';
+
+  @override
+  String get reviewSubmit => 'Отправить отзыв';
+
+  @override
+  String get reviewAnonymous => 'Покупатель';
+
+  @override
+  String get reviewLoadMore => 'Загрузить ещё';
+
+  @override
+  String get reviewLoadError => 'Не удалось загрузить отзывы.';
+
+  @override
+  String get reviewActionError => 'Не удалось изменить отзыв.';
+
+  @override
+  String get reviewSaved => 'Отзыв сохранён';
+
+  @override
+  String get reviewDeleted => 'Отзыв удалён';
+
+  @override
+  String get reviewDeleteConfirm => 'Удалить ваш отзыв?';
+
+  @override
+  String get reviewDeleteMessage => 'Позже вы сможете написать новый отзыв.';
 
   @override
   String productRatingCount(int count) {
@@ -503,6 +622,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileTitle => 'Профиль';
 
   @override
+  String get onboardingWelcome => 'Добро пожаловать!';
+
+  @override
+  String get onboardingSubtitle =>
+      'Вы можете быстро и безопасно войти в свой аккаунт.';
+
+  @override
+  String get onboardingStart => 'Начать';
+
+  @override
   String get settingsLanguage => 'Язык';
 
   @override
@@ -581,6 +710,87 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get profileSavedLocations => 'Мои адреса';
+
+  @override
+  String get addressListTitle => 'Адреса';
+
+  @override
+  String get addressAddWork => 'Добавить рабочий адрес';
+
+  @override
+  String get addressAddHome => 'Добавить домашний адрес';
+
+  @override
+  String get addressAddNew => 'Добавить новый адрес';
+
+  @override
+  String get addressNameWork => 'Работа';
+
+  @override
+  String get addressNameHome => 'Дом';
+
+  @override
+  String get addressEdit => 'Изменить';
+
+  @override
+  String get addressMakeDefault => 'Сделать основным';
+
+  @override
+  String get addressDelete => 'Удалить';
+
+  @override
+  String get addressMapLocation => 'Адрес на карте';
+
+  @override
+  String get addressMapHint => 'Улица, дом, город';
+
+  @override
+  String get addressApartmentFlat => 'Квартира';
+
+  @override
+  String get addressApartmentHint => 'напр. 35/1';
+
+  @override
+  String get addressFloor => 'Этаж';
+
+  @override
+  String get addressFloorHint => 'напр. 3';
+
+  @override
+  String get addressNameLabel => 'Название адреса';
+
+  @override
+  String get addressSaveButton => 'Сохранить адрес';
+
+  @override
+  String get addressResolving => 'Ищем адрес…';
+
+  @override
+  String get addressTypeHome => 'Дом';
+
+  @override
+  String get addressTypeWork => 'Работа';
+
+  @override
+  String get addressTypeOther => 'Другое';
+
+  @override
+  String get addressPointRequired => 'Сначала выберите точку на карте.';
+
+  @override
+  String get addressNameRequired => 'Введите название адреса.';
+
+  @override
+  String get addressLocationApproximate =>
+      'Местоположение приблизительное. Переместите метку в нужную точку.';
+
+  @override
+  String get addressLocationFailed =>
+      'Не удалось определить местоположение. Выберите точку на карте.';
+
+  @override
+  String get addressLookupFailed =>
+      'Адрес улицы не найден. Координаты добавлены; введите адрес вручную.';
 
   @override
   String get addressEmptyTitle => 'Пока нет сохранённых адресов';
@@ -675,26 +885,34 @@ class AppLocalizationsRu extends AppLocalizations {
   String get loginTitle => 'Вход';
 
   @override
-  String get loginPhoneTitle => 'Введите номер телефона';
+  String get loginPhoneTitle => 'Войти в аккаунт';
 
   @override
-  String get loginPhoneMessage => 'Мы отправим код подтверждения в SMS.';
+  String get loginPhoneMessage =>
+      'Введите номер телефона, чтобы быстро и безопасно войти в аккаунт.';
 
   @override
   String get loginPhoneLabel => 'Номер телефона';
 
   @override
-  String get loginPhoneHint => '6X XXXXXX';
+  String get loginPhoneHint => 'Ваш номер телефона';
 
   @override
-  String get loginSendCode => 'Отправить код';
+  String get loginSendCode => 'Продолжить';
 
   @override
-  String get loginCodeTitle => 'Введите код';
+  String get loginLegalNotice =>
+      'Используя Elyeter, вы соглашаетесь с Условиями использования и Политикой конфиденциальности.';
+
+  @override
+  String get loginReadTerms => 'Читать условия';
+
+  @override
+  String get loginCodeTitle => 'Подтверждение';
 
   @override
   String loginCodeMessage(String phone) {
-    return 'Код отправлен на $phone';
+    return 'Введите код, отправленный на $phone';
   }
 
   @override
@@ -705,6 +923,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get loginResend => 'Отправить код ещё раз';
+
+  @override
+  String loginResendCountdown(String time) {
+    return 'Отправить код снова $time';
+  }
 
   @override
   String loginResendIn(int seconds) {

@@ -36,7 +36,7 @@ Future<void> bootstrap(Widget Function() builder) async {
   // rather than holding the splash screen on a slow network.
   unawaited(getIt<AuthCubit>().restore());
 
-  // Firebase, the "elyeter" topic and the device token. Backgrounded too:
+  // Firebase, notification listeners and topic subscriptions. Backgrounded too:
   // the first frame must not wait on a permission prompt or a network call.
   unawaited(getIt<PushService>().init());
 

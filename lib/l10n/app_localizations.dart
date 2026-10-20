@@ -592,6 +592,48 @@ abstract class AppLocalizations {
   /// **'Search'**
   String get searchTitle;
 
+  /// No description provided for @searchClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get searchClear;
+
+  /// No description provided for @searchNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not found'**
+  String get searchNotFoundTitle;
+
+  /// No description provided for @searchNotFoundMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please make sure the words are spelled correctly or use fewer or different keywords.'**
+  String get searchNotFoundMessage;
+
+  /// No description provided for @searchErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get searchErrorTitle;
+
+  /// No description provided for @searchErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred. Please try again.'**
+  String get searchErrorMessage;
+
+  /// No description provided for @searchConnectionErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection Error'**
+  String get searchConnectionErrorTitle;
+
+  /// No description provided for @searchConnectionErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to connect to the server. Please check your internet connection and try again.'**
+  String get searchConnectionErrorMessage;
+
   /// No description provided for @commonSeeAll.
   ///
   /// In en, this message translates to:
@@ -700,6 +742,30 @@ abstract class AppLocalizations {
   /// **'Item Article:'**
   String get productArticle;
 
+  /// No description provided for @productPriceDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Price details'**
+  String get productPriceDetails;
+
+  /// No description provided for @productPricePerItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Price per item'**
+  String get productPricePerItem;
+
+  /// No description provided for @productRegularPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular price'**
+  String get productRegularPrice;
+
+  /// No description provided for @productDiscountPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% discount'**
+  String productDiscountPercent(int percent);
+
   /// No description provided for @productCopy.
   ///
   /// In en, this message translates to:
@@ -717,6 +783,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Product link copied'**
   String get productShared;
+
+  /// No description provided for @productSharePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get productSharePrice;
+
+  /// No description provided for @productSharePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Product photo'**
+  String get productSharePhoto;
+
+  /// No description provided for @productShareOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in the Elýeter app'**
+  String get productShareOpen;
+
+  /// No description provided for @productShareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open sharing. Please try again.'**
+  String get productShareFailed;
 
   /// No description provided for @productDescription.
   ///
@@ -753,6 +843,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reviews'**
   String get productReviews;
+
+  /// No description provided for @reviewEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews yet'**
+  String get reviewEmpty;
+
+  /// No description provided for @reviewWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a review'**
+  String get reviewWrite;
+
+  /// No description provided for @reviewEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit my review'**
+  String get reviewEdit;
+
+  /// No description provided for @reviewDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my review'**
+  String get reviewDelete;
+
+  /// No description provided for @reviewRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rating'**
+  String get reviewRating;
+
+  /// No description provided for @reviewComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Your review (optional)'**
+  String get reviewComment;
+
+  /// No description provided for @reviewIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your experience with this product.'**
+  String get reviewIntro;
+
+  /// No description provided for @reviewRatingPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a star to choose your rating'**
+  String get reviewRatingPrompt;
+
+  /// No description provided for @reviewRatingPoor.
+  ///
+  /// In en, this message translates to:
+  /// **'Poor'**
+  String get reviewRatingPoor;
+
+  /// No description provided for @reviewRatingFair.
+  ///
+  /// In en, this message translates to:
+  /// **'Fair'**
+  String get reviewRatingFair;
+
+  /// No description provided for @reviewRatingGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get reviewRatingGood;
+
+  /// No description provided for @reviewRatingVeryGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Very good'**
+  String get reviewRatingVeryGood;
+
+  /// No description provided for @reviewRatingExcellent.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent'**
+  String get reviewRatingExcellent;
+
+  /// No description provided for @reviewCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What did you like? What could be better?'**
+  String get reviewCommentHint;
+
+  /// No description provided for @reviewSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Send review'**
+  String get reviewSubmit;
+
+  /// No description provided for @reviewAnonymous.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get reviewAnonymous;
+
+  /// No description provided for @reviewLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get reviewLoadMore;
+
+  /// No description provided for @reviewLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load reviews.'**
+  String get reviewLoadError;
+
+  /// No description provided for @reviewActionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update your review.'**
+  String get reviewActionError;
+
+  /// No description provided for @reviewSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Review saved'**
+  String get reviewSaved;
+
+  /// No description provided for @reviewDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Review deleted'**
+  String get reviewDeleted;
+
+  /// No description provided for @reviewDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your review?'**
+  String get reviewDeleteConfirm;
+
+  /// No description provided for @reviewDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You can write a new review later.'**
+  String get reviewDeleteMessage;
 
   /// No description provided for @productRatingCount.
   ///
@@ -970,6 +1198,24 @@ abstract class AppLocalizations {
   /// **'Profile'**
   String get profileTitle;
 
+  /// No description provided for @onboardingWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome!'**
+  String get onboardingWelcome;
+
+  /// No description provided for @onboardingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You can quickly and securely log in to your account.'**
+  String get onboardingSubtitle;
+
+  /// No description provided for @onboardingStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get onboardingStart;
+
   /// No description provided for @settingsLanguage.
   ///
   /// In en, this message translates to:
@@ -1107,6 +1353,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'My saved locations'**
   String get profileSavedLocations;
+
+  /// No description provided for @addressListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Addresses'**
+  String get addressListTitle;
+
+  /// No description provided for @addressAddWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Work Address'**
+  String get addressAddWork;
+
+  /// No description provided for @addressAddHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Home Address'**
+  String get addressAddHome;
+
+  /// No description provided for @addressAddNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Address'**
+  String get addressAddNew;
+
+  /// No description provided for @addressNameWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get addressNameWork;
+
+  /// No description provided for @addressNameHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get addressNameHome;
+
+  /// No description provided for @addressEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get addressEdit;
+
+  /// No description provided for @addressMakeDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Make default'**
+  String get addressMakeDefault;
+
+  /// No description provided for @addressDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get addressDelete;
+
+  /// No description provided for @addressMapLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location on map'**
+  String get addressMapLocation;
+
+  /// No description provided for @addressMapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Street, building, city'**
+  String get addressMapHint;
+
+  /// No description provided for @addressApartmentFlat.
+  ///
+  /// In en, this message translates to:
+  /// **'Apartment / Flat'**
+  String get addressApartmentFlat;
+
+  /// No description provided for @addressApartmentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 35/1'**
+  String get addressApartmentHint;
+
+  /// No description provided for @addressFloor.
+  ///
+  /// In en, this message translates to:
+  /// **'Floor'**
+  String get addressFloor;
+
+  /// No description provided for @addressFloorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 3'**
+  String get addressFloorHint;
+
+  /// No description provided for @addressNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Address name'**
+  String get addressNameLabel;
+
+  /// No description provided for @addressSaveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save address'**
+  String get addressSaveButton;
+
+  /// No description provided for @addressResolving.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding address…'**
+  String get addressResolving;
+
+  /// No description provided for @addressTypeHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get addressTypeHome;
+
+  /// No description provided for @addressTypeWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get addressTypeWork;
+
+  /// No description provided for @addressTypeOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get addressTypeOther;
+
+  /// No description provided for @addressPointRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a point on the map first.'**
+  String get addressPointRequired;
+
+  /// No description provided for @addressNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an address name.'**
+  String get addressNameRequired;
+
+  /// No description provided for @addressLocationApproximate.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is approximate. Move the pin to the exact spot.'**
+  String get addressLocationApproximate;
+
+  /// No description provided for @addressLocationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not get your location. Choose it on the map.'**
+  String get addressLocationFailed;
+
+  /// No description provided for @addressLookupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Street address unavailable. Coordinates added; enter the address manually.'**
+  String get addressLookupFailed;
 
   /// No description provided for @addressEmptyTitle.
   ///
@@ -1279,13 +1681,13 @@ abstract class AppLocalizations {
   /// No description provided for @loginPhoneTitle.
   ///
   /// In en, this message translates to:
-  /// **'Enter your phone number'**
+  /// **'Sign in'**
   String get loginPhoneTitle;
 
   /// No description provided for @loginPhoneMessage.
   ///
   /// In en, this message translates to:
-  /// **'We will text you a confirmation code.'**
+  /// **'You can quickly and securely log in to your account by entering your phone number.'**
   String get loginPhoneMessage;
 
   /// No description provided for @loginPhoneLabel.
@@ -1297,25 +1699,37 @@ abstract class AppLocalizations {
   /// No description provided for @loginPhoneHint.
   ///
   /// In en, this message translates to:
-  /// **'6X XXXXXX'**
+  /// **'Your phone number'**
   String get loginPhoneHint;
 
   /// No description provided for @loginSendCode.
   ///
   /// In en, this message translates to:
-  /// **'Send code'**
+  /// **'Continue'**
   String get loginSendCode;
+
+  /// No description provided for @loginLegalNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'By using Elyeter, you agree to the Terms of use and Privacy policy.'**
+  String get loginLegalNotice;
+
+  /// No description provided for @loginReadTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the terms'**
+  String get loginReadTerms;
 
   /// No description provided for @loginCodeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Enter the code'**
+  /// **'Verification'**
   String get loginCodeTitle;
 
   /// No description provided for @loginCodeMessage.
   ///
   /// In en, this message translates to:
-  /// **'Code sent to {phone}'**
+  /// **'Enter the code sent to {phone}'**
   String loginCodeMessage(String phone);
 
   /// No description provided for @loginCodeLabel.
@@ -1335,6 +1749,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Resend code'**
   String get loginResend;
+
+  /// No description provided for @loginResendCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code {time}'**
+  String loginResendCountdown(String time);
 
   /// No description provided for @loginResendIn.
   ///

@@ -6,22 +6,17 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_back_button.dart';
 
 /// The category page's search control: the back button's twin at the other
-/// end of the bar — same pill, same width and height, same faint lift — with
-/// a magnifier in place of the chevron. While the search field is [open] it
-/// turns into the control that closes it.
+/// end of the bar — same wide pill, size and faint lift — with
+/// a magnifier in place of the chevron.
 class CategorySearchButton extends StatelessWidget {
   const CategorySearchButton({
     super.key,
     required this.onPressed,
     this.tooltip,
-    this.open = false,
   });
 
-  final VoidCallback onPressed;
+  final ValueChanged<Rect> onPressed;
   final String? tooltip;
-
-  /// The search field is out: the magnifier becomes a close mark.
-  final bool open;
 
   @override
   Widget build(BuildContext context) {
@@ -45,28 +40,18 @@ class CategorySearchButton extends StatelessWidget {
               color: Colors.transparent,
               shape: const StadiumBorder(),
               clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                onTap: onPressed,
-                child: SizedBox(
-                  width: AppBackButton.defaultWidth,
-                  height: AppBackButton.height,
-                  child: Center(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 220),
-                      transitionBuilder: (child, animation) =>
-                          RotationTransition(
-                            turns: Tween(
-                              begin: 0.75,
-                              end: 1.0,
-                            ).animate(animation),
-                            child: FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            ),
-                          ),
+              child: Builder(
+                builder: (buttonContext) => InkWell(
+                  onTap: () {
+                    final box = buttonContext.findRenderObject() as RenderBox;
+                    onPressed(box.localToGlobal(Offset.zero) & box.size);
+                  },
+                  child: SizedBox(
+                    width: AppBackButton.appBarWidth,
+                    height: AppBackButton.appBarHeight,
+                    child: Center(
                       child: HugeIcon(
-                        key: ValueKey(open),
-                        icon: open ? AppIcons.close : AppIcons.search,
+                        icon: AppIcons.search,
                         size: AppBackButton.iconSize,
                         color: isDark ? AppColors.white : AppColors.ink,
                       ),

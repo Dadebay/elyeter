@@ -43,10 +43,10 @@ void main() {
 
     expect(amount.style?.fontSize, 18);
     expect(amount.style?.fontWeight, FontWeight.w700);
-    expect(amount.style?.color, const Color(0xFFED702D));
+    expect(amount.style?.color, const Color(0xFFFF6600));
     expect(currency.style?.fontSize, 14);
     expect(currency.style?.fontWeight, FontWeight.w400);
-    expect(currency.style?.color, const Color(0xFFED702D));
+    expect(currency.style?.color, const Color(0xFFFF6600));
     expect(title.style?.fontSize, 14);
     expect(title.style?.fontWeight, FontWeight.w400);
     expect(title.style?.color, const Color(0xFF5C5C5C));

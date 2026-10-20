@@ -1,17 +1,19 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/di/injector.dart';
+import '../../../../core/error/failure.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_back_button.dart';
+import '../../../../core/widgets/app_error_view.dart';
 import '../../../brand/domain/entities/brand.dart';
 import '../../../brand/domain/repositories/brand_repository.dart';
 import '../../../product/domain/entities/product_query.dart';
 import '../../../product/presentation/widgets/catalog_product_grid.dart';
+import '../../../product/presentation/widgets/product_grid_shimmer.dart';
+import '../../../search/presentation/widgets/search_reveal_transition.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/repositories/category_repository.dart';
 import '../widgets/category_brand_sheet.dart';
@@ -20,8 +22,6 @@ import '../widgets/category_products_empty.dart';
 import '../widgets/category_price_filter_sheet.dart';
 import '../widgets/category_sort_sheet.dart';
 import '../widgets/category_search_button.dart';
-import '../widgets/category_search_results.dart';
-import '../widgets/category_search_title.dart';
 import '../widgets/subcategory_grid.dart';
 import '../widgets/subcategory_header.dart';
 
@@ -38,6 +38,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
   static const _brandFacetId = 'brand';
 
   Category? _category;
+  Failure? _categoryFailure;
   bool _loadingCategory = true;
   ProductSort _sort = ProductSort.newest;
   num? _minPrice;
@@ -47,25 +48,11 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
   bool _brandsLoading = true;
   Set<String> _brandSlugs = const {};
 
-  bool _searchOpen = false;
-  String _search = '';
-  final _searchController = TextEditingController();
-  final _searchFocus = FocusNode();
-  Timer? _searchDebounce;
-
   @override
   void initState() {
     super.initState();
     _loadCategory();
     _loadBrands();
-  }
-
-  @override
-  void dispose() {
-    _searchDebounce?.cancel();
-    _searchController.dispose();
-    _searchFocus.dispose();
-    super.dispose();
   }
 
   @override
@@ -80,14 +67,27 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
   }
 
   Future<void> _loadCategory() async {
-    final slug = widget.id;
+    final routeId = widget.id;
     final repository = getIt<CategoryRepository>();
-    final tree = await repository.tree();
-    var category = _findCategory(tree.dataOrNull ?? const [], slug);
-    category ??= (await repository.bySlug(slug)).dataOrNull;
-    if (mounted && widget.id == slug) {
+    setState(() {
+      _loadingCategory = true;
+      _categoryFailure = null;
+    });
+    final treeResult = await repository.tree();
+    var category = _findCategory(treeResult.dataOrNull ?? const [], routeId);
+    Failure? failure = treeResult.failureOrNull;
+    final id = int.tryParse(routeId);
+    if (category == null && id != null) {
+      final detailResult = await repository.byId(id);
+      category = detailResult.dataOrNull;
+      failure = detailResult.failureOrNull ?? failure;
+    }
+    if (mounted && widget.id == routeId) {
       setState(() {
         _category = category;
+        _categoryFailure = category == null
+            ? failure ?? const NotFoundFailure()
+            : null;
         _loadingCategory = false;
       });
     }
@@ -104,52 +104,16 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
     });
   }
 
-  void _toggleSearch() {
-    if (_searchOpen) {
-      _closeSearch();
-      return;
-    }
-    setState(() => _searchOpen = true);
-    // Held back until the pill has mostly grown, so the keyboard does not
-    // fight the animation for the frame.
-    Future<void>.delayed(const Duration(milliseconds: 220), () {
-      if (mounted && _searchOpen) _searchFocus.requestFocus();
-    });
-  }
-
-  void _closeSearch() {
-    _searchDebounce?.cancel();
-    _searchFocus.unfocus();
-    _searchController.clear();
-    setState(() {
-      _searchOpen = false;
-      _search = '';
-    });
-  }
-
-  /// Waits for a pause in typing before asking the server again.
-  void _onSearchChanged(String text) {
-    _searchDebounce?.cancel();
-    _searchDebounce = Timer(
-      const Duration(milliseconds: 400),
-      () => _applySearch(text),
-    );
-  }
-
-  void _applySearch(String text) {
-    _searchDebounce?.cancel();
-    final trimmed = text.trim();
-    if (mounted && trimmed != _search) setState(() => _search = trimmed);
-  }
-
-  ProductQuery _query({String? search}) => ProductQuery(
-    categorySlug: widget.id,
+  ProductQuery _query() => ProductQuery(
+    categoryId: _category?.id,
     sort: _sort,
-    brandSlugs: _brandSlugs.toList(),
+    brandIds: [
+      for (final brand in _brands)
+        if (_brandSlugs.contains(brand.slug)) brand.id,
+    ],
     minPrice: _minPrice,
     maxPrice: _maxPrice,
     onlyFeatured: _onlyFeatured,
-    search: search,
   );
 
   List<CategoryFacet> _facets(BuildContext context) => [
@@ -181,10 +145,10 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
     if (picked != null && mounted) setState(() => _brandSlugs = picked);
   }
 
-  Category? _findCategory(List<Category> nodes, String slug) {
+  Category? _findCategory(List<Category> nodes, String routeId) {
     for (final node in nodes) {
-      if (node.slug == slug) return node;
-      final child = _findCategory(node.children, slug);
+      if (node.slug == routeId || node.id.toString() == routeId) return node;
+      final child = _findCategory(node.children, routeId);
       if (child != null) return child;
     }
     return null;
@@ -220,7 +184,10 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
   @override
   Widget build(BuildContext context) {
     final category = _category;
-    final children = category?.children ?? const <Category>[];
+    final allChildren = category?.children ?? const <Category>[];
+    final children = allChildren.length == 5
+        ? allChildren.sublist(0, 4)
+        : allChildren;
     // The header has to know its height up front to collapse smoothly: the
     // grid's own, plus the padding around it below.
     final subcategoriesExtent =
@@ -255,134 +222,76 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
       ),
     );
 
-    return PopScope(
-      // Back first closes the search, and only then leaves the page.
-      canPop: !_searchOpen,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _closeSearch();
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          // The back button makes way while searching, so the field can run
-          // the full width of the bar, from the page inset to the close
-          // button.
-          leadingWidth: _searchOpen
-              ? AppSpacing.page
-              : AppBackButton.leadingWidth,
-          leading: _searchOpen
-              ? const SizedBox.shrink()
-              : const AppBackButton.appBarLeading(),
-          titleSpacing: 0,
-          centerTitle: true,
-          title: CategorySearchTitle(
-            title: category?.name ?? widget.title ?? widget.id,
-            open: _searchOpen,
-            controller: _searchController,
-            focusNode: _searchFocus,
-            hint: context.l10n.categorySearch,
-            onChanged: _onSearchChanged,
-            onSubmitted: _applySearch,
-          ),
-          actions: [
-            CategorySearchButton(
-              tooltip: context.l10n.categorySearch,
-              open: _searchOpen,
-              onPressed: _toggleSearch,
-            ),
-          ],
+    return Scaffold(
+      appBar: AppBar(
+        leadingWidth: AppBackButton.leadingWidth,
+        leading: const AppBackButton.appBarLeading(),
+        titleSpacing: 0,
+        centerTitle: true,
+        title: Text(
+          category?.name ?? widget.title ?? widget.id,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
-        body: _loadingCategory
-            ? const Center(child: CircularProgressIndicator())
-            : Stack(
-                children: [
-                  // No glow, stretch or bounce on the page's own scrolling: they
-                  // act on the whole nested view, so every fling at the end of
-                  // the list made the pinned filter bar above it shudder.
-                  ScrollConfiguration(
-                    behavior: ScrollConfiguration.of(context).copyWith(
-                      overscroll: false,
-                      physics: const ClampingScrollPhysics(),
-                    ),
-                    child: NestedScrollView(
-                      headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                        if (children.isNotEmpty)
-                          SliverPersistentHeader(
-                            delegate: SubcategoryHeaderDelegate(
-                              extent: subcategoriesExtent,
-                              child: subcategories,
-                            ),
-                          ),
-                        SliverPersistentHeader(
-                          pinned: true,
-                          delegate: _FilterHeaderDelegate(
-                            onSort: _chooseSort,
-                            onFilter: _chooseFilter,
-                            sortActive: _sort != ProductSort.newest,
-                            filterActive:
-                                _minPrice != null ||
-                                _maxPrice != null ||
-                                _onlyFeatured,
-                            facets: _facets(context),
-                            facetsLoading: _brandsLoading,
-                            onFacetTap: (_) => _chooseBrand(),
-                          ),
-                        ),
-                      ],
-                      body: CatalogProductGrid(
-                        query: _query(),
-                        pageSize: 10,
-                        emptyState: CategoryProductsEmpty(
-                          filtered: _filtersActive,
-                        ),
+        actions: [
+          CategorySearchButton(
+            tooltip: context.l10n.categorySearch,
+            onPressed: (bounds) => context.pushNamed(
+              AppRoutes.search.name,
+              extra: SearchButtonOrigin(bounds),
+            ),
+          ),
+        ],
+      ),
+      body: _loadingCategory
+          ? const ProductGridShimmer()
+          : category == null
+          ? AppErrorView(
+              failure: _categoryFailure ?? const NotFoundFailure(),
+              onRetry: _loadCategory,
+            )
+          // No glow, stretch or bounce on the page's own scrolling: they
+          // act on the whole nested view, so every fling at the end of
+          // the list made the pinned filter bar above it shudder.
+          : ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context).copyWith(
+                overscroll: false,
+                physics: const ClampingScrollPhysics(),
+              ),
+              child: NestedScrollView(
+                headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                  if (children.isNotEmpty)
+                    SliverPersistentHeader(
+                      delegate: SubcategoryHeaderDelegate(
+                        extent: subcategoriesExtent,
+                        child: subcategories,
                       ),
                     ),
-                  ),
-                  Positioned.fill(
-                    child: CategorySearchResults(
-                      open: _searchOpen,
-                      // Scrolling the results puts the keyboard away.
-                      child: NotificationListener<ScrollStartNotification>(
-                        onNotification: (_) {
-                          _searchFocus.unfocus();
-                          return false;
-                        },
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: AppSpacing.md,
-                              ),
-                              child: CategoryFilterBar(
-                                facets: _facets(context),
-                                loading: _brandsLoading,
-                                onSort: _chooseSort,
-                                onFilter: _chooseFilter,
-                                onFacetTap: (_) => _chooseBrand(),
-                                sortActive: _sort != ProductSort.newest,
-                                filterActive:
-                                    _minPrice != null ||
-                                    _maxPrice != null ||
-                                    _onlyFeatured,
-                              ),
-                            ),
-                            Expanded(
-                              child: CatalogProductGrid(
-                                query: _query(search: _search),
-                                pageSize: 10,
-                                emptyState: CategoryProductsEmpty(
-                                  filtered:
-                                      _filtersActive || _search.isNotEmpty,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _FilterHeaderDelegate(
+                      onSort: _chooseSort,
+                      onFilter: _chooseFilter,
+                      sortActive: _sort != ProductSort.newest,
+                      filterActive:
+                          _minPrice != null ||
+                          _maxPrice != null ||
+                          _onlyFeatured,
+                      facets: _facets(context),
+                      facetsLoading: _brandsLoading,
+                      onFacetTap: (_) => _chooseBrand(),
                     ),
                   ),
                 ],
+                body: CatalogProductGrid(
+                  query: _query(),
+                  pageSize: 10,
+                  loadingState: const ProductGridShimmer(),
+                  loadingMoreState: const ProductGridShimmer.more(),
+                  emptyState: CategoryProductsEmpty(filtered: _filtersActive),
+                ),
               ),
-      ),
+            ),
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
-import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failure.dart';
@@ -12,6 +11,7 @@ import '../../../../core/utils/extensions/context_extensions.dart';
 import '../../../../core/widgets/app_empty_view.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_page_app_bar.dart';
+import '../widgets/static_page_content.dart';
 
 class StaticPageView extends StatefulWidget {
   const StaticPageView({super.key, required this.slug});
@@ -51,7 +51,7 @@ class _StaticPageViewState extends State<StaticPageView> {
           title: page?.title.isNotEmpty == true ? page!.title : fallbackTitle,
         ),
         body: snapshot.connectionState != ConnectionState.done
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(child: AppLoader())
             : error != null && error is! NotFoundException
             ? AppErrorView(
                 failure: error is AppException
@@ -79,29 +79,10 @@ class _StaticPageViewState extends State<StaticPageView> {
                 ),
                 _ => AppEmptyView(message: l10n.staticPageEmpty),
               }
-            : ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Html(
-                    data: body,
-                    style: {
-                      'html': Style(fontFamily: AppTypography.fontFamily),
-                      'body': Style(fontFamily: AppTypography.fontFamily),
-                      'p': Style(fontFamily: AppTypography.fontFamily),
-                      'li': Style(fontFamily: AppTypography.fontFamily),
-                      'h1': Style(fontFamily: AppTypography.fontFamily),
-                      'h2': Style(fontFamily: AppTypography.fontFamily),
-                      'h3': Style(fontFamily: AppTypography.fontFamily),
-                    },
-                    onLinkTap: (url, _, _) {
-                      final uri = Uri.tryParse(url ?? '');
-                      if (uri != null &&
-                          (uri.scheme == 'http' || uri.scheme == 'https')) {
-                        launchUrl(uri, mode: LaunchMode.externalApplication);
-                      }
-                    },
-                  ),
-                ],
+            : StaticPageContent(
+                slug: widget.slug,
+                title: page!.title.isNotEmpty ? page.title : fallbackTitle,
+                body: body,
               ),
       );
     },

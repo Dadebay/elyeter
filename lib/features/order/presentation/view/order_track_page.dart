@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -99,7 +100,7 @@ class _OrderTrackPageState extends State<OrderTrackPage>
   Widget build(BuildContext context) {
     final order = _order;
     if (order == null && _loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: Center(child: AppLoader()));
     }
     if (order == null) {
       return Scaffold(
@@ -271,10 +272,7 @@ class _RefreshPill extends StatelessWidget {
               child: refreshing
                   ? const SizedBox.square(
                       dimension: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppColors.primary,
-                      ),
+                      child: AppLoader(color: AppColors.primary),
                     )
                   : const HugeIcon(
                       icon: AppIcons.refresh,

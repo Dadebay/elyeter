@@ -1,15 +1,21 @@
 import 'dart:async';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/app_loader.dart';
+import '../../../../app/router/app_routes.dart';
+import '../../../../core/constants/app_assets.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/localization/failure_localizer.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
-import '../../../../core/widgets/app_page_app_bar.dart';
+import '../../../../core/widgets/app_back_button.dart';
 import '../cubit/login_cubit.dart';
 import '../../../../core/widgets/app_snack_bar.dart';
 
@@ -22,10 +28,7 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<LoginCubit>(
-      create: (_) => getIt<LoginCubit>(),
-      child: const _LoginView(),
-    );
+    return BlocProvider<LoginCubit>(create: (_) => getIt<LoginCubit>(), child: const _LoginView());
   }
 }
 
@@ -46,184 +49,353 @@ class _LoginViewState extends State<_LoginView> {
   static const _codeDigits = 4;
 
   final _phone = TextEditingController();
+  final _phoneFocus = FocusNode();
   final _code = TextEditingController();
+  final _codeFocus = FocusNode();
+  late final TapGestureRecognizer _termsTap = TapGestureRecognizer()..onTap = _openTerms;
+
+  String get _localPhoneDigits => _phone.text.replaceAll(' ', '');
+
+  @override
+  void initState() {
+    super.initState();
+    _phoneFocus.addListener(_onPhoneFocusChanged);
+  }
+
+  void _onPhoneFocusChanged() {
+    if (mounted) setState(() {});
+  }
 
   @override
   void dispose() {
     _phone.dispose();
+    _phoneFocus.dispose();
     _code.dispose();
+    _codeFocus.dispose();
+    _termsTap.dispose();
     super.dispose();
   }
+
+  void _openTerms() => context.pushNamed(AppRoutes.terms.name);
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final background = isDark ? AppColors.backgroundDark : AppColors.white;
 
-    return Scaffold(
-      appBar: AppPageAppBar(title: l10n.loginTitle),
-      body: BlocConsumer<LoginCubit, LoginState>(
-        listenWhen: (previous, current) =>
-            previous.signedIn != current.signedIn ||
-            previous.failure != current.failure ||
-            previous.step != current.step,
-        listener: (context, state) {
-          final failure = state.failure;
-          if (failure != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(failure.localize(l10n))),
-            );
-          }
-          // A fresh code deserves an empty field, whether it is the first
-          // one or a resend after a wrong entry.
-          if (state.step == LoginStep.phone) _code.clear();
+    return BlocConsumer<LoginCubit, LoginState>(
+      listenWhen: (previous, current) => previous.signedIn != current.signedIn || previous.failure != current.failure || previous.step != current.step,
+      listener: (context, state) {
+        final failure = state.failure;
+        if (failure != null) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(failure.localize(l10n))));
+        }
+        // A fresh code deserves an empty field, whether it is the first
+        // one or a resend after a wrong entry.
+        if (state.step == LoginStep.phone) _code.clear();
 
-          if (state.signedIn) {
-            AppSnackBar.show(context, l10n.loginSignedIn);
-            Navigator.of(context).pop(true);
-          }
-        },
-        builder: (context, state) {
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.page,
-              AppSpacing.xxl,
-              AppSpacing.page,
-              AppSpacing.xxxl,
+        if (state.signedIn) {
+          AppSnackBar.show(context, l10n.loginSignedIn);
+          Navigator.of(context).pop(true);
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: background,
+          appBar: AppBar(
+            toolbarHeight: kToolbarHeight,
+            backgroundColor: background,
+            surfaceTintColor: Colors.transparent,
+            elevation: 0,
+            leadingWidth: AppBackButton.leadingWidth,
+            leading: AppBackButton.appBarLeading(onPressed: state.step == LoginStep.code ? () => context.read<LoginCubit>().editPhone() : null),
+          ),
+          body: state.step == LoginStep.code ? _codeStep(context, state) : _phoneStep(context, state),
+        );
+      },
+    );
+  }
+
+  Widget _phoneStep(BuildContext context, LoginState state) {
+    final l10n = context.l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final ink = isDark ? AppColors.white : AppColors.black;
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    final canContinue = _localPhoneDigits.length == _phoneDigits && !state.submitting;
+
+    return CustomScrollView(
+      slivers: [
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
+            child: Column(
+              children: [
+                SvgPicture.asset(AppAssets.iconLoginBag, width: 56, height: 56),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.loginPhoneTitle,
+                  textAlign: TextAlign.center,
+                  style: context.textTheme.headlineLarge?.copyWith(fontSize: 28, fontWeight: FontWeight.w700, color: ink),
+                ),
+                const SizedBox(height: 8),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 320),
+                  child: Text(
+                    l10n.loginPhoneMessage,
+                    textAlign: TextAlign.center,
+                    style: context.textTheme.bodySmall?.copyWith(fontSize: 13, height: 1.35, color: isDark ? AppColors.grey300 : AppColors.grey700),
+                  ),
+                ),
+                const SizedBox(height: 28),
+                SizedBox(
+                  height: 54,
+                  child: TextField(
+                    controller: _phone,
+                    focusNode: _phoneFocus,
+                    enabled: !state.submitting,
+                    keyboardType: TextInputType.phone,
+                    textInputAction: TextInputAction.done,
+                    inputFormatters: const [_PhoneNumberFormatter()],
+                    style: context.textTheme.bodyMedium?.copyWith(color: ink, fontWeight: FontWeight.w600),
+                    decoration: InputDecoration(
+                      hintText: l10n.loginPhoneHint,
+                      hintStyle: context.textTheme.bodyMedium?.copyWith(color: AppColors.grey500),
+                      prefix: _PhonePrefix(
+                        visible: _phoneFocus.hasFocus || _phone.text.isNotEmpty,
+                        reduceMotion: reduceMotion,
+                        style: context.textTheme.bodyMedium?.copyWith(color: ink, fontWeight: FontWeight.w600),
+                      ),
+                      suffixIconConstraints: const BoxConstraints(),
+                      suffixIcon: _PhoneClearButton(
+                        visible: _phoneFocus.hasFocus && !state.submitting,
+                        reduceMotion: reduceMotion,
+                        isDark: isDark,
+                        onPressed: () {
+                          _phone.clear();
+                          _phoneFocus.unfocus();
+                          setState(() {});
+                        },
+                      ),
+                      filled: true,
+                      fillColor: isDark ? AppColors.grey900 : const Color(0xFFF1F1F3),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(28), borderSide: BorderSide.none),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(28), borderSide: BorderSide.none),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(28), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    ),
+                    onChanged: (value) {
+                      setState(() {});
+                      if (_localPhoneDigits.length == _phoneDigits) {
+                        _sendCode(context);
+                      }
+                    },
+                    onSubmitted: (_) => _sendCode(context),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: canContinue || state.submitting ? AppColors.primaryGradient : null,
+                    color: canContinue || state.submitting ? null : const Color(0xFFFFC39E),
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 54,
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        disabledBackgroundColor: Colors.transparent,
+                        foregroundColor: AppColors.white,
+                        disabledForegroundColor: AppColors.white,
+                        shadowColor: Colors.transparent,
+                        elevation: 0,
+                        shape: const StadiumBorder(),
+                      ),
+                      onPressed: canContinue ? () => _sendCode(context) : null,
+                      child: state.submitting ? const _ButtonSpinner() : Text(l10n.loginSendCode),
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 310),
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(text: '${l10n.loginLegalNotice} '),
+                        TextSpan(
+                          text: l10n.loginReadTerms,
+                          style: TextStyle(color: ink, fontWeight: FontWeight.w600),
+                          recognizer: _termsTap,
+                        ),
+                      ],
+                    ),
+                    key: const Key('login-legal-notice'),
+                    textAlign: TextAlign.center,
+                    style: context.textTheme.bodySmall?.copyWith(fontSize: 11, height: 1.35, color: AppColors.grey500),
+                  ),
+                ),
+              ],
             ),
-            children: switch (state.step) {
-              LoginStep.phone => _phoneStep(context, state),
-              LoginStep.code => _codeStep(context, state),
-            },
-          );
-        },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _codeStep(BuildContext context, LoginState state) {
+    final l10n = context.l10n;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final ink = isDark ? AppColors.white : AppColors.black;
+    final code = _code.text;
+    final codeColor = state.submitting && code.length == _codeDigits
+        ? const Color(0xFF20C46A)
+        : state.failure != null && code.length == _codeDigits
+        ? const Color(0xFFFF4B55)
+        : ink;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(AppSpacing.page, 68, AppSpacing.page, AppSpacing.xxxl),
+      child: SizedBox(
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SvgPicture.asset(AppAssets.iconOtpNotification, width: 56, height: 56),
+            const SizedBox(height: 18),
+            Text(
+              l10n.loginCodeTitle,
+              textAlign: TextAlign.center,
+              style: context.textTheme.headlineLarge?.copyWith(fontSize: 28, fontWeight: FontWeight.w700, color: ink),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.loginCodeMessage(_displayPhone(state.phone)),
+              textAlign: TextAlign.center,
+              style: context.textTheme.bodySmall?.copyWith(fontSize: 15, color: isDark ? AppColors.grey300 : AppColors.grey700),
+            ),
+            const SizedBox(height: 42),
+            SizedBox(
+              width: 222,
+              height: 52,
+              child: Stack(
+                children: [
+                  ExcludeSemantics(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        for (var index = 0; index < _codeDigits; index++)
+                          Container(
+                            key: Key('otp-digit-$index'),
+                            width: 48,
+                            height: 52,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(color: isDark ? AppColors.grey900 : AppColors.grey100, borderRadius: BorderRadius.circular(15)),
+                            child: index < code.length
+                                ? Text(
+                                    code[index],
+                                    style: context.textTheme.headlineSmall?.copyWith(fontSize: 20, fontWeight: FontWeight.w600, color: codeColor),
+                                  )
+                                : code.length == index && !state.submitting
+                                ? Container(width: 2, height: 22, color: ink)
+                                : null,
+                          ),
+                      ],
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: TextField(
+                      controller: _code,
+                      focusNode: _codeFocus,
+                      autofocus: true,
+                      readOnly: state.submitting,
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.done,
+                      autofillHints: const [AutofillHints.oneTimeCode],
+                      maxLength: _codeDigits,
+                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      style: const TextStyle(color: Colors.transparent),
+                      cursorColor: Colors.transparent,
+                      showCursor: false,
+                      decoration: InputDecoration(
+                        hintText: l10n.loginCodeLabel,
+                        hintStyle: const TextStyle(color: Colors.transparent),
+                        filled: false,
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
+                        errorBorder: InputBorder.none,
+                        focusedErrorBorder: InputBorder.none,
+                        counterText: '',
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      onTap: () {
+                        if (state.failure != null && _code.text.length == _codeDigits) {
+                          _code.clear();
+                          setState(() {});
+                        }
+                      },
+                      onChanged: (value) {
+                        setState(() {});
+                        if (value.length == _codeDigits) _verify(context);
+                      },
+                      onSubmitted: (_) => _verify(context),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: state.submitting ? 20 : 12),
+            if (state.submitting && code.length == _codeDigits)
+              SizedBox(width: 18, height: 18, child: AppLoader(color: ink))
+            else
+              TextButton(
+                onPressed: state.canResend ? () => _resend(context) : null,
+                style: TextButton.styleFrom(foregroundColor: ink, disabledForegroundColor: AppColors.iconSoft),
+                child: Text(
+                  state.resendIn > 0 ? l10n.loginResendCountdown('${(state.resendIn ~/ 60).toString().padLeft(2, '0')}:${(state.resendIn % 60).toString().padLeft(2, '0')}') : l10n.loginResend,
+                  style: context.textTheme.labelSmall?.copyWith(fontSize: 13, color: state.canResend ? ink : AppColors.iconSoft, fontWeight: FontWeight.w600),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
 
-  List<Widget> _phoneStep(BuildContext context, LoginState state) {
-    final l10n = context.l10n;
-
-    return [
-      Text(l10n.loginPhoneTitle, style: context.textTheme.titleMedium),
-      const SizedBox(height: AppSpacing.sm),
-      Text(
-        l10n.loginPhoneMessage,
-        style: context.textTheme.bodySmall?.copyWith(color: AppColors.grey500),
-      ),
-      const SizedBox(height: AppSpacing.xxl),
-      TextField(
-        controller: _phone,
-        keyboardType: TextInputType.phone,
-        autofocus: true,
-        // Digits only, and never more than a Turkmen number holds: the
-        // country code is the prefix below, not something to type.
-        inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly,
-          LengthLimitingTextInputFormatter(_phoneDigits),
-        ],
-        // The number reads as one string, so what is typed and the code in
-        // front of it are set at the same size rather than the prefix being
-        // dropped to the smaller default.
-        style: context.textTheme.titleMedium,
-        decoration: InputDecoration(
-          labelText: l10n.loginPhoneLabel,
-          // Carries no country code of its own — the prefix below draws it.
-          hintText: l10n.loginPhoneHint,
-          // Smaller than what gets typed: the placeholder is a shape to aim
-          // at, not something to read at the same weight as a real number.
-          hintStyle: context.textTheme.bodyMedium?.copyWith(
-            color: AppColors.grey500,
-          ),
-          prefixText: '+993 ',
-          prefixStyle: context.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-          counterText: '${_phone.text.length}/$_phoneDigits',
-        ),
-        onChanged: (_) => setState(() {}),
-        onSubmitted: (_) => _sendCode(context, state),
-      ),
-      const SizedBox(height: AppSpacing.xxl),
-      FilledButton(
-        onPressed: state.submitting || _phone.text.length < _phoneDigits
-            ? null
-            : () => _sendCode(context, state),
-        child: state.submitting
-            ? const _ButtonSpinner()
-            : Text(l10n.loginSendCode),
-      ),
-    ];
+  String _displayPhone(String phone) {
+    if (phone.startsWith('+993') && phone.length == 12) {
+      final local = phone.substring(4);
+      return '${local.substring(0, 2)} ${local.substring(2)}';
+    }
+    return phone;
   }
 
-  List<Widget> _codeStep(BuildContext context, LoginState state) {
-    final l10n = context.l10n;
-
-    return [
-      Text(l10n.loginCodeTitle, style: context.textTheme.titleMedium),
-      const SizedBox(height: AppSpacing.sm),
-      Text(
-        l10n.loginCodeMessage(state.phone),
-        style: context.textTheme.bodySmall?.copyWith(color: AppColors.grey500),
-      ),
-      const SizedBox(height: AppSpacing.xxl),
-      TextField(
-        controller: _code,
-        keyboardType: TextInputType.number,
-        autofocus: true,
-        maxLength: _codeDigits,
-        maxLengthEnforcement: MaxLengthEnforcement.enforced,
-        textAlign: TextAlign.center,
-        style: context.textTheme.headlineSmall?.copyWith(letterSpacing: 8),
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        decoration: InputDecoration(
-          labelText: l10n.loginCodeLabel,
-          counterText: '',
-        ),
-        onChanged: (value) {
-          setState(() {});
-          // The last digit is the whole code: nobody needs to reach for a
-          // button after typing it.
-          if (value.length == _codeDigits) _verify(context, state);
-        },
-        onSubmitted: (_) => _verify(context, state),
-      ),
-      const SizedBox(height: AppSpacing.xxl),
-      FilledButton(
-        onPressed: state.submitting || _code.text.length < _codeDigits
-            ? null
-            : () => _verify(context, state),
-        child: state.submitting
-            ? const _ButtonSpinner()
-            : Text(l10n.loginVerify),
-      ),
-      const SizedBox(height: AppSpacing.sm),
-      TextButton(
-        onPressed: state.canResend
-            ? () => unawaited(context.read<LoginCubit>().resend())
-            : null,
-        child: Text(
-          state.resendIn > 0
-              ? l10n.loginResendIn(state.resendIn)
-              : l10n.loginResend,
-        ),
-      ),
-      TextButton(
-        onPressed: state.submitting
-            ? null
-            : () => context.read<LoginCubit>().editPhone(),
-        child: Text(l10n.loginChangePhone),
-      ),
-    ];
+  void _resend(BuildContext context) {
+    _code.clear();
+    setState(() {});
+    _codeFocus.requestFocus();
+    unawaited(context.read<LoginCubit>().resend());
   }
 
-  void _sendCode(BuildContext context, LoginState state) {
-    if (state.submitting) return;
-    unawaited(context.read<LoginCubit>().sendCode(_phone.text));
+  void _sendCode(BuildContext context) {
+    final cubit = context.read<LoginCubit>();
+    if (cubit.state.submitting || cubit.state.step != LoginStep.phone || _localPhoneDigits.length != _phoneDigits) {
+      return;
+    }
+    unawaited(cubit.sendCode(_localPhoneDigits));
   }
 
-  void _verify(BuildContext context, LoginState state) {
-    if (state.submitting || _code.text.length != _codeDigits) return;
-    unawaited(context.read<LoginCubit>().verify(_code.text));
+  void _verify(BuildContext context) {
+    final cubit = context.read<LoginCubit>();
+    if (cubit.state.submitting || _code.text.length != _codeDigits) return;
+    FocusScope.of(context).unfocus();
+    unawaited(cubit.verify(_code.text));
   }
 }
 
@@ -231,9 +403,114 @@ class _ButtonSpinner extends StatelessWidget {
   const _ButtonSpinner();
 
   @override
-  Widget build(BuildContext context) => const SizedBox(
-    width: 20,
-    height: 20,
-    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.white),
+  Widget build(BuildContext context) => const SizedBox(width: 20, height: 20, child: AppLoader(color: AppColors.white));
+}
+
+class _PhonePrefix extends StatelessWidget {
+  const _PhonePrefix({required this.visible, required this.reduceMotion, required this.style});
+
+  final bool visible;
+  final bool reduceMotion;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    tween: Tween(begin: 0, end: visible ? 1 : 0),
+    duration: Duration(milliseconds: reduceMotion ? 80 : 180),
+    curve: Curves.easeOutCubic,
+    builder: (context, progress, child) => ClipRect(
+      child: Align(
+        alignment: Alignment.centerLeft,
+        widthFactor: progress,
+        child: Opacity(
+          key: const Key('login-phone-prefix-opacity'),
+          opacity: progress,
+          child: Transform.translate(offset: Offset(reduceMotion ? 0 : -6 * (1 - progress), 0), child: child),
+        ),
+      ),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Text('+993', style: style),
+    ),
   );
+}
+
+class _PhoneClearButton extends StatelessWidget {
+  const _PhoneClearButton({required this.visible, required this.reduceMotion, required this.isDark, required this.onPressed});
+
+  final bool visible;
+  final bool reduceMotion;
+  final bool isDark;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    tween: Tween(begin: 0, end: visible ? 1 : 0),
+    duration: Duration(milliseconds: reduceMotion ? 80 : 180),
+    curve: Curves.easeOutCubic,
+    builder: (context, progress, child) => ClipRect(
+      child: Align(
+        alignment: Alignment.centerRight,
+        widthFactor: progress,
+        child: IgnorePointer(
+          ignoring: !visible,
+          child: Opacity(
+            key: const Key('login-phone-clear-opacity'),
+            opacity: progress,
+            child: Transform.scale(scale: reduceMotion ? 1 : 0.94 + 0.06 * progress, child: child),
+          ),
+        ),
+      ),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.only(right: 14),
+      child: IconButton(
+        key: const Key('login-phone-clear'),
+        tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
+        padding: EdgeInsets.zero,
+        style: IconButton.styleFrom(
+          foregroundColor: isDark ? AppColors.white : AppColors.grey700,
+          shape: const CircleBorder(),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          minimumSize: const Size(30, 30),
+          maximumSize: const Size(30, 30),
+        ),
+        onPressed: onPressed,
+        icon: DecoratedBox(
+          decoration: BoxDecoration(color: isDark ? AppColors.grey700 : const Color(0xFFE5E5E8), shape: BoxShape.circle),
+          child: const SizedBox(width: 24, height: 24, child: Center(child: Icon(Icons.close, size: 12))),
+        ),
+      ),
+    ),
+  );
+}
+
+/// Displays local numbers as `65 855873` while keeping the value sent to the
+/// API as eight digits. Also accepts a complete `+993` number when pasted.
+class _PhoneNumberFormatter extends TextInputFormatter {
+  const _PhoneNumberFormatter();
+
+  static final _nonDigit = RegExp(r'\D');
+
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    var digits = newValue.text.replaceAll(_nonDigit, '');
+    final selectionEnd = newValue.selection.baseOffset.clamp(0, newValue.text.length).toInt();
+    var digitsBeforeCursor = newValue.text.substring(0, selectionEnd).replaceAll(_nonDigit, '').length;
+
+    if (digits.length > 8 && digits.startsWith('993')) {
+      digits = digits.substring(3);
+      digitsBeforeCursor = (digitsBeforeCursor - 3).clamp(0, 8).toInt();
+    }
+    if (digits.length > 8) digits = digits.substring(0, 8);
+
+    final text = digits.length > 2 ? '${digits.substring(0, 2)} ${digits.substring(2)}' : digits;
+    final cursorDigits = digitsBeforeCursor.clamp(0, digits.length).toInt();
+    final cursor = cursorDigits > 2 ? cursorDigits + 1 : cursorDigits;
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: cursor),
+    );
+  }
 }

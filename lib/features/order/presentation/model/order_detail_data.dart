@@ -64,7 +64,7 @@ class OrderDetailData {
   /// the goods as a discount.
   factory OrderDetailData.fromPreOrder(
     PreOrder order, {
-    Map<String, String> photos = const {},
+    Map<int, String> photos = const {},
   }) {
     // With no lines to add up, the order's own total stands in for the goods
     // rather than reading as all cargo.
@@ -85,12 +85,12 @@ class OrderDetailData {
       products: [
         for (final item in order.items)
           ProductCardData(
-            id: item.productSlug ?? '${item.productId}',
+            id: item.productId.toString(),
             slug: item.productSlug,
             apiId: item.productId,
             title: item.name,
             price: item.price,
-            images: switch (photos[item.productSlug] ?? item.image) {
+            images: switch (photos[item.productId] ?? item.image) {
               final String url => [url],
               _ => const [],
             },

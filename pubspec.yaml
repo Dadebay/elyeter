@@ -45,6 +45,7 @@ dependencies:
   cached_network_image: ^3.4.1
   flutter_svg: ^2.3.0
   shimmer: ^3.0.0
+  glassmorphism: ^4.0.0
 
   # ---------------------------------------------------------------- media --
   # Pure-Dart JPEG resize/re-encode — shrinks a picked avatar below the
@@ -80,6 +81,7 @@ dependencies:
   flutter_map: ^8.3.2
   latlong2: ^0.9.1
   location: ^10.0.2
+  geocoding: ^5.0.0
   html: 0.15.6
   pdf: ^3.12.0
 

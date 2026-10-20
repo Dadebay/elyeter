@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
+import '../../../../core/widgets/app_loader.dart';
+import '../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/network/api_response.dart';
@@ -11,6 +12,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../../../../core/utils/formatters/currency_formatter.dart';
+import '../../../../core/utils/formatters/date_formatter.dart';
 import '../../../../core/widgets/app_page_app_bar.dart';
 import '../../../product/presentation/widgets/product_image_view.dart';
 import '../../domain/entities/pre_order.dart';
@@ -84,12 +86,12 @@ class _OrderListPageState extends State<OrderListPage> {
       backgroundColor: AppColors.background,
       appBar: AppPageAppBar(title: widget.title),
       body: _page == null && _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: AppLoader())
           : _page == null && _error != null
           ? Center(
               child: TextButton(onPressed: _load, child: Text(_error!)),
             )
-          : RefreshIndicator(
+          : AppRefreshIndicator(
               onRefresh: _load,
               child: items.isEmpty
                   ? LayoutBuilder(
@@ -125,9 +127,7 @@ class _OrderListPageState extends State<OrderListPage> {
                               child: _error == null
                                   ? const SizedBox.square(
                                       dimension: 24,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2.5,
-                                      ),
+                                      child: AppLoader(),
                                     )
                                   : TextButton(
                                       onPressed: () => _load(more: true),
@@ -201,7 +201,7 @@ class _OrderTile extends StatelessWidget {
     final locale = Localizations.localeOf(context).toString();
     final date = order.createdAt == null
         ? null
-        : DateFormat('MMM d, HH:mm', locale).format(order.createdAt!);
+        : DateFormatter.monthDayTime(order.createdAt!, locale: locale, shortMonth: true);
     final shown = order.items.take(_maxThumbs).toList();
     final hidden = order.items.length - shown.length;
 
@@ -300,7 +300,7 @@ class _OrderTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '${CurrencyFormatter.amount(order.totalPrice)} ${order.currency}',
+                      '${CurrencyFormatter.amount(order.totalPrice, locale: locale)} ${order.currency}',
                       style: theme.titleMedium?.copyWith(
                         color: AppColors.black,
                         fontWeight: FontWeight.w700,

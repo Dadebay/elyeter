@@ -53,6 +53,38 @@ class _UnusedAuthRepository implements AuthRepository {
 
 void main() {
   test(
+    'public banners keep the API order and accept a missing title',
+    () async {
+      final client = _Client()
+        ..responses['/banners'] = [
+          {
+            'id': 5,
+            'title': null,
+            'image': 'https://example.com/phone.webp',
+            'target_type': 'product',
+            'target': '1234',
+          },
+          {
+            'id': 3,
+            'title': 'Hepdäniň arzanladyşlary',
+            'image': 'https://example.com/sale.webp',
+            'target_type': 'category',
+            'target': 'elektronika',
+          },
+        ];
+
+      final banners = await ShopApi(client).banners();
+
+      expect(client.requests, ['GET /banners {}']);
+      expect(banners.map((banner) => banner.id), [5, 3]);
+      expect(banners.first.title, isNull);
+      expect(banners.first.target, '1234');
+      expect(banners.last.image, 'https://example.com/sale.webp');
+      expect(banners.last.targetType, 'category');
+    },
+  );
+
+  test(
     'favourites use numeric product IDs and clear when the account ends',
     () async {
       final client = _Client()

@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/widgets/app_loader.dart';
+import '../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_icons.dart';
@@ -18,6 +19,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
 import '../../../../core/utils/formatters/currency_formatter.dart';
+import '../../../../core/utils/formatters/date_formatter.dart';
 import '../../../../core/utils/result.dart';
 import '../../../../core/widgets/app_back_button.dart';
 import '../../../../core/widgets/app_snack_bar.dart';
@@ -60,10 +62,10 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     _future = _fetch();
   }
 
-  /// Product slug to the photo to show for it. The order carries a photo per
+  /// Product ID to the photo to show for it. The order carries a photo per
   /// line, but it is the supplier's link; the product's own photo from our
   /// file server is the one that reliably loads, so that is what is shown.
-  final Map<String, String> _photos = {};
+  final Map<int, String> _photos = {};
 
   Future<Result<PreOrder>> _fetch() async {
     final result = await getIt<PreOrderRepository>().byId(widget.orderId);
@@ -73,11 +75,11 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
 
   void _loadPhotos(PreOrder order) {
     for (final item in order.items) {
-      final slug = item.productSlug;
-      if (slug == null || _photos.containsKey(slug)) continue;
-      ProductPhotos.load(slug).then((urls) {
+      final id = item.productId;
+      if (item.productSlug == null || _photos.containsKey(id)) continue;
+      ProductPhotos.load(id).then((urls) {
         if (mounted && urls.isNotEmpty) {
-          setState(() => _photos[slug] = urls.first);
+          setState(() => _photos[id] = urls.first);
         }
       });
     }
@@ -125,11 +127,13 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
   void _repeat(PreOrder order) {
     final cart = context.read<CartCubit>();
     for (final item in order.items) {
-      final slug = item.productSlug;
+      final id = item.productId;
       // A product that has left the catalog has nothing to reorder.
-      if (slug == null) continue;
-      if (item.variantId != null) cart.setVariant(slug, item.variantId!);
-      cart.setQuantity(slug, item.quantity);
+      if (item.productSlug == null) continue;
+      if (item.variantId != null) {
+        cart.setVariant(id.toString(), item.variantId!);
+      }
+      cart.setQuantity(id.toString(), item.quantity);
     }
     AppSnackBar.show(context, context.l10n.orderRepeatDone);
     context.goNamed(AppRoutes.cart.name);
@@ -254,7 +258,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           if (order == null) {
             return Center(
               child: snapshot.connectionState != ConnectionState.done
-                  ? const CircularProgressIndicator()
+                  ? const AppLoader()
                   : TextButton(
                       onPressed: _reload,
                       child: Text(
@@ -266,7 +270,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           }
           final data = OrderDetailData.fromPreOrder(order, photos: _photos);
 
-          return RefreshIndicator(
+          return AppRefreshIndicator(
             onRefresh: _reload,
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -299,9 +303,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     context,
                     order: order,
                     photos: _photos,
-                    onOpenProduct: (slug) => context.pushNamed(
+                    onOpenProduct: (id) => context.pushNamed(
                       AppRoutes.productDetail.name,
-                      pathParameters: {'id': slug},
+                      pathParameters: {'id': id.toString()},
                     ),
                   ),
                 ),
@@ -474,7 +478,7 @@ class _Action extends StatelessWidget {
                 child: busy
                     ? const Padding(
                         padding: EdgeInsets.all(2),
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        child: AppLoader(),
                       )
                     : SvgPicture.asset(icon, width: 22, height: 22),
               ),
@@ -538,7 +542,7 @@ class _Products extends StatelessWidget {
           Text(
             context.l10n.orderItemSummary(
               order.itemCount,
-              CurrencyFormatter.format(order.productsTotal, decimals: 0),
+              CurrencyFormatter.format(order.productsTotal, locale: context.l10n.localeName, decimals: 0),
             ),
             style: context.textTheme.labelSmall?.copyWith(
               color: AppColors.grey500,
@@ -584,10 +588,7 @@ class _Details extends StatelessWidget {
       OrderInfoRow(
         icon: AppAssets.iconCalendar,
         label: l10n.orderTime,
-        value: DateFormat(
-          "MMMM d, y 'at' HH:mm",
-          locale,
-        ).format(order.placedAt),
+        value: DateFormatter.dayTime(order.placedAt, locale: locale, fullMonth: true),
       ),
       if (order.comment != null && order.comment!.isNotEmpty)
         OrderInfoRow(

@@ -35,12 +35,20 @@ void main() {
     WidgetTester tester, {
     required String slug,
     required Object response,
+    bool dark = false,
+    double textScale = 1,
   }) async {
     final client = _PageClient(response);
     getIt.registerSingleton<ShopApi>(ShopApi(client));
     await tester.pumpWidget(
       MaterialApp(
-        theme: AppTheme.light,
+        theme: dark ? AppTheme.dark : AppTheme.light,
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: TextScaler.linear(textScale)),
+          child: child!,
+        ),
         locale: const Locale('en'),
         supportedLocales: AppLocalizations.supportedLocales,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -107,7 +115,7 @@ void main() {
     );
 
     expect(client.requestedPath, '/pages/terms');
-    expect(find.text('Terms from API'), findsOneWidget);
+    expect(find.text('Terms from API'), findsNWidgets(2));
     expect(find.text('Current terms'), findsOneWidget);
     final html = tester.widget<Html>(find.byType(Html));
     expect(html.style['html']?.fontFamily, AppTypography.fontFamily);
@@ -198,4 +206,66 @@ void main() {
       findsOneWidget,
     );
   });
+  for (final dark in [false, true]) {
+    testWidgets(
+      'rich API content fits narrow screens with large text (${dark ? 'dark' : 'light'})',
+      (tester) async {
+        tester.view.physicalSize = const Size(360, 780);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        await pumpPage(
+          tester,
+          slug: 'privacy',
+          dark: dark,
+          textScale: 1.5,
+          response: {
+            'slug': 'privacy',
+            'title': 'Privacy policy and personal information',
+            'body':
+                '<h2>Information you share</h2>'
+                '<p style="color:#000000;background-color:#ffffff">'
+                '<strong>Readable paragraph</strong> with <em>emphasis</em> and a '
+                '<a href="https://example.com/privacy">privacy link</a>.</p>'
+                '<ul><li>First item with enough text to wrap across several lines.</li>'
+                '<li>Second item</li></ul>'
+                '<h3>Your choices</h3><p>Final paragraph.</p>',
+          },
+        );
+        expect(find.byType(SelectionArea), findsOneWidget);
+        expect(
+          find.text('Information you share', findRichText: true),
+          findsOneWidget,
+        );
+        final paragraph = tester
+            .widgetList<RichText>(find.byType(RichText))
+            .firstWhere(
+              (widget) =>
+                  widget.text.toPlainText().contains('Readable paragraph'),
+            );
+        Color? foreground(InlineSpan span, Color? inherited) {
+          final color = span.style?.color ?? inherited;
+          if (span is TextSpan) {
+            if (span.text?.contains('Readable paragraph') == true) return color;
+            for (final child in span.children ?? <InlineSpan>[]) {
+              final found = foreground(child, color);
+              if (found != null) return found;
+            }
+          }
+          return null;
+        }
+
+        final theme = dark ? AppTheme.dark : AppTheme.light;
+        expect(
+          foreground(paragraph.text, null),
+          theme.textTheme.bodyLarge!.color,
+        );
+        await tester.scrollUntilVisible(
+          find.text('Final paragraph.', findRichText: true),
+          250,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 }

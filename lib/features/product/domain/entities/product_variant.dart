@@ -25,11 +25,18 @@ class ProductVariant extends Equatable {
   final List<ProductAttribute> attributes;
 
   /// `Reňk: Gara` — what the option chip shows.
-  String get label =>
-      attributes.map((a) => '${a.name}: ${a.value}').join(', ');
+  String get label => attributes.map((a) => '${a.name}: ${a.value}').join(', ');
 
   bool get inStock => stock > 0;
 
   @override
-  List<Object?> get props => [id, sku, price, oldPrice, stock, image, attributes];
+  List<Object?> get props => [
+    id,
+    sku,
+    price,
+    oldPrice,
+    stock,
+    image,
+    attributes,
+  ];
 }

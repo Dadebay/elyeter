@@ -1,9 +1,14 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
+
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_response.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/entities/product_detail.dart';
 import '../../domain/entities/product_query.dart';
+import '../../domain/entities/product_reviews.dart';
 import '../../domain/entities/product_variant.dart';
 import '../models/product_model.dart';
 
@@ -13,8 +18,19 @@ abstract interface class ProductRemoteDataSource {
     required int page,
     required int size,
   });
-  Future<ProductDetail> bySlug(String slug);
+  Future<ProductDetail> byId(int id);
   Future<List<ProductVariant>> variants(int productId);
+  Future<ProductReviews> reviews(
+    int productId, {
+    required int page,
+    required int size,
+  });
+  Future<void> saveReview(
+    int productId, {
+    required int rating,
+    String? comment,
+  });
+  Future<void> deleteMyReview(int productId);
 }
 
 class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
@@ -28,7 +44,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     required int page,
     required int size,
   }) async {
-    final brands = query.allBrandSlugs;
+    final brands = query.allBrandIds;
     if (brands.length > 1) return _listAcrossBrands(query, brands, page, size);
 
     final data = await _client.get(
@@ -38,7 +54,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     return Paginated.fromJson(data, ProductModel.fromJson);
   }
 
-  /// The API filters by one brand per request, so several brands are asked
+  /// The API filters by one brand id per request, so several brands are asked
   /// for one by one, merged, put back in the order asked for, and cut into
   /// the requested page here.
   ///
@@ -48,12 +64,12 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   /// [_maxPagesPerBrand] pages of the API's largest page.
   Future<Paginated<Product>> _listAcrossBrands(
     ProductQuery query,
-    List<String> brands,
+    List<int> brands,
     int page,
     int size,
   ) async {
     final perBrand = await Future.wait([
-      for (final slug in brands) _listAllOfBrand(query.forBrand(slug)),
+      for (final id in brands) _listAllOfBrand(query.forBrand(id)),
     ]);
 
     final byId = <int, Product>{
@@ -99,8 +115,8 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   }
 
   @override
-  Future<ProductDetail> bySlug(String slug) async {
-    final data = await _client.get(ApiEndpoints.product(slug));
+  Future<ProductDetail> byId(int id) async {
+    final data = await _client.get(ApiEndpoints.product(id));
     return ProductModel.detailFromJson(asMap(data));
   }
 
@@ -108,5 +124,42 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   Future<List<ProductVariant>> variants(int productId) async {
     final data = await _client.get(ApiEndpoints.productVariants(productId));
     return parseList(data, ProductModel.variantFromJson);
+  }
+
+  @override
+  Future<ProductReviews> reviews(
+    int productId, {
+    required int page,
+    required int size,
+  }) async {
+    final data = await _client.get(
+      ApiEndpoints.productReviews(productId),
+      queryParameters: {'page': page, 'size': size},
+    );
+    // TODO(debug): remove once the reviewer-name field is confirmed.
+    if (kDebugMode) {
+      const yellow = '\x1B[33m';
+      const reset = '\x1B[0m';
+      final json = const JsonEncoder.withIndent('  ').convert(data);
+      debugPrint('$yellow[REVIEWS product=$productId]\n$json$reset');
+    }
+    return ProductReviews.fromJson(asMap(data));
+  }
+
+  @override
+  Future<void> saveReview(
+    int productId, {
+    required int rating,
+    String? comment,
+  }) async {
+    await _client.post(
+      ApiEndpoints.productReviews(productId),
+      data: {'rating': rating, 'comment': comment},
+    );
+  }
+
+  @override
+  Future<void> deleteMyReview(int productId) async {
+    await _client.delete(ApiEndpoints.myProductReview(productId));
   }
 }

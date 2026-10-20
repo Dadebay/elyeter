@@ -1,5 +1,7 @@
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 
+import '../../../product/domain/entities/product_query.dart';
+import '../../../product/domain/repositories/product_repository.dart';
 import 'cart_state.dart';
 
 /// The customer's cart: which products, how many, and what is ticked.
@@ -8,6 +10,67 @@ import 'cart_state.dart';
 /// counts only — prices come from the catalog, so nothing here goes stale.
 class CartCubit extends HydratedCubit<CartState> {
   CartCubit() : super(const CartState());
+
+  static const _legacyPrefix = 'legacy-slug:';
+
+  /// Even numeric-looking slugs from old storage must be resolved by slug.
+  static String? legacySlug(String key) => key.startsWith(_legacyPrefix)
+      ? key.substring(_legacyPrefix.length)
+      : null;
+
+  Future<void>? _migration;
+
+  /// Resolve old cart keys using the list API, never the removed slug route.
+  /// Unmatched records and network failures stay in storage for a later retry.
+  Future<void> migrateLegacyProducts(ProductRepository repository) =>
+      _migration ??= _resolveLegacyProducts(repository).whenComplete(() {
+        _migration = null;
+      });
+
+  Future<void> _resolveLegacyProducts(ProductRepository repository) async {
+    const size = 100;
+    for (var page = 1; !isClosed; page++) {
+      if (!state.quantities.keys.any((key) => legacySlug(key) != null)) return;
+      final result = await repository.list(
+        query: const ProductQuery(),
+        page: page,
+        size: size,
+      );
+      if (isClosed) return;
+      final products = result.dataOrNull;
+      if (products == null) return;
+      for (final product in products.items) {
+        _resolveLegacyKey('$_legacyPrefix${product.slug}', product.id);
+      }
+      if (products.items.isEmpty || !products.hasMore(size)) return;
+    }
+  }
+
+  void _resolveLegacyKey(String oldKey, int productId) {
+    // It may have been removed while loading.
+    if (!state.contains(oldKey)) return;
+    final id = productId.toString();
+    final alreadyAdded = state.contains(id);
+    final quantities = Map<String, int>.of(state.quantities);
+    final oldQuantity = quantities.remove(oldKey)!;
+    quantities[id] = ((quantities[id] ?? 0) + oldQuantity).clamp(
+      1,
+      maxQuantity,
+    );
+    final deselected = Set<String>.of(state.deselected);
+    final wasDeselected = deselected.remove(oldKey);
+    if (!alreadyAdded && wasDeselected) deselected.add(id);
+    final variants = Map<String, int>.of(state.variants);
+    final variant = variants.remove(oldKey);
+    if (variant != null) variants.putIfAbsent(id, () => variant);
+    emit(
+      CartState(
+        quantities: quantities,
+        deselected: deselected,
+        variants: variants,
+      ),
+    );
+  }
 
   /// Beyond this a line stops being a cart line and becomes a bulk order.
   static const maxQuantity = 99;
@@ -90,9 +153,12 @@ class CartCubit extends HydratedCubit<CartState> {
 
   @override
   CartState? fromJson(Map<String, dynamic> json) {
+    String keyFor(String key) =>
+        json['version'] == 2 ? key : '$_legacyPrefix$key';
     final quantities =
         (json['quantities'] as Map?)?.map(
-          (key, value) => MapEntry(key as String, (value as num).toInt()),
+          (key, value) =>
+              MapEntry(keyFor(key as String), (value as num).toInt()),
         ) ??
         const <String, int>{};
 
@@ -105,10 +171,12 @@ class CartCubit extends HydratedCubit<CartState> {
     return CartState(
       quantities: quantities,
       deselected:
-          (json['deselected'] as List?)?.cast<String>().toSet() ?? const {},
+          (json['deselected'] as List?)?.cast<String>().map(keyFor).toSet() ??
+          const {},
       variants:
           (json['variants'] as Map?)?.map(
-            (key, value) => MapEntry(key as String, (value as num).toInt()),
+            (key, value) =>
+                MapEntry(keyFor(key as String), (value as num).toInt()),
           ) ??
           const {},
     );
@@ -116,6 +184,7 @@ class CartCubit extends HydratedCubit<CartState> {
 
   @override
   Map<String, dynamic>? toJson(CartState state) => {
+    'version': 2,
     'quantities': state.quantities,
     'deselected': state.deselected.toList(),
     'variants': state.variants,

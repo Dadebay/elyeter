@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:elyeter/app/cubit/locale_cubit.dart';
 import 'package:elyeter/app/cubit/theme_cubit.dart';
 import 'package:elyeter/core/di/injector.dart';
+import 'package:elyeter/core/localization/fallback_localizations.dart';
 import 'package:elyeter/core/network/api_client.dart';
 import 'package:elyeter/core/network/shop_api.dart';
 import 'package:elyeter/core/theme/app_theme.dart';
@@ -37,8 +38,9 @@ class _IdleAuthRepository implements AuthRepository {
 }
 
 class _ContactsClient extends ApiClient {
-  _ContactsClient(this.data) : super(Dio());
+  _ContactsClient(this.data, this.pages) : super(Dio());
   final Map<String, dynamic> data;
+  final List<Map<String, dynamic>> pages;
   final requests = <String>[];
 
   @override
@@ -49,7 +51,7 @@ class _ContactsClient extends ApiClient {
   }) async {
     requests.add(path);
     if (path == '/contacts') return data;
-    if (path == '/pages') return <dynamic>[];
+    if (path == '/pages') return pages;
     throw StateError('Unexpected request: $path');
   }
 }
@@ -58,16 +60,17 @@ void main() {
   setUp(() => HydratedBloc.storage = _MemoryStorage());
   tearDown(() async => getIt.reset());
 
-  Future<void> pumpProfile(
+  Future<LocaleCubit> pumpProfile(
     WidgetTester tester,
     Map<String, dynamic> data, {
     bool dark = false,
+    List<Map<String, dynamic>> pages = const [],
   }) async {
-    final client = _ContactsClient(data);
+    final client = _ContactsClient(data, pages);
     getIt.registerSingleton<ShopApi>(ShopApi(client));
     final auth = AuthCubit(_IdleAuthRepository());
     final theme = ThemeCubit();
-    final locale = LocaleCubit();
+    final locale = LocaleCubit()..setLanguageCode('en');
     final profile = ProfileCubit();
     addTearDown(auth.close);
     addTearDown(theme.close);
@@ -82,18 +85,72 @@ void main() {
           BlocProvider<LocaleCubit>.value(value: locale),
           BlocProvider<ProfileCubit>.value(value: profile),
         ],
-        child: MaterialApp(
-          theme: dark ? AppTheme.dark : AppTheme.light,
-          locale: const Locale('en'),
-          supportedLocales: AppLocalizations.supportedLocales,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          home: const ProfilePage(),
+        child: BlocBuilder<LocaleCubit, Locale?>(
+          builder: (context, selectedLocale) => MaterialApp(
+            theme: dark ? AppTheme.dark : AppTheme.light,
+            locale: selectedLocale,
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: const [
+              ...AppLocalizations.localizationsDelegates,
+              ...FallbackLocalizations.delegates,
+            ],
+            home: const ProfilePage(),
+          ),
         ),
       ),
     );
     await tester.pumpAndSettle();
     expect(client.requests, contains('/contacts'));
+    return locale;
   }
+
+  testWidgets('Other labels follow locale even with Turkmen server titles', (
+    tester,
+  ) async {
+    final locale = await pumpProfile(
+      tester,
+      {},
+      pages: [
+        {'slug': 'about', 'title': 'Programma barada'},
+        {'slug': 'faq', 'title': 'FAQ'},
+        {'slug': 'terms', 'title': 'Ulanyş şertleri'},
+        {'slug': 'privacy', 'title': 'Gizlinlik syýasaty'},
+      ],
+    );
+
+    const titles = {
+      'en': ['About the app', 'FAQ', 'Terms of use', 'Privacy policy'],
+      'ru': [
+        'О приложении',
+        'Вопросы и ответы',
+        'Условия использования',
+        'Политика конфиденциальности',
+      ],
+      'tk': [
+        'Programma barada',
+        'Sowal-jogap',
+        'Ulanyş şertleri',
+        'Gizlinlik syýasaty',
+      ],
+    };
+    for (final language in ['en', 'ru', 'tk', 'en']) {
+      locale.setLanguageCode(language);
+      await tester.pumpAndSettle();
+      tester
+          .state<ScrollableState>(find.byType(Scrollable).first)
+          .position
+          .jumpTo(0);
+      await tester.pump();
+      for (final title in titles[language]!) {
+        await tester.scrollUntilVisible(
+          find.text(title),
+          150,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(find.text(title), findsOneWidget);
+      }
+    }
+  });
 
   testWidgets('all null contacts hide the section and call cards', (
     tester,
@@ -154,21 +211,22 @@ void main() {
     expect(find.text('Instagram'), findsNothing);
   });
 
-  testWidgets('dark profile uses dark app bar, settings rows and call button', (
+  testWidgets('dark profile keeps its title fixed while scrolling settings', (
     tester,
   ) async {
     await pumpProfile(tester, {'phone_primary': '+99365000001'}, dark: true);
 
+    expect(find.byType(AppBar), findsOneWidget);
+    expect(find.text('Profile').hitTestable(), findsOneWidget);
+    final titlePosition = tester.getTopLeft(find.text('Profile'));
+    expect(
+      find.ancestor(of: find.text('Profile'), matching: find.byType(AppBar)),
+      findsOneWidget,
+    );
     expect(
       tester.widget<AppBar>(find.byType(AppBar)).backgroundColor,
       AppTheme.dark.scaffoldBackgroundColor,
     );
-    final appBarTheme = Theme.of(
-      tester.element(find.byType(AppBar)),
-    ).appBarTheme;
-    expect(appBarTheme.backgroundColor, AppTheme.dark.scaffoldBackgroundColor);
-    expect(appBarTheme.scrolledUnderElevation, 0);
-    expect(appBarTheme.surfaceTintColor, Colors.transparent);
     expect(find.text('My saved locations'), findsNothing);
     expect(find.text('Active orders'), findsNothing);
     expect(find.text('Order history'), findsNothing);
@@ -200,6 +258,12 @@ void main() {
         of: find.byType(SupportCallCard),
         matching: find.byType(FilledButton),
       ),
+    );
+    expect(find.text('Profile').hitTestable(), findsOneWidget);
+    expect(tester.getTopLeft(find.text('Profile')), titlePosition);
+    expect(
+      tester.widget<AppBar>(find.byType(AppBar)).scrolledUnderElevation,
+      0,
     );
     expect(
       callButton.style?.backgroundColor?.resolve({}),

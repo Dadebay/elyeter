@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:elyeter/app/router/app_routes.dart';
 import 'package:elyeter/core/di/injector.dart';
 import 'package:elyeter/core/network/api_response.dart';
@@ -17,6 +19,8 @@ import 'package:elyeter/features/product/domain/entities/product.dart';
 import 'package:elyeter/features/product/domain/entities/product_query.dart';
 import 'package:elyeter/features/product/domain/repositories/product_repository.dart';
 import 'package:elyeter/features/product/presentation/widgets/catalog_product_grid.dart';
+import 'package:elyeter/features/search/presentation/widgets/search_reveal_transition.dart';
+import 'package:elyeter/features/product/presentation/widgets/product_grid_shimmer.dart';
 import 'package:elyeter/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart' show CupertinoSwitch;
 import 'package:flutter/material.dart';
@@ -29,14 +33,18 @@ class _CategoryRepository implements CategoryRepository {
   final Category category;
 
   @override
-  Future<Result<List<Category>>> tree() async => Success([category]);
+  Future<Result<List<Category>>> tree({
+    bool featuredOnly = false,
+    bool forceRefresh = false,
+  }) async => Success([category]);
 
   @override
-  Future<Result<Category>> bySlug(String slug) async => Success(category);
+  Future<Result<Category>> byId(int id) async => Success(category);
 }
 
 class _ProductRepository implements ProductRepository {
   ProductQuery? lastQuery;
+  Completer<void>? ready;
 
   @override
   Future<Result<Paginated<Product>>> list({
@@ -45,6 +53,7 @@ class _ProductRepository implements ProductRepository {
     int size = 20,
   }) async {
     lastQuery = query;
+    await ready?.future;
     return Success(Paginated(items: const [], totalCount: 0, page: page));
   }
 
@@ -54,10 +63,13 @@ class _ProductRepository implements ProductRepository {
 
 class _BrandRepository implements BrandRepository {
   @override
-  Future<Result<List<Brand>>> list({String? search}) async => Success(const []);
+  Future<Result<List<Brand>>> list({
+    String? search,
+    bool featuredOnly = false,
+  }) async => Success(const []);
 
   @override
-  Future<Result<Brand>> bySlug(String slug) => throw UnimplementedError();
+  Future<Result<Brand>> byId(int id) => throw UnimplementedError();
 }
 
 void main() {
@@ -86,7 +98,10 @@ void main() {
     });
     expect(category.children.single.children.single.slug, 'phone-cases');
     getIt.registerSingleton<CategoryRepository>(_CategoryRepository(category));
-    getIt.registerSingleton<ProductRepository>(_ProductRepository());
+    final ready = Completer<void>();
+    getIt.registerSingleton<ProductRepository>(
+      _ProductRepository()..ready = ready,
+    );
     final router = GoRouter(
       initialLocation: '/category/elektronika',
       routes: [
@@ -110,7 +125,11 @@ void main() {
         routerConfig: router,
       ),
     );
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byType(ProductGridShimmer), findsOneWidget);
+    ready.complete();
     await tester.pumpAndSettle();
+    expect(find.byType(ProductGridShimmer), findsNothing);
 
     expect(find.text('Electronics'), findsOneWidget);
     expect(find.byType(SubcategoryGrid), findsOneWidget);
@@ -166,7 +185,11 @@ void main() {
 
     expect(find.text('Dekoratiw kosmetika'), findsOneWidget);
     expect(find.byType(CatalogProductGrid), findsOneWidget);
-    expect(products.lastQuery?.categorySlug, 'krasota-i-zdorove');
+    expect(products.lastQuery?.categoryId, 18);
+    expect(
+      products.lastQuery?.toQueryParameters(page: 1, size: 10),
+      containsPair('category_id', 18),
+    );
     expect(
       tester.getTopLeft(find.byType(CategoryFilterBar)).dy,
       greaterThan(tester.getBottomLeft(find.byType(SubcategoryGrid)).dy),
@@ -194,6 +217,7 @@ void main() {
     getIt.registerSingleton<CategoryRepository>(_CategoryRepository(category));
     final products = _ProductRepository();
     getIt.registerSingleton<ProductRepository>(products);
+    Rect? searchOrigin;
     final router = GoRouter(
       initialLocation: '/category/kosmetika',
       routes: [
@@ -206,8 +230,10 @@ void main() {
         GoRoute(
           path: '/search',
           name: AppRoutes.search.name,
-          builder: (context, state) =>
-              const Scaffold(body: Text('Search opened')),
+          builder: (context, state) {
+            searchOrigin = (state.extra as SearchButtonOrigin).bounds;
+            return const Scaffold(body: Text('Search opened'));
+          },
         ),
       ],
     );
@@ -272,13 +298,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(products.lastQuery?.sort, ProductSort.popular);
 
-    await tester.tap(find.byType(CategorySearchButton));
-    await tester.pumpAndSettle();
-    expect(
-      tester
-          .widget<CategorySearchButton>(find.byType(CategorySearchButton))
-          .open,
-      isTrue,
+    final searchButton = find.descendant(
+      of: find.byType(CategorySearchButton),
+      matching: find.byType(InkWell),
     );
+    final buttonBounds = tester.getRect(searchButton);
+    await tester.tap(searchButton);
+    await tester.pumpAndSettle();
+    expect(find.text('Search opened'), findsOneWidget);
+    expect(searchOrigin, buttonBounds);
   });
 }

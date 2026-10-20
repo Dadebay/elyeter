@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/localization/failure_localizer.dart';
@@ -305,10 +306,7 @@ class _SaveBar extends StatelessWidget {
         child: FilledButton(
           onPressed: enabled ? onPressed : null,
           child: saving
-              ? const SizedBox.square(
-                  dimension: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
+              ? const SizedBox.square(dimension: 20, child: AppLoader())
               : Text(label),
         ),
       ),

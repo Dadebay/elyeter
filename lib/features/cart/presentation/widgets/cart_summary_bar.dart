@@ -1,6 +1,5 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'package:glassmorphism/glassmorphism.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -24,14 +23,6 @@ class CartSummaryBar extends StatelessWidget {
     this.onTap,
   });
 
-  /// A wide surface should read as thick — a heavier blur than a small chip
-  /// would take.
-  static const _blur = 30.0;
-
-  /// Enough tint to keep the brand colour and carry text, sheer enough that
-  /// the product photos still move underneath, blurred, through the glass.
-  static const _tint = 0.78;
-
   final int productCount;
   final num total;
 
@@ -42,14 +33,11 @@ class CartSummaryBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(AppRadius.xl);
-
-    // Accessibility setting for reduced transparency: frost the surface
-    // solid rather than asking anyone to read through a blur.
+    // Use a solid surface when extra contrast is requested.
     final opaque = MediaQuery.highContrastOf(context);
 
     final content = Material(
-      color: Colors.transparent,
+      type: MaterialType.transparency,
       child: InkWell(
         onTap: onTap,
         child: Padding(
@@ -66,55 +54,51 @@ class CartSummaryBar extends StatelessWidget {
       ),
     );
 
-    // Frosted orange glass: the brand colour, brightest at the top and
-    // settling toward the bottom, with a hair of white at the edge where
-    // light catches it.
-    final surface = DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: opaque
-            ? null
-            : LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.white.withValues(alpha: 0.22),
-                  AppColors.primary.withValues(alpha: 0.0),
-                ],
-              ),
-        color: opaque
-            ? AppColors.primarySoft
-            : AppColors.primary.withValues(alpha: _tint),
-        borderRadius: radius,
-        border: opaque
-            ? null
-            : Border.all(color: Colors.white.withValues(alpha: 0.45)),
-      ),
-      child: content,
-    );
-
-    return DecoratedBox(
-      // Outside the clip, so the shadow is not cut away with the blur.
-      decoration: BoxDecoration(
-        borderRadius: radius,
-        boxShadow: const [
-          // Just enough to lift the pill off the list; the design shows
-          // separation, not a drop shadow.
-          BoxShadow(
-            color: Color(0x0F000000),
-            blurRadius: 16,
-            offset: Offset(0, 4),
-          ),
+    return GlassmorphicContainer(
+      borderRadius: AppRadius.pill,
+      blur: opaque ? 0 : 4,
+      border: opaque ? 0 : 1.3,
+      // A narrow warm reflection gives the glass depth over an empty cart
+      // backdrop, while the centre keeps its translucent peach tint.
+      linearGradient: opaque
+          ? const LinearGradient(colors: [Color(0xFFFFD8BF), Color(0xFFFFD8BF)])
+          : const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: [0, 0.14, 0.68, 1],
+              colors: [
+                Color(0x66FFC395),
+                Color(0x66FF9D5C),
+                Color(0x66FF9D5C),
+                Color(0x70F39459),
+              ],
+            ),
+      borderGradient: const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        stops: [0, 0.4, 0.65, 1],
+        colors: [
+          Color(0xE6FFF0E2),
+          Color(0x73FFD8BB),
+          Color(0x4DCE8558),
+          Color(0xB3FFE2CC),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: radius,
-        child: opaque
-            ? surface
-            : BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: _blur, sigmaY: _blur),
-                child: surface,
-              ),
-      ),
+      // The package paints shadows outside the glass, so its own shadow
+      // cannot darken the translucent surface or obscure the products.
+      boxShadow: const [
+        BoxShadow(
+          color: Color(0x1A7A4727),
+          blurRadius: 18,
+          offset: Offset(0, 6),
+        ),
+        BoxShadow(
+          color: Color(0x0F573921),
+          blurRadius: 3,
+          offset: Offset(0, 1),
+        ),
+      ],
+      child: content,
     );
   }
 }
@@ -172,7 +156,7 @@ class _Row extends StatelessWidget {
                   CountingNumber(
                     value: oldTotal,
                     builder: (shown) => Text(
-                      '${CurrencyFormatter.amount(shown)} '
+                      '${CurrencyFormatter.amount(shown, locale: context.l10n.localeName)} '
                       '${AppConstants.currencySymbol}',
                       style: context.textTheme.bodySmall?.copyWith(
                         // Red would sink into the orange; a muted ink reads on it.
@@ -193,7 +177,12 @@ class _Row extends StatelessWidget {
                   builder: (shown) => Text.rich(
                     TextSpan(
                       children: [
-                        TextSpan(text: CurrencyFormatter.amount(shown)),
+                        TextSpan(
+                          text: CurrencyFormatter.amount(
+                            shown,
+                            locale: context.l10n.localeName,
+                          ),
+                        ),
                         const TextSpan(text: ' '),
                         TextSpan(
                           text: AppConstants.currencySymbol,

@@ -30,4 +30,25 @@ void main() {
       AppColors.white,
     );
   });
+
+  testWidgets('AppBar leading uses its wide pill size by default', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(
+            leadingWidth: AppBackButton.leadingWidth,
+            leading: const AppBackButton.appBarLeading(),
+          ),
+        ),
+      ),
+    );
+
+    final backInkWell = find.descendant(
+      of: find.byType(AppBar),
+      matching: find.byType(InkWell),
+    );
+    expect(tester.getSize(backInkWell), const Size(50, 36));
+  });
 }

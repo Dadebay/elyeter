@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/extensions/context_extensions.dart';
+import '../../../../core/utils/formatters/date_formatter.dart';
 import '../model/order_detail_data.dart';
 import '../../../../core/constants/app_icons.dart';
 
@@ -155,10 +155,10 @@ class _Row extends StatelessWidget {
                     )
                   else if (entry.at case final at?)
                     Text(
-                      DateFormat(
-                        'MMMM d, HH:mm',
-                        Localizations.localeOf(context).toString(),
-                      ).format(at),
+                      DateFormatter.monthDayTime(
+                        at,
+                        locale: Localizations.localeOf(context).toString(),
+                      ),
                       style: context.textTheme.labelSmall?.copyWith(
                         color: AppColors.grey500,
                       ),

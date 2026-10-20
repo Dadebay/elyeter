@@ -36,15 +36,16 @@ class PushService {
   final AuthCubit _session;
 
   String? _token;
+  Future<void>? _initialization;
 
   /// Never throws: a phone without Play services, or a build whose Firebase
   /// config is missing, must still open the app.
-  Future<void> init() async {
+  Future<void> init() => _initialization ??= _initialize();
+
+  Future<void> _initialize() async {
     try {
       if (Firebase.apps.isEmpty) {
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        );
+        await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
       }
       _local.onTap = _onLocalTap;
       await _local.init();
@@ -58,17 +59,12 @@ class PushService {
       // iOS suppresses banners while the app is open unless this is set —
       // independent of the permission above.
       if (Platform.isIOS) {
-        await messaging.setForegroundNotificationPresentationOptions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
+        await messaging.setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
       }
 
       await _syncTopics();
       _locale.stream.listen((_) {
         unawaited(_syncTopics());
-        unawaited(syncToken());
       });
       _session.stream.listen((state) {
         if (!state.isAuthenticated) unawaited(_syncTopics());
@@ -85,23 +81,17 @@ class PushService {
       final initial = await messaging.getInitialMessage();
       if (initial != null) _onOpened(initial);
 
-      // On iOS the FCM token is derived from the APNs one, and asking too
-      // early simply returns null — with no second attempt, the device then
-      // has no token for the rest of the session.
+      // On iOS the FCM token is derived from the APNs one. Wait before the
+      // first fetch; OTP registration can retry if no token exists yet.
       await _awaitApns();
 
       _token = await messaging.getToken();
       await _printTokens();
-      unawaited(syncToken());
 
-      // A rotated token is useless to the backend until it is sent again.
+      // Keep the current token locally; only a successful OTP login sends it.
       messaging.onTokenRefresh.listen((token) {
         _token = token;
-        AppLogger.group(
-          AnsiColor.paint('FCM token refreshed', AnsiColor.magenta),
-          lines: [token],
-        );
-        unawaited(syncToken());
+        AppLogger.group(AnsiColor.paint('FCM token refreshed', AnsiColor.magenta), lines: [token]);
         unawaited(_syncTopics());
       });
     } on Object catch (e, s) {
@@ -130,10 +120,7 @@ class PushService {
   /// nothing else at startup notices — this runs off the first frame.
   static const _apnsWait = Duration(seconds: 6);
 
-  String get _language => LanguageInterceptor.resolve(
-    _locale.state?.languageCode ??
-        PlatformDispatcher.instance.locale.languageCode,
-  );
+  String get _language => LanguageInterceptor.resolve(_locale.state?.languageCode ?? PlatformDispatcher.instance.locale.languageCode);
 
   Future<void> _syncTopics() async {
     final messaging = FirebaseMessaging.instance;
@@ -150,39 +137,30 @@ class PushService {
   /// server key, this only ever runs in a debug build ([AppLogger] is silent
   /// in release), and a truncated token cannot be pasted anywhere.
   Future<void> _printTokens() async {
-    AppLogger.group(
-      AnsiColor.paint('FCM token', AnsiColor.magenta),
-      lines: [_token ?? 'null — no token yet'],
-    );
+    AppLogger.group(AnsiColor.paint('FCM token', AnsiColor.magenta), lines: [_token ?? 'null — no token yet']);
 
     // iOS only: null on Android, and null on iOS until the APNs handshake
     // finishes, which can take a beat right after a fresh install.
     if (!Platform.isIOS) return;
     try {
       final apns = await FirebaseMessaging.instance.getAPNSToken();
-      AppLogger.group(
-        AnsiColor.paint('APNs token', AnsiColor.magenta),
-        lines: [apns ?? 'null — APNs has not answered yet'],
-      );
+      AppLogger.group(AnsiColor.paint('APNs token', AnsiColor.magenta), lines: [apns ?? 'null — APNs has not answered yet']);
     } on Object catch (e) {
       AppLogger.w('APNs token fetch failed: $e');
     }
   }
 
-  /// `PATCH /auth/fcm-token`. Only meaningful with a session, so the login
-  /// flow calls it again the moment the SMS code is verified — boot-time
-  /// registration happens before any token exists.
-  Future<void> syncToken() async {
+  /// Called only after successful OTP verification. Wait for Firebase setup
+  /// so a quick login does not ask iOS for an FCM token before APNs is ready.
+  Future<void> registerTokenAfterOtp() async {
     try {
+      await init();
       final token = _token ??= await FirebaseMessaging.instance.getToken();
       if (token == null || token.isEmpty) return;
       if (!await _auth.hasSession()) return;
 
       final result = await _auth.updateFcmToken(token, lang: _language);
-      result.fold(
-        (_) => AppLogger.i('FCM token registered with the backend'),
-        (failure) => AppLogger.w('FCM token not registered: ${failure.code}'),
-      );
+      result.fold((_) => AppLogger.i('FCM token registered with the backend'), (failure) => AppLogger.w('FCM token not registered: ${failure.code}'));
     } on Object catch (e) {
       AppLogger.w('FCM token sync failed: $e');
     }
@@ -194,13 +172,7 @@ class PushService {
     // one on top of it would be a duplicate banner.
     if (notification == null || Platform.isIOS) return;
 
-    unawaited(
-      _local.show(
-        notification.title,
-        notification.body,
-        payload: jsonEncode(message.data),
-      ),
-    );
+    unawaited(_local.show(notification.title, notification.body, payload: jsonEncode(message.data)));
   }
 
   void _onOpened(RemoteMessage message) {
@@ -220,12 +192,7 @@ class PushService {
 
   void _route(Map<String, dynamic> data) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      unawaited(
-        NotificationNavigation.open(
-          data['target_type'] as String?,
-          data['target'] as String?,
-        ),
-      );
+      unawaited(NotificationNavigation.open(data['target_type'] as String?, data['target'] as String?));
     });
   }
 }
@@ -235,8 +202,6 @@ class PushService {
 @pragma('vm:entry-point')
 Future<void> _backgroundHandler(RemoteMessage message) async {
   if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   }
 }

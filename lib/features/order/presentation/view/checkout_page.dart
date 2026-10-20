@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/app_loader.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/di/injector.dart';
 import '../../../../core/network/shop_api.dart';
@@ -12,6 +13,7 @@ import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/widgets/sign_in_required_dialog.dart';
 import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../../product/domain/repositories/product_repository.dart';
+import '../../../product/domain/entities/product_id.dart';
 import '../../domain/entities/pre_order_check.dart';
 import '../../domain/entities/pre_order_line.dart';
 import '../../domain/repositories/pre_order_repository.dart';
@@ -49,13 +51,26 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Future<void> _initialize() async {
-    final cart = context.read<CartCubit>().state;
-    final selectedSlugs = cart.selectedIds.toList();
+    final cubit = context.read<CartCubit>();
+    await cubit.migrateLegacyProducts(getIt<ProductRepository>());
+    if (!mounted) return;
+    final cart = cubit.state;
+    final selectedIds = cart.selectedIds.toList();
     final lines = <PreOrderLine>[];
-    for (final slug in selectedSlugs) {
-      final detail = (await getIt<ProductRepository>().bySlug(slug)).dataOrNull;
+    for (final id in selectedIds) {
+      final productId = ProductId.tryParse(id);
+      if (productId == null) continue;
+      final detail = (await getIt<ProductRepository>().byId(
+        productId,
+      )).dataOrNull;
       if (detail == null) continue;
-      lines.add(PreOrderLine(productId: detail.product.id, quantity: cart.quantityOf(slug), variantId: cart.variants[slug]));
+      lines.add(
+        PreOrderLine(
+          productId: detail.product.id,
+          quantity: cart.quantityOf(id),
+          variantId: cart.variants[id],
+        ),
+      );
     }
     if (!mounted) return;
     if (context.read<AuthCubit>().state.isAuthenticated) {
@@ -76,17 +91,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
     setState(() {
       _lines = lines;
       _ready = true;
-      if (lines.length != selectedSlugs.length) {
-        _error = 'A product is no longer available. Remove it from the cart before ordering.';
+      if (lines.length != selectedIds.length) {
+        _error =
+            'A product is no longer available. Remove it from the cart before ordering.';
       }
     });
-    if (lines.length == selectedSlugs.length && lines.isNotEmpty) {
+    if (lines.length == selectedIds.length && lines.isNotEmpty) {
       await _verify();
     }
   }
 
   Future<void> _verify() async {
-    if (_working || _lines.isEmpty || _error?.startsWith('A product is no longer') == true) {
+    if (_working ||
+        _lines.isEmpty ||
+        _error?.startsWith('A product is no longer') == true) {
       return;
     }
     if (!context.read<AuthCubit>().state.isAuthenticated) {
@@ -131,7 +149,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
       // The cart underneath, the order on top, so back from the order has
       // somewhere to land.
       context.goNamed(AppRoutes.cart.name);
-      unawaited(context.pushNamed(AppRoutes.orderDetail.name, pathParameters: {'id': order.id.toString()}));
+      unawaited(
+        context.pushNamed(
+          AppRoutes.orderDetail.name,
+          pathParameters: {'id': order.id.toString()},
+        ),
+      );
       return;
     }
     setState(() {
@@ -174,7 +197,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: Text(context.l10n.commonCheckout)),
     body: !_ready
-        ? const Center(child: CircularProgressIndicator())
+        ? const Center(child: AppLoader())
         : ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -183,10 +206,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   key: ValueKey(_selectedLocationId),
                   initialValue: _selectedLocationId,
                   decoration: const InputDecoration(labelText: 'Kayıtlı adres'),
-                  items: [for (final location in _savedLocations) DropdownMenuItem(value: location.id, child: Text(location.name))],
+                  items: [
+                    for (final location in _savedLocations)
+                      DropdownMenuItem(
+                        value: location.id,
+                        child: Text(location.name),
+                      ),
+                  ],
                   onChanged: _selectLocation,
                 ),
-              TextButton.icon(onPressed: _openSavedLocations, icon: const Icon(Icons.add_location_alt_outlined), label: const Text('Haritadan adres ekle veya düzenle')),
+              TextButton.icon(
+                onPressed: _openSavedLocations,
+                icon: const Icon(Icons.add_location_alt_outlined),
+                label: const Text('Haritadan adres ekle veya düzenle'),
+              ),
               TextField(
                 controller: _name,
                 decoration: const InputDecoration(labelText: 'Name'),
@@ -201,21 +234,42 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 maxLines: 2,
               ),
               const SizedBox(height: 16),
-              if (_working) const Center(child: CircularProgressIndicator()),
-              if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+              if (_working) const Center(child: AppLoader()),
+              if (_error != null)
+                Text(_error!, style: const TextStyle(color: Colors.red)),
               if (_check case final check?) ...[
                 for (final item in check.items)
                   ListTile(
                     title: Text(item.name ?? '#${item.productId}'),
-                    subtitle: Text([if (item.variant != null) item.variant!, if (item.message != null) item.message!].join(' · ')),
-                    trailing: Text(item.lineTotal == null ? item.status.name : '${item.lineTotal} TMT'),
+                    subtitle: Text(
+                      [
+                        if (item.variant != null) item.variant!,
+                        if (item.message != null) item.message!,
+                      ].join(' · '),
+                    ),
+                    trailing: Text(
+                      item.lineTotal == null
+                          ? item.status.name
+                          : '${item.lineTotal} TMT',
+                    ),
                   ),
                 const Divider(),
-                ListTile(title: Text(context.l10n.commonTotal), trailing: Text('${check.totalPrice} TMT')),
+                ListTile(
+                  title: Text(context.l10n.commonTotal),
+                  trailing: Text('${check.totalPrice} TMT'),
+                ),
               ],
               const SizedBox(height: 16),
-              OutlinedButton(onPressed: _working || _lines.isEmpty ? null : _verify, child: const Text('Check availability')),
-              FilledButton(onPressed: _working || _check?.available != true ? null : _place, child: const Text('Place order')),
+              OutlinedButton(
+                onPressed: _working || _lines.isEmpty ? null : _verify,
+                child: const Text('Check availability'),
+              ),
+              FilledButton(
+                onPressed: _working || _check?.available != true
+                    ? null
+                    : _place,
+                child: const Text('Place order'),
+              ),
             ],
           ),
   );

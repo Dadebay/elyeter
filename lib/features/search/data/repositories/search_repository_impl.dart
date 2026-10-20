@@ -38,7 +38,11 @@ class SearchRepositoryImpl implements SearchRepository {
   Future<void> remember(String query) async {
     final trimmed = query.trim();
     if (trimmed.isEmpty) return;
-    final next = [trimmed, ...recentSearches().where((q) => q != trimmed)];
+    final normalized = trimmed.toLowerCase();
+    final next = [
+      trimmed,
+      ...recentSearches().where((q) => q.trim().toLowerCase() != normalized),
+    ];
     await _storage.setStringList(
       StorageKeys.recentSearches,
       next.take(_maxRecent).toList(),

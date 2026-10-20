@@ -19,10 +19,8 @@ enum ProductSort {
 class ProductQuery extends Equatable {
   const ProductQuery({
     this.categoryId,
-    this.categorySlug,
     this.brandId,
-    this.brandSlug,
-    this.brandSlugs = const [],
+    this.brandIds = const [],
     this.search,
     this.minPrice,
     this.maxPrice,
@@ -30,28 +28,23 @@ class ProductQuery extends Equatable {
     this.sort = ProductSort.newest,
   });
 
-  /// A category id or slug matches that category **and all descendants**.
+  /// A category id matches that category **and all descendants**.
   final int? categoryId;
-  final String? categorySlug;
 
   final int? brandId;
-  final String? brandSlug;
 
-  /// More than one brand at once. The API's `brand_slug` takes a single
-  /// value, so a query naming several is split into one request per brand
-  /// by the data source and merged there — it is never sent as is.
-  final List<String> brandSlugs;
+  /// The API accepts one `brand_id` per request. The data source splits a
+  /// selection of several brands into separate requests and merges them.
+  final List<int> brandIds;
 
-  /// Every brand this query asks for, [brandSlug] included, without repeats.
-  List<String> get allBrandSlugs => {?brandSlug, ...brandSlugs}.toList();
+  /// Every selected brand id, without repeats.
+  List<int> get allBrandIds => {?brandId, ...brandIds}.toList();
 
-  /// This query narrowed to the one brand [slug] — what a single request
+  /// This query narrowed to the one brand [id] — what a single request
   /// can actually say.
-  ProductQuery forBrand(String slug) => ProductQuery(
+  ProductQuery forBrand(int id) => ProductQuery(
     categoryId: categoryId,
-    categorySlug: categorySlug,
-    brandId: brandId,
-    brandSlug: slug,
+    brandId: id,
     search: search,
     minPrice: minPrice,
     maxPrice: maxPrice,
@@ -78,9 +71,7 @@ class ProductQuery extends Equatable {
     'size': size,
     'sort': sort.value,
     if (categoryId != null) 'category_id': categoryId,
-    if (categorySlug != null) 'category_slug': categorySlug,
-    if (brandId != null) 'brand_id': brandId,
-    if (allBrandSlugs.length == 1) 'brand_slug': allBrandSlugs.single,
+    if (allBrandIds.length == 1) 'brand_id': allBrandIds.single,
     if (search != null && search!.trim().isNotEmpty) 'search': search!.trim(),
     if (minPrice != null) 'min_price': minPrice,
     if (maxPrice != null) 'max_price': maxPrice,
@@ -90,10 +81,8 @@ class ProductQuery extends Equatable {
 
   ProductQuery copyWith({
     int? categoryId,
-    String? categorySlug,
     int? brandId,
-    String? brandSlug,
-    List<String>? brandSlugs,
+    List<int>? brandIds,
     String? search,
     num? minPrice,
     num? maxPrice,
@@ -103,10 +92,8 @@ class ProductQuery extends Equatable {
     bool clearSearch = false,
   }) => ProductQuery(
     categoryId: categoryId ?? this.categoryId,
-    categorySlug: categorySlug ?? this.categorySlug,
     brandId: brandId ?? this.brandId,
-    brandSlug: brandSlug ?? this.brandSlug,
-    brandSlugs: brandSlugs ?? this.brandSlugs,
+    brandIds: brandIds ?? this.brandIds,
     search: clearSearch ? null : (search ?? this.search),
     minPrice: clearPrices ? null : (minPrice ?? this.minPrice),
     maxPrice: clearPrices ? null : (maxPrice ?? this.maxPrice),
@@ -117,10 +104,8 @@ class ProductQuery extends Equatable {
   @override
   List<Object?> get props => [
     categoryId,
-    categorySlug,
     brandId,
-    brandSlug,
-    brandSlugs,
+    brandIds,
     search,
     minPrice,
     maxPrice,

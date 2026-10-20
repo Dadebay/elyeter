@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/app_loader.dart';
+import '../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -19,6 +21,7 @@ import '../../../order/domain/repositories/pre_order_repository.dart';
 import '../../../profile/presentation/cubit/profile_cubit.dart';
 import '../../../home/presentation/view/home_placeholder_data.dart';
 import '../../../product/domain/entities/product_detail.dart';
+import '../../../product/domain/entities/product_id.dart';
 import '../../../product/domain/repositories/product_repository.dart';
 import '../../../product/presentation/widgets/product_card.dart';
 import '../cubit/cart_cubit.dart';
@@ -30,11 +33,8 @@ import '../widgets/swipe_to_delete.dart';
 
 /// The cart: one line per product, a running total over the list.
 ///
-/// The cart only remembers slugs, quantities and chosen variants, so each
-/// line is filled in from the product's own page (`GET /products/:slug`) —
-/// its name, photo, and the price of the variant that was picked. A slug the
-/// API no longer knows is dropped from the cart; one that merely could not be
-/// fetched is left alone and tried again on a pull to refresh.
+/// Stores numeric product IDs, quantities and variants. Old slug records are
+/// resolved through the catalog before fetching their details.
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
 
@@ -50,37 +50,48 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-  /// Products already fetched, by slug.
   final Map<String, ProductDetail> _details = {};
-
-  /// Slugs a request has been made for, so one is made only once at a time.
   final Set<String> _requested = {};
-
-  /// Slugs whose fetch failed for a reason other than "not found".
   final Set<String> _failed = {};
+  bool _legacyAttempted = false;
+  bool _migratingLegacy = false;
 
-  void _ensureLoaded(Iterable<String> slugs) {
-    for (final slug in slugs) {
-      final known =
-          _details.containsKey(slug) ||
-          HomePlaceholderData.productById(slug) != null;
-      if (known || !_requested.add(slug)) continue;
-      _fetch(slug);
+  void _ensureLoaded(Iterable<String> ids) {
+    if (!_legacyAttempted &&
+        ids.any((id) => CartCubit.legacySlug(id) != null)) {
+      _legacyAttempted = true;
+      _migratingLegacy = true;
+      _migrateLegacy();
+    }
+    for (final id in ids) {
+      if (ProductId.tryParse(id) == null) continue;
+      final known = _details.containsKey(id);
+      if (known || !_requested.add(id)) continue;
+      _fetch(id);
     }
   }
 
-  Future<void> _fetch(String slug) async {
-    final result = await getIt<ProductRepository>().bySlug(slug);
+  Future<void> _migrateLegacy() async {
+    await context.read<CartCubit>().migrateLegacyProducts(
+      getIt<ProductRepository>(),
+    );
+    if (mounted) setState(() => _migratingLegacy = false);
+  }
+
+  Future<void> _fetch(String id) async {
+    final result = await getIt<ProductRepository>().byId(
+      ProductId.tryParse(id)!,
+    );
     if (!mounted) return;
     final detail = result.dataOrNull;
     if (detail != null) {
-      setState(() => _details[slug] = detail);
+      setState(() => _details[id] = detail);
       return;
     }
     if (result.failureOrNull is NotFoundFailure) {
-      context.read<CartCubit>().remove(slug);
+      context.read<CartCubit>().remove(id);
     } else {
-      setState(() => _failed.add(slug));
+      setState(() => _failed.add(id));
     }
   }
 
@@ -88,19 +99,20 @@ class _CartPageState extends State<CartPage> {
     setState(() {
       _requested.removeAll(_failed);
       _failed.clear();
+      _legacyAttempted = false;
     });
   }
 
-  /// The line for [slug], or null while it is still being fetched.
-  ProductCardData? _line(String slug, CartState cart) {
-    final placeholder = HomePlaceholderData.productById(slug);
+  /// The line for [id], or null while it is still being fetched.
+  ProductCardData? _line(String id, CartState cart) {
+    final placeholder = HomePlaceholderData.productById(id);
     if (placeholder != null) return placeholder;
-    final detail = _details[slug];
+    final detail = _details[id];
     if (detail == null) return null;
 
     final product = detail.product;
     final variant = detail.variants
-        .where((v) => v.id == cart.variants[slug])
+        .where((v) => v.id == cart.variants[id])
         .firstOrNull;
     // The product's own photo comes from our file server. A variant's photo is
     // a supplier's link, which does not load everywhere, so it is only the
@@ -109,8 +121,8 @@ class _CartPageState extends State<CartPage> {
     final image =
         product.mainImage ?? detail.gallery.firstOrNull ?? variant?.image;
     return ProductCardData(
-      id: slug,
-      slug: slug,
+      id: id,
+      slug: product.slug,
       apiId: product.id,
       hasVariants: product.hasVariants,
       title: product.name,
@@ -131,12 +143,19 @@ class _CartPageState extends State<CartPage> {
     return BlocBuilder<CartCubit, CartState>(
       builder: (context, cart) {
         _ensureLoaded(cart.quantities.keys);
-        final lines = [
-          for (final slug in cart.quantities.keys) ?_line(slug, cart),
-        ];
+        final lines = [for (final id in cart.quantities.keys) ?_line(id, cart)];
+        final unresolved = cart.quantities.keys
+            .where(
+              (id) =>
+                  _failed.contains(id) ||
+                  (ProductId.tryParse(id) == null &&
+                      HomePlaceholderData.productById(id) == null),
+            )
+            .toList();
         // Still fetching: the cart is not empty, so do not say it is.
         final loading =
             lines.isEmpty &&
+            unresolved.isEmpty &&
             cart.quantities.isNotEmpty &&
             _failed.length < cart.quantities.length;
 
@@ -151,10 +170,10 @@ class _CartPageState extends State<CartPage> {
           body: cart.quantities.isEmpty
               ? const CartEmptyView()
               : loading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(child: AppLoader())
               : Stack(
                   children: [
-                    RefreshIndicator(
+                    AppRefreshIndicator(
                       onRefresh: _retry,
                       child: ListView.separated(
                         // The last line scrolls out from under the pill instead
@@ -168,11 +187,38 @@ class _CartPageState extends State<CartPage> {
                               CartPage._gap,
                         ),
                         physics: const AlwaysScrollableScrollPhysics(),
-                        itemCount: lines.length,
+                        itemCount: lines.length + unresolved.length,
                         separatorBuilder: (_, _) =>
                             const Divider(height: 1, color: AppColors.grey100),
-                        itemBuilder: (context, index) =>
-                            _Line(product: lines[index], cart: cart),
+                        itemBuilder: (context, index) {
+                          if (index < lines.length) {
+                            return _Line(product: lines[index], cart: cart);
+                          }
+                          final key = unresolved[index - lines.length];
+                          return SwipeToDelete(
+                            onDelete: () =>
+                                context.read<CartCubit>().remove(key),
+                            child: ListTile(
+                              title: Text(CartCubit.legacySlug(key) ?? '#$key'),
+                              subtitle:
+                                  _migratingLegacy &&
+                                      CartCubit.legacySlug(key) != null
+                                  ? null
+                                  : Text(context.l10n.errorServer),
+                              trailing:
+                                  _migratingLegacy &&
+                                      CartCubit.legacySlug(key) != null
+                                  ? const SizedBox.square(
+                                      dimension: 24,
+                                      child: AppLoader(),
+                                    )
+                                  : TextButton(
+                                      onPressed: _retry,
+                                      child: Text(context.l10n.commonRetry),
+                                    ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                     Positioned(
@@ -294,16 +340,24 @@ class _Line extends StatelessWidget {
           after.contains(product.favoriteKey),
       builder: (context, favorites) => SwipeToDelete(
         onDelete: () => cubit.remove(product.id),
-        child: CartLineTile(
-          product: product,
-          quantity: cart.quantityOf(product.id),
-          selected: cart.isSelected(product.id),
-          isFavorite: favorites.contains(product.favoriteKey),
-          onIncrease: () => cubit.increase(product.id),
-          onDecrease: () => cubit.decrease(product.id),
-          onSelectedChanged: () => cubit.toggleSelected(product.id),
-          onFavoriteTap: () =>
-              context.read<FavoriteCubit>().toggle(product.favoriteKey),
+        child: GestureDetector(
+          onTap: product.apiId == null
+              ? null
+              : () => context.pushNamed(
+                  AppRoutes.productDetail.name,
+                  pathParameters: {'id': product.apiId.toString()},
+                ),
+          child: CartLineTile(
+            product: product,
+            quantity: cart.quantityOf(product.id),
+            selected: cart.isSelected(product.id),
+            isFavorite: favorites.contains(product.favoriteKey),
+            onIncrease: () => cubit.increase(product.id),
+            onDecrease: () => cubit.decrease(product.id),
+            onSelectedChanged: () => cubit.toggleSelected(product.id),
+            onFavoriteTap: () =>
+                context.read<FavoriteCubit>().toggle(product.favoriteKey),
+          ),
         ),
       ),
     );
@@ -387,10 +441,8 @@ class _SummaryState extends State<_Summary> {
       showDialog<void>(
         context: context,
         barrierDismissible: false,
-        builder: (_) => const PopScope(
-          canPop: false,
-          child: Center(child: CircularProgressIndicator()),
-        ),
+        builder: (_) =>
+            const PopScope(canPop: false, child: Center(child: AppLoader())),
       ),
     );
 

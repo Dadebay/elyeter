@@ -23,7 +23,7 @@ class ElyeterMap extends StatefulWidget {
   static const defaultCenter = LatLng(37.960077, 58.326063);
   static const tileUrl = String.fromEnvironment(
     'MAP_TILE_URL',
-    defaultValue: 'https://a7-tagam.com.tm/tile/{z}/{x}/{y}.png',
+    defaultValue: 'https://map.abat.love/tile/{z}/{x}/{y}.png',
   );
 
   final LatLng center;
@@ -63,7 +63,7 @@ class _ElyeterMapState extends State<ElyeterMap> {
       initialCenter: widget.center,
       initialZoom: widget.zoom,
       minZoom: 3,
-      maxZoom: 19,
+      maxZoom: 18,
       onPositionChanged: widget.onPositionChanged,
     ),
     children: [

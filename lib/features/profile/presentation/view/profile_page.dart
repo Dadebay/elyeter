@@ -50,8 +50,7 @@ class ProfilePage extends StatelessWidget {
       // Keeps the editable profile in step with the session: it takes the
       // account's number on sign-in and is wiped on sign-out, so the next
       // person to use the phone does not meet someone else's name.
-      listenWhen: (previous, current) =>
-          previous.status != current.status || previous.user != current.user,
+      listenWhen: (previous, current) => previous.status != current.status || previous.user != current.user,
       listener: (context, state) {
         final cubit = context.read<ProfileCubit>();
         final user = state.user;
@@ -74,12 +73,10 @@ class _ProfileView extends StatefulWidget {
 }
 
 class _ProfileViewState extends State<_ProfileView> {
-  List<StaticPage> _pages = const [];
   ShopContacts? _contacts;
   int? _orderCount;
   bool _orderCountRequested = false;
   int? _loadedAccountId;
-  String? _loadedLanguage;
 
   @override
   void initState() {
@@ -93,15 +90,6 @@ class _ProfileViewState extends State<_ProfileView> {
       if (mounted) setState(() => _contacts = contacts);
     } on Object {
       /* An empty contact section is valid. */
-    }
-  }
-
-  Future<void> _loadPages() async {
-    try {
-      final pages = await getIt<ShopApi>().pages();
-      if (mounted) setState(() => _pages = pages);
-    } on Object {
-      /* Unpublished pages are absent from the menu. */
     }
   }
 
@@ -122,22 +110,11 @@ class _ProfileViewState extends State<_ProfileView> {
     final auth = context.watch<AuthCubit>().state;
     final signedIn = auth.isAuthenticated;
     final guestTileWeight = signedIn ? null : FontWeight.w500;
-    final guestSectionTitleStyle = signedIn
-        ? null
-        : context.textTheme.titleMedium?.copyWith(
-            color: AppColors.iconSoft,
-            fontWeight: FontWeight.w600,
-          );
+    final guestSectionTitleStyle = signedIn ? null : context.textTheme.titleMedium?.copyWith(color: AppColors.iconSoft, fontWeight: FontWeight.w600);
     if (_loadedAccountId != auth.user?.id) {
       _loadedAccountId = auth.user?.id;
       _orderCount = null;
       _orderCountRequested = false;
-    }
-    final language =
-        locale?.languageCode ?? Localizations.localeOf(context).languageCode;
-    if (_loadedLanguage != language) {
-      _loadedLanguage = language;
-      WidgetsBinding.instance.addPostFrameCallback((_) => _loadPages());
     }
     if (signedIn && !_orderCountRequested) {
       _orderCountRequested = true;
@@ -147,256 +124,161 @@ class _ProfileViewState extends State<_ProfileView> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        toolbarHeight: signedIn ? null : 94,
-        titleSpacing: signedIn ? null : 20,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        // toolbarHeight: signedIn ? kToolbarHeight : 94,
+        titleSpacing: AppSpacing.page,
+        centerTitle: false,
         title: Text(
           l10n.profileTitle,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: signedIn ? 20 : 24,
-          ),
+          style: context.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, fontSize: signedIn ? 20 : 24),
         ),
       ),
-      body: ListView(
-        padding: EdgeInsets.fromLTRB(
-          AppSpacing.page,
-          signedIn ? AppSpacing.xxl : 0,
-          AppSpacing.page,
-          // Clearance for the floating navigation bar.
-          120,
-        ),
-        children: [
-          if (signedIn)
-            ProfileSummaryCards(
-              // Whatever the account actually knows, in the order it is
-              // worth showing: the name typed here, then the one stored on
-              // the account, then the number the account is — never a
-              // stand-in person.
-              name: _accountName(profile, auth),
-              phone: auth.user?.phone ?? profile.phone,
-              avatarUrl: MediaUrl.resolve(auth.user?.image),
-              avatarPath: profile.avatarPath,
-              editLabel: l10n.profileEditProfile,
-              ordersTitle: l10n.profileAllOrders,
-              ordersSubtitle: _orderCount == null
-                  ? ''
-                  : l10n.profileOrderCount(_orderCount!),
-              onEditProfile: () =>
-                  context.pushNamed(AppRoutes.editProfile.name),
-              onOrders: () => context.pushNamed(AppRoutes.orders.name),
-            )
-          else
-            GuestSummaryCard(
-              title: l10n.profileGuestTitle,
-              message: l10n.profileGuestMessage,
-              actionLabel: l10n.profileGuestAction,
-              onSignIn: () => context.pushNamed(AppRoutes.login.name),
-            ),
-          if (!signedIn) const SizedBox(height: AppSpacing.lg),
-          SettingsSection(
-            title: l10n.profileSectionGeneral,
-            titleStyle: guestSectionTitleStyle,
-            children: [
-              SettingsTile(
-                icon: AppAssets.iconBell,
-                label: l10n.profileNotifications,
-                verticalPadding: signedIn ? null : 14,
-                labelWeight: guestTileWeight,
-                onTap: () => context.pushNamed(AppRoutes.notifications.name),
-              ),
-              if (signedIn) ...[
-                SettingsTile(
-                  icon: AppAssets.iconCubic,
-                  label: l10n.profileActiveOrders,
-                  onTap: () => _openAccountPage(
-                    context,
-                    signedIn,
-                    AppRoutes.activeOrders.name,
-                  ),
-                ),
-                SettingsTile(
-                  icon: AppAssets.iconPinLocation,
-                  label: l10n.profileSavedLocations,
-                  onTap: () => _openAccountPage(
-                    context,
-                    signedIn,
-                    AppRoutes.addresses.name,
-                  ),
-                ),
-                SettingsTile(
-                  icon: AppAssets.iconClock,
-                  label: l10n.profileOrderHistory,
-                  onTap: () => _openAccountPage(
-                    context,
-                    signedIn,
-                    AppRoutes.orders.name,
-                  ),
-                ),
-                SettingsTile(
-                  icon: AppAssets.iconNews,
-                  label: l10n.profileAnnouncements,
-                  onTap: () => context.pushNamed(AppRoutes.announcements.name),
-                ),
-              ],
-              SettingsTile(
-                icon: AppAssets.iconGlobe,
-                label: l10n.settingsLanguage,
-                trailing: TileValue(_languageLabel(context, locale)),
-                verticalPadding: signedIn ? null : 14,
-                labelWeight: guestTileWeight,
-                onTap: () => _pickLanguage(context),
-              ),
-              SettingsTile(
-                icon: AppAssets.iconMoon,
-                label: l10n.profileDarkMode,
-                verticalPadding: signedIn ? null : 6,
-                labelWeight: guestTileWeight,
-                trailing: TileSwitch(
-                  value: _isDark(context, themeMode),
-                  onChanged: (on) {
-                    final cubit = context.read<ThemeCubit>();
-                    void change() => cubit.setThemeMode(
-                      on ? ThemeMode.dark : ThemeMode.light,
-                    );
-                    final reveal = ThemeReveal.maybeOf(context);
-                    if (reveal == null) {
-                      change();
-                    } else {
-                      unawaited(
-                        reveal.run(
-                          change,
-                          direction: on
-                              ? ThemeRevealDirection.leftToRight
-                              : ThemeRevealDirection.rightToLeft,
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ),
-            ],
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: ListView(
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.page,
+            signedIn ? 0 : 20,
+            AppSpacing.page,
+            // Clearance for the floating navigation bar.
+            120,
           ),
-          if (!signedIn) const SizedBox(height: AppSpacing.sm),
-          SettingsSection(
-            title: l10n.profileSectionOther,
-            titleStyle: guestSectionTitleStyle,
-            children: [
-              SettingsTile(
-                icon: AppAssets.iconPhone,
-                label: _pageTitle('about', l10n.profileAboutApp),
-                verticalPadding: signedIn ? null : 14,
-                labelWeight: guestTileWeight,
-                onTap: () => _openStaticPage(context, 'about'),
-              ),
-              SettingsTile(
-                icon: AppAssets.iconQuestion,
-                label: _pageTitle('faq', l10n.profileFaq),
-                verticalPadding: signedIn ? null : 14,
-                labelWeight: guestTileWeight,
-                onTap: () => _openStaticPage(context, 'faq'),
-              ),
-              SettingsTile(
-                icon: AppAssets.iconDocumentCheck,
-                label: _pageTitle('terms', l10n.profileTerms),
-                verticalPadding: signedIn ? null : 14,
-                labelWeight: guestTileWeight,
-                onTap: () => _openStaticPage(context, 'terms'),
-              ),
-              SettingsTile(
-                icon: AppAssets.iconLock,
-                label: _pageTitle('privacy', l10n.profilePrivacy),
-                verticalPadding: signedIn ? null : 14,
-                labelWeight: guestTileWeight,
-                onTap: () => _openStaticPage(context, 'privacy'),
-              ),
-            ],
-          ),
-          if (_contacts?.instagramUrl != null ||
-              _contacts?.tiktokUrl != null ||
-              _contacts?.whatsappUrl != null ||
-              _contacts?.telegramUrl != null ||
-              _contacts?.imoUrl != null) ...[
-            if (!signedIn) const SizedBox(height: AppSpacing.sm),
+          children: [
+            if (signedIn) const SizedBox(height: AppSpacing.xxl),
+            if (signedIn)
+              ProfileSummaryCards(
+                // Whatever the account actually knows, in the order it is
+                // worth showing: the name typed here, then the one stored on
+                // the account, then the number the account is — never a
+                // stand-in person.
+                name: _accountName(profile, auth),
+                phone: auth.user?.phone ?? profile.phone,
+                avatarUrl: MediaUrl.resolve(auth.user?.image),
+                avatarPath: profile.avatarPath,
+                editLabel: l10n.profileEditProfile,
+                ordersTitle: l10n.profileAllOrders,
+                ordersSubtitle: _orderCount == null ? '' : l10n.profileOrderCount(_orderCount!),
+                onEditProfile: () => context.pushNamed(AppRoutes.editProfile.name),
+                onOrders: () => context.pushNamed(AppRoutes.orders.name),
+              )
+            else
+              GuestSummaryCard(title: l10n.profileGuestTitle, message: l10n.profileGuestMessage, actionLabel: l10n.profileGuestAction, onSignIn: () => context.pushNamed(AppRoutes.login.name)),
+            if (!signedIn) const SizedBox(height: AppSpacing.lg),
             SettingsSection(
-              title: l10n.profileSectionContact,
+              title: l10n.profileSectionGeneral,
               titleStyle: guestSectionTitleStyle,
               children: [
-                if (_contacts?.instagramUrl case final url?)
-                  SettingsTile(
-                    icon: AppAssets.iconInstagram,
-                    label: l10n.profileInstagram,
-                    trailing: const TileExternal(),
-                    labelWeight: guestTileWeight,
-                    onTap: () => _open(context, url),
+                SettingsTile(
+                  icon: AppAssets.iconBell,
+                  label: l10n.profileNotifications,
+                  verticalPadding: signedIn ? null : 14,
+                  labelWeight: guestTileWeight,
+                  onTap: () => context.pushNamed(AppRoutes.notifications.name),
+                ),
+                if (signedIn) ...[
+                  SettingsTile(icon: AppAssets.iconCubic, label: l10n.profileActiveOrders, onTap: () => _openAccountPage(context, signedIn, AppRoutes.activeOrders.name)),
+                  SettingsTile(icon: AppAssets.iconPinLocation, label: l10n.profileSavedLocations, onTap: () => _openAccountPage(context, signedIn, AppRoutes.addresses.name)),
+                ],
+                SettingsTile(
+                  icon: AppAssets.iconGlobe,
+                  label: l10n.settingsLanguage,
+                  trailing: TileValue(_languageLabel(context, locale)),
+                  verticalPadding: signedIn ? null : 14,
+                  labelWeight: guestTileWeight,
+                  onTap: () => _pickLanguage(context),
+                ),
+                SettingsTile(
+                  icon: AppAssets.iconMoon,
+                  label: l10n.profileDarkMode,
+                  verticalPadding: signedIn ? null : 6,
+                  labelWeight: guestTileWeight,
+                  trailing: TileSwitch(
+                    value: _isDark(context, themeMode),
+                    onChanged: (on) {
+                      final cubit = context.read<ThemeCubit>();
+                      void change() => cubit.setThemeMode(on ? ThemeMode.dark : ThemeMode.light);
+                      final reveal = ThemeReveal.maybeOf(context);
+                      if (reveal == null) {
+                        change();
+                      } else {
+                        unawaited(reveal.run(change, direction: on ? ThemeRevealDirection.leftToRight : ThemeRevealDirection.rightToLeft));
+                      }
+                    },
                   ),
-                if (_contacts?.tiktokUrl case final url?)
-                  SettingsTile(
-                    icon: AppAssets.iconTiktok,
-                    label: l10n.profileTiktok,
-                    trailing: const TileExternal(),
-                    labelWeight: guestTileWeight,
-                    onTap: () => _open(context, url),
-                  ),
-                if (_contacts?.whatsappUrl case final url?)
-                  SettingsTile(
-                    icon: AppAssets.iconWhatsapp,
-                    label: l10n.profileWhatsapp,
-                    trailing: const TileExternal(),
-                    labelWeight: guestTileWeight,
-                    onTap: () => _open(context, url),
-                  ),
-                if (_contacts?.telegramUrl case final url?)
-                  SettingsTile(
-                    icon: AppAssets.iconNews,
-                    label: 'Telegram',
-                    trailing: const TileExternal(),
-                    labelWeight: guestTileWeight,
-                    onTap: () => _open(context, url),
-                  ),
-                if (_contacts?.imoUrl case final url?)
-                  SettingsTile(
-                    icon: AppAssets.iconPhone,
-                    label: 'IMO',
-                    trailing: const TileExternal(),
-                    labelWeight: guestTileWeight,
-                    onTap: () => _open(context, url),
-                  ),
+                ),
               ],
             ),
-          ],
-          for (final phone in [
-            _contacts?.phonePrimary,
-            _contacts?.phoneSecondary,
-          ].whereType<String>()) ...[
-            SizedBox(height: signedIn ? AppSpacing.xl : AppSpacing.sm),
-            SupportCallCard(
-              title: l10n.profileCallTitle,
-              phone: phone,
-              hours: l10n.profileCallHours,
-              hoursHighlight: '',
-              actionLabel: l10n.profileCallAction,
-              onCall: () => _open(context, 'tel:$phone'),
-            ),
-          ],
-          if (signedIn) ...[
-            const SizedBox(height: AppSpacing.xl),
-            DeleteAccountCard(
-              label: l10n.profileDeleteAccount,
-              onPressed: () => _deleteAccount(context, auth.user?.phone),
-            ),
-          ],
-          if (signedIn) ...[
-            const SizedBox(height: AppSpacing.xl),
-            Center(
-              child: Text(
-                l10n.profileVersion(AppConstants.appVersion),
-                style: context.textTheme.bodySmall?.copyWith(
-                  color: AppColors.grey500,
+            if (!signedIn) const SizedBox(height: AppSpacing.sm),
+            SettingsSection(
+              title: l10n.profileSectionOther,
+              titleStyle: guestSectionTitleStyle,
+              children: [
+                SettingsTile(
+                  icon: AppAssets.iconPhone,
+                  label: l10n.profileAboutApp,
+                  verticalPadding: signedIn ? null : 14,
+                  labelWeight: guestTileWeight,
+                  onTap: () => _openStaticPage(context, 'about'),
                 ),
-              ),
+                SettingsTile(icon: AppAssets.iconQuestion, label: l10n.profileFaq, verticalPadding: signedIn ? null : 14, labelWeight: guestTileWeight, onTap: () => _openStaticPage(context, 'faq')),
+                SettingsTile(
+                  icon: AppAssets.iconDocumentCheck,
+                  label: l10n.profileTerms,
+                  verticalPadding: signedIn ? null : 14,
+                  labelWeight: guestTileWeight,
+                  onTap: () => _openStaticPage(context, 'terms'),
+                ),
+                SettingsTile(
+                  icon: AppAssets.iconLock,
+                  label: l10n.profilePrivacy,
+                  verticalPadding: signedIn ? null : 14,
+                  labelWeight: guestTileWeight,
+                  onTap: () => _openStaticPage(context, 'privacy'),
+                ),
+              ],
             ),
+            if (_contacts?.instagramUrl != null || _contacts?.tiktokUrl != null || _contacts?.whatsappUrl != null || _contacts?.telegramUrl != null || _contacts?.imoUrl != null) ...[
+              if (!signedIn) const SizedBox(height: AppSpacing.sm),
+              SettingsSection(
+                title: l10n.profileSectionContact,
+                titleStyle: guestSectionTitleStyle,
+                children: [
+                  if (_contacts?.instagramUrl case final url?)
+                    SettingsTile(icon: AppAssets.iconInstagram, label: l10n.profileInstagram, trailing: const TileExternal(), labelWeight: guestTileWeight, onTap: () => _open(context, url)),
+                  if (_contacts?.tiktokUrl case final url?)
+                    SettingsTile(icon: AppAssets.iconTiktok, label: l10n.profileTiktok, trailing: const TileExternal(), labelWeight: guestTileWeight, onTap: () => _open(context, url)),
+                  if (_contacts?.whatsappUrl case final url?)
+                    SettingsTile(icon: AppAssets.iconWhatsapp, label: l10n.profileWhatsapp, trailing: const TileExternal(), labelWeight: guestTileWeight, onTap: () => _open(context, url)),
+                  if (_contacts?.telegramUrl case final url?)
+                    SettingsTile(icon: AppAssets.iconNews, label: 'Telegram', trailing: const TileExternal(), labelWeight: guestTileWeight, onTap: () => _open(context, url)),
+                  if (_contacts?.imoUrl case final url?)
+                    SettingsTile(icon: AppAssets.iconPhone, label: 'IMO', trailing: const TileExternal(), labelWeight: guestTileWeight, onTap: () => _open(context, url)),
+                ],
+              ),
+            ],
+            for (final phone in [_contacts?.phonePrimary, _contacts?.phoneSecondary].whereType<String>()) ...[
+              SizedBox(height: signedIn ? AppSpacing.xl : AppSpacing.sm),
+              SupportCallCard(
+                title: l10n.profileCallTitle,
+                phone: phone,
+                hours: l10n.profileCallHours,
+                hoursHighlight: '',
+                actionLabel: l10n.profileCallAction,
+                onCall: () => _open(context, 'tel:$phone'),
+              ),
+            ],
+            if (signedIn) ...[const SizedBox(height: AppSpacing.xl), DeleteAccountCard(label: l10n.profileDeleteAccount, onPressed: () => _deleteAccount(context, auth.user?.phone))],
+            if (signedIn) ...[
+              const SizedBox(height: AppSpacing.xl),
+              Center(
+                child: Text(l10n.profileVersion(AppConstants.appVersion), style: context.textTheme.bodySmall?.copyWith(color: AppColors.grey500)),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -413,25 +295,12 @@ class _ProfileViewState extends State<_ProfileView> {
     return auth.user?.phone ?? profile.phone;
   }
 
-  String _pageTitle(String slug, String fallback) {
-    for (final page in _pages) {
-      if (page.slug == slug && page.title.trim().isNotEmpty) {
-        return page.title;
-      }
-    }
-    return fallback;
-  }
-
-  void _openStaticPage(BuildContext context, String slug) => context.pushNamed(
-    AppRoutes.staticPage.name,
-    pathParameters: {'slug': slug},
-  );
+  void _openStaticPage(BuildContext context, String slug) => context.pushNamed(AppRoutes.staticPage.name, pathParameters: {'slug': slug});
 
   bool _isDark(BuildContext context, ThemeMode mode) => switch (mode) {
     ThemeMode.dark => true,
     ThemeMode.light => false,
-    ThemeMode.system =>
-      MediaQuery.platformBrightnessOf(context) == Brightness.dark,
+    ThemeMode.system => MediaQuery.platformBrightnessOf(context) == Brightness.dark,
   };
 
   String _languageLabel(BuildContext context, Locale? locale) {
@@ -444,26 +313,18 @@ class _ProfileViewState extends State<_ProfileView> {
   }
 
   // With the system setting, use the language currently resolved by the app.
-  String _languageCode(BuildContext context, Locale? locale) =>
-      locale?.languageCode ?? Localizations.localeOf(context).languageCode;
+  String _languageCode(BuildContext context, Locale? locale) => locale?.languageCode ?? Localizations.localeOf(context).languageCode;
 
   Future<void> _pickLanguage(BuildContext context) async {
     final cubit = context.read<LocaleCubit>();
-    final picked = await showLanguageDialog(
-      context,
-      current: _languageCode(context, cubit.state),
-    );
+    final picked = await showLanguageDialog(context, current: _languageCode(context, cubit.state));
     if (picked != null) cubit.setLanguageCode(picked);
   }
 
   /// Orders, addresses and notifications all describe one account, so a
   /// signed-out tap asks for the account first and then carries on to the
   /// page that was tapped.
-  Future<void> _openAccountPage(
-    BuildContext context,
-    bool signedIn,
-    String routeName,
-  ) async {
+  Future<void> _openAccountPage(BuildContext context, bool signedIn, String routeName) async {
     if (signedIn) {
       await context.pushNamed(routeName);
       return;
@@ -477,20 +338,12 @@ class _ProfileViewState extends State<_ProfileView> {
   /// and reports its own failures. Nothing is done here on a refusal — the
   /// dialog has already said why, and the account is untouched.
   Future<void> _deleteAccount(BuildContext context, String? phone) async {
-    final deleted = await showDeleteAccountDialog(
-      context,
-      auth: context.read<AuthCubit>(),
-      phone: phone,
-    );
+    final deleted = await showDeleteAccountDialog(context, auth: context.read<AuthCubit>(), phone: phone);
 
     // The session is already gone, so the page has swapped itself back to
     // the guest header by now; this only confirms what happened.
     if (deleted && context.mounted) {
-      AppSnackBar.show(
-        context,
-        context.l10n.profileDeleteDone,
-        overNavBar: true,
-      );
+      AppSnackBar.show(context, context.l10n.profileDeleteDone, overNavBar: true);
     }
   }
 
@@ -515,13 +368,7 @@ class _ProfileViewState extends State<_ProfileView> {
     }
 
     if (!launched && context.mounted) {
-      AppSnackBar.show(
-        context,
-        failed,
-        icon: AppIcons.error,
-        iconColor: AppColors.error,
-        overNavBar: true,
-      );
+      AppSnackBar.show(context, failed, icon: AppIcons.error, iconColor: AppColors.error, overNavBar: true);
     }
   }
 }

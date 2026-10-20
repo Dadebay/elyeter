@@ -13,6 +13,9 @@ abstract final class AppAssets {
 
   // Product card favourite toggle. Both are two-tone and carry their own
   // white body, so they are drawn as supplied — never tinted.
+  /// White person silhouette, drawn over a tinted disc as a reviewer avatar.
+  static const iconReviewUser = '$_icons/review_user.svg';
+
   static const iconFavoriteEmpty = '$_icons/favorite_empty.svg';
   static const iconFavoriteFull = '$_icons/favorite_full.svg';
 
@@ -39,10 +42,15 @@ abstract final class AppAssets {
   // Search bar
   static const iconSearch = '$_icons/search.svg';
   static const iconCamera = '$_icons/camera.svg';
+  static const iconSearchNotFound = '$_icons/search_not_found.svg';
+  static const iconSearchError = '$_icons/search_error.svg';
+  static const iconSearchConnectionError =
+      '$_icons/search_connection_error.svg';
 
   // Home
   static const logoWhite = '$_images/logo_white.svg';
   static const logoYellow = '$_images/logo_yellow.svg';
+  static const onboardingGradient = '$_images/onboarding_gradient.svg';
   static const homeBackground = '$_images/background.png';
   static const emptyShoppingBag = '$_images/order_history_empty_3d_cutout.png';
   static const cartEmpty3d = '$_images/cart_empty_3d.png';
@@ -51,6 +59,13 @@ abstract final class AppAssets {
       '$_images/favorite_empty_illustration.png';
   static const guestUserAvatar = '$_images/guest_user_avatar.png';
   static const iconMapPin = '$_icons/map_pin.svg';
+  static const iconAddressMapPin = '$_icons/address_map_pin.svg';
+  static const iconCurrentLocation = '$_icons/current_location.svg';
+  static const iconOtpNotification = '$_icons/otp_notification.svg';
+  static const iconLoginBag = '$_icons/login_bag.svg';
+  static const iconAddressWork = '$_icons/address_work.svg';
+  static const iconAddressHome = '$_icons/address_home.svg';
+  static const iconAddressLocation = '$_icons/address_location.svg';
 
   // Partner marketplaces, in the order the design shows them.
   static const _magazynes = '$_images/magazynes';

@@ -11,18 +11,23 @@ class BrandRepositoryImpl implements BrandRepository {
   final BrandRemoteDataSource _remote;
 
   @override
-  Future<Result<List<Brand>>> list({String? search}) async {
+  Future<Result<List<Brand>>> list({
+    String? search,
+    bool featuredOnly = false,
+  }) async {
     try {
-      return Success(await _remote.list(search: search));
+      return Success(
+        await _remote.list(search: search, featuredOnly: featuredOnly),
+      );
     } on AppException catch (e) {
       return Error(e.toFailure());
     }
   }
 
   @override
-  Future<Result<Brand>> bySlug(String slug) async {
+  Future<Result<Brand>> byId(int id) async {
     try {
-      return Success(await _remote.bySlug(slug));
+      return Success(await _remote.byId(id));
     } on AppException catch (e) {
       return Error(e.toFailure());
     }

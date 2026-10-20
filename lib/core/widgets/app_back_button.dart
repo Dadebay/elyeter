@@ -6,7 +6,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import 'app_asset_image.dart';
 
-/// The app's back affordance: a pill with the chevron from
+/// The app's back affordance: a button with the chevron from
 /// `assets/icons/back.svg`, outlined in dark mode and lifted by a faint
 /// shadow in light mode.
 ///
@@ -14,41 +14,30 @@ import 'app_asset_image.dart';
 /// [AppBackButton.leadingWidth]; the bare constructor suits a [Stack] over
 /// artwork.
 class AppBackButton extends StatelessWidget {
-  const AppBackButton({
-    super.key,
-    this.onPressed,
-    this.width = defaultWidth,
-    this.tint,
-    this.icon,
-  });
+  const AppBackButton({super.key, this.onPressed, this.width = defaultWidth, this.buttonHeight = height, this.tint, this.icon});
 
-  /// Wrapped in the page inset, for `AppBar.leading`.
-  const factory AppBackButton.appBarLeading({
-    Key? key,
-    VoidCallback? onPressed,
-    Color? tint,
-    AppIconData? icon,
-  }) = _AppBarBackButton;
+  /// Wrapped in the page inset, for `AppBar.leading`. Uses a wide pill by default.
+  const factory AppBackButton.appBarLeading({Key? key, VoidCallback? onPressed, Color? tint, AppIconData? icon, double? width, double? buttonHeight}) = _AppBarBackButton;
 
-  /// The control's resting width. Exposed so a page drawing its own
+  /// The control's resting diameter. Exposed so a page drawing its own
   /// counterpart at the other end of the bar can match it — the category
   /// page's search button does.
-  static const double defaultWidth = 60;
+  static const double defaultWidth = 44;
   static const double height = 44;
+  static const double appBarWidth = 50;
+  static const double appBarHeight = 36;
   static const double iconSize = 22;
 
   /// What `AppBar.leadingWidth` must be for the button to sit at the page
   /// inset without being squeezed by the toolbar's default 56pt slot.
-  static const double leadingWidth =
-      defaultWidth + AppSpacing.page + AppSpacing.sm;
+  static const double leadingWidth = appBarWidth + AppSpacing.page + AppSpacing.sm;
 
   /// Deliberately faint: heavier reads as a smudge rather than a lift.
-  static const List<BoxShadow> shadow = [
-    BoxShadow(color: Color(0x0D000000), blurRadius: 6, offset: Offset(0, 2)),
-  ];
+  static const List<BoxShadow> shadow = [BoxShadow(color: Color(0x0D000000), blurRadius: 6, offset: Offset(0, 2))];
 
   final VoidCallback? onPressed;
   final double width;
+  final double buttonHeight;
 
   /// Chevron colour; defaults to the theme's ink.
   final Color? tint;
@@ -76,22 +65,11 @@ class AppBackButton extends StatelessWidget {
             onTap: onPressed ?? () => Navigator.of(context).maybePop(),
             child: SizedBox(
               width: width,
-              height: height,
+              height: buttonHeight,
               child: Center(
                 child: icon == null
-                    ? AppAssetImage(
-                        AppAssets.iconBack,
-                        width: iconSize,
-                        height: iconSize,
-                        color:
-                            tint ?? (isDark ? AppColors.white : AppColors.ink),
-                      )
-                    : HugeIcon(
-                        icon: icon!,
-                        size: iconSize,
-                        color:
-                            tint ?? (isDark ? AppColors.white : AppColors.ink),
-                      ),
+                    ? AppAssetImage(AppAssets.iconBack, width: iconSize, height: iconSize, color: tint ?? (isDark ? AppColors.white : AppColors.ink))
+                    : HugeIcon(icon: icon!, size: iconSize, color: tint ?? (isDark ? AppColors.white : AppColors.ink)),
               ),
             ),
           ),
@@ -102,14 +80,15 @@ class AppBackButton extends StatelessWidget {
 }
 
 class _AppBarBackButton extends AppBackButton {
-  const _AppBarBackButton({super.key, super.onPressed, super.tint, super.icon});
+  const _AppBarBackButton({super.key, super.onPressed, super.tint, super.icon, double? width, double? buttonHeight})
+    : super(width: width ?? AppBackButton.appBarWidth, buttonHeight: buttonHeight ?? AppBackButton.appBarHeight);
 
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(left: AppSpacing.page),
     child: Align(
       alignment: Alignment.centerLeft,
-      child: AppBackButton(onPressed: onPressed, tint: tint, icon: icon),
+      child: AppBackButton(onPressed: onPressed, tint: tint, icon: icon, width: width, buttonHeight: buttonHeight),
     ),
   );
 }

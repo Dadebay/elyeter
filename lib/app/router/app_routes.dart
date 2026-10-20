@@ -1,6 +1,7 @@
 /// Route names and paths. Navigate with `context.goNamed(AppRoutes.cart.name)`
 /// so a path change never breaks call sites.
 enum AppRoutes {
+  onboarding('/onboarding', 'onboarding'),
   home('/', 'home'),
   category('/category', 'category'),
   cart('/cart', 'cart'),

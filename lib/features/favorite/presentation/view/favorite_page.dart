@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/app_refresh_indicator.dart';
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/di/injector.dart';
@@ -18,6 +19,7 @@ import '../../../cart/presentation/cubit/cart_state.dart';
 import '../../../product/domain/entities/product.dart';
 import '../../../product/presentation/widgets/product_card.dart';
 import '../../../product/presentation/widgets/product_card_actions.dart';
+import '../../../product/presentation/widgets/product_grid_shimmer.dart';
 import '../cubit/favorite_cubit.dart';
 
 class FavoritePage extends StatefulWidget {
@@ -96,7 +98,7 @@ class _FavoritePageState extends State<FavoritePage> {
             return emptyState();
           }
           if (_page == null && _loading) {
-            return const Center(child: CircularProgressIndicator());
+            return const ProductGridShimmer();
           }
           if (_page == null && _error != null) {
             return Center(
@@ -108,7 +110,7 @@ class _FavoritePageState extends State<FavoritePage> {
           }
           final items = _page?.items ?? const <Product>[];
           if (items.isEmpty) {
-            return RefreshIndicator(
+            return AppRefreshIndicator(
               onRefresh: _load,
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -121,7 +123,7 @@ class _FavoritePageState extends State<FavoritePage> {
               ),
             );
           }
-          return RefreshIndicator(
+          return AppRefreshIndicator(
             onRefresh: _load,
             child: GridView.builder(
               padding: const EdgeInsets.fromLTRB(

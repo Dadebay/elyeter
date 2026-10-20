@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -9,7 +10,11 @@ import 'visual_search_source_sheet.dart' show HugeIconData;
 
 /// Close button, title and flash toggle across the top of the camera.
 class VisualSearchTopBar extends StatelessWidget {
-  const VisualSearchTopBar({super.key, required this.title, required this.onClose});
+  const VisualSearchTopBar({
+    super.key,
+    required this.title,
+    required this.onClose,
+  });
 
   final String title;
   final VoidCallback onClose;
@@ -17,7 +22,10 @@ class VisualSearchTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
       child: Row(
         children: [
           _GlassButton(icon: AppIcons.close, onTap: onClose),
@@ -25,7 +33,9 @@ class VisualSearchTopBar extends StatelessWidget {
             child: Text(
               title,
               textAlign: TextAlign.center,
-              style: AppTypography.textTheme.titleSmall?.copyWith(color: AppColors.white),
+              style: AppTypography.textTheme.titleSmall?.copyWith(
+                color: AppColors.white,
+              ),
             ),
           ),
           // Balances the close button so the title stays optically centred.
@@ -62,7 +72,12 @@ class VisualSearchShutterBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.xxl, 0, AppSpacing.xxl, AppSpacing.xxl),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xxl,
+        0,
+        AppSpacing.xxl,
+        AppSpacing.xxl,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -72,7 +87,10 @@ class VisualSearchShutterBar extends StatelessWidget {
             active: flashOn,
           ),
           _Shutter(busy: busy, onTap: enabled && !busy ? onCapture : null),
-          _GlassButton(icon: AppIcons.cameraFlip, onTap: busy ? null : onSwitch),
+          _GlassButton(
+            icon: AppIcons.cameraFlip,
+            onTap: busy ? null : onSwitch,
+          ),
         ],
       ),
     );
@@ -81,7 +99,11 @@ class VisualSearchShutterBar extends StatelessWidget {
 
 /// Retake / use the shot just taken.
 class VisualSearchConfirmBar extends StatelessWidget {
-  const VisualSearchConfirmBar({super.key, required this.onRetake, required this.onUse});
+  const VisualSearchConfirmBar({
+    super.key,
+    required this.onRetake,
+    required this.onUse,
+  });
 
   final VoidCallback onRetake;
   final VoidCallback onUse;
@@ -89,7 +111,12 @@ class VisualSearchConfirmBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.xxl, 0, AppSpacing.xxl, AppSpacing.xxl),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xxl,
+        0,
+        AppSpacing.xxl,
+        AppSpacing.xxl,
+      ),
       child: Row(
         children: [
           Expanded(
@@ -107,7 +134,9 @@ class VisualSearchConfirmBar extends StatelessWidget {
           Expanded(
             child: FilledButton(
               onPressed: onUse,
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(52),
+              ),
               child: Text(context.l10n.visualSearchUse),
             ),
           ),
@@ -119,7 +148,11 @@ class VisualSearchConfirmBar extends StatelessWidget {
 
 /// Translucent circular control, the standard camera-overlay affordance.
 class _GlassButton extends StatelessWidget {
-  const _GlassButton({required this.icon, required this.onTap, this.active = false});
+  const _GlassButton({
+    required this.icon,
+    required this.onTap,
+    this.active = false,
+  });
 
   final HugeIconData icon;
   final VoidCallback? onTap;
@@ -172,19 +205,24 @@ class _Shutter extends StatelessWidget {
         height: 76,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: AppColors.white.withValues(alpha: onTap == null ? 0.4 : 1), width: 3),
+          border: Border.all(
+            color: AppColors.white.withValues(alpha: onTap == null ? 0.4 : 1),
+            width: 3,
+          ),
         ),
         child: Padding(
           padding: const EdgeInsets.all(5),
           child: busy
               ? const Padding(
                   padding: EdgeInsets.all(14),
-                  child: CircularProgressIndicator(color: AppColors.white, strokeWidth: 2.5),
+                  child: AppLoader(color: AppColors.white),
                 )
               : DecoratedBox(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.white.withValues(alpha: onTap == null ? 0.4 : 1),
+                    color: AppColors.white.withValues(
+                      alpha: onTap == null ? 0.4 : 1,
+                    ),
                   ),
                 ),
         ),

@@ -252,7 +252,7 @@ class _LinePrice extends StatelessWidget {
           child: CountingNumber(
             value: product.price * quantity,
             builder: (shown) => Text(
-              '${CurrencyFormatter.amount(shown)} ${AppConstants.currencySymbol}',
+              '${CurrencyFormatter.amount(shown, locale: context.l10n.localeName)} ${AppConstants.currencySymbol}',
               maxLines: 1,
               style: context.textTheme.titleMedium?.copyWith(
                 color: AppColors.black,
@@ -273,7 +273,7 @@ class _LinePrice extends StatelessWidget {
                 CountingNumber(
                   value: product.oldPrice! * quantity,
                   builder: (shown) => Text(
-                    '${CurrencyFormatter.amount(shown)} '
+                    '${CurrencyFormatter.amount(shown, locale: context.l10n.localeName)} '
                     '${AppConstants.currencySymbol}',
                     maxLines: 1,
                     style: context.textTheme.bodySmall?.copyWith(

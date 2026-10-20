@@ -7,6 +7,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/formatters/date_formatter.dart';
 import '../../domain/entities/pre_order.dart';
 
 /// The words on a receipt, already in the customer's language. The caller
@@ -82,14 +83,24 @@ abstract final class OrderReceiptPdf {
     );
     final theme = pw.ThemeData.withFont(base: regular, bold: bold);
 
-    final money = NumberFormat.decimalPattern(locale);
+    final money = NumberFormat.decimalPattern(
+      Intl.verifiedLocale(
+        Intl.canonicalizedLocale(locale),
+        NumberFormat.localeExists,
+        onFailure: (_) => 'en',
+      ),
+    );
     String amount(num value) => money.format(value);
     final currency = order.currency.isEmpty
         ? AppConstants.currencySymbol
         : order.currency;
     final date = order.createdAt == null
         ? null
-        : DateFormat.yMMMMd(locale).add_Hm().format(order.createdAt!);
+        : DateFormatter.dayTime(
+            order.createdAt!,
+            locale: locale,
+            fullMonth: true,
+          );
 
     final goods = order.items.isEmpty
         ? order.totalPrice

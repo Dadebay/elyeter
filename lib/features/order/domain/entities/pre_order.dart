@@ -50,8 +50,8 @@ class PreOrderItem extends Equatable {
   final int id;
   final int productId;
 
-  /// Deep-links to the product page; null when the product has since been
-  /// removed from the catalog — hide the link in that case.
+  /// Existence flag only: null means the product was removed.
+  /// Open available products using [productId], never this slug.
   final String? productSlug;
 
   final int? variantId;

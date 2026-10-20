@@ -125,10 +125,10 @@ packages:
     dependency: transitive
     description:
       name: camera_android_camerax
-      sha256: b5064cf25a2787d122d0bf12e77c7b1033a2b983d0730e3091f770ee376efde5
+      sha256: "977f54512d338b3b36d7f82929794886766d8f41ae84a48fe103eb0106ecfe25"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.2"
+    version: "0.7.4+8"
   camera_avfoundation:
     dependency: transitive
     description:
@@ -605,6 +605,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  geocoding:
+    dependency: "direct main"
+    description:
+      name: geocoding
+      sha256: "40f845e0a5505d4b47da991057f2ab25cd1c68bc4570255c7d4cfbb03a952063"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.0"
+  geocoding_android:
+    dependency: transitive
+    description:
+      name: geocoding_android
+      sha256: "17e88a69bb0e1ae44597d70df2d2fbdb2f503672cf665421a16ab56ab97e4ead"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.0"
+  geocoding_darwin:
+    dependency: transitive
+    description:
+      name: geocoding_darwin
+      sha256: "97552aa24f1453defc17e4d8e40b13ddf097e669c2edfa17ed86349cacdbc1ae"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
+  geocoding_platform_interface:
+    dependency: transitive
+    description:
+      name: geocoding_platform_interface
+      sha256: "5164b8871705af7573698b3aa0746337faf818d72b488988741bcc7aeedd2f6e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.0"
   get_it:
     dependency: "direct main"
     description:
@@ -613,6 +645,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "9.2.1"
+  glassmorphism:
+    dependency: "direct main"
+    description:
+      name: glassmorphism
+      sha256: f4f36b7a04cc82ec6fb6cee4734ce94e91234e270c255f70d56c45f289df0ba2
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.0"
   glob:
     dependency: transitive
     description:
@@ -713,10 +753,10 @@ packages:
     dependency: transitive
     description:
       name: image_picker_android
-      sha256: d5b3e1774af29c9ab00103afb0d4614070f924d2e0057ac867ec98800114793f
+      sha256: "8a7823d5d3e884f7780829d85d92110d072bdcd9ed48e2be158d2abe91a912d4"
       url: "https://pub.dev"
     source: hosted
-    version: "0.8.13+17"
+    version: "0.8.13+25"
   image_picker_for_web:
     dependency: transitive
     description:
@@ -1193,10 +1233,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: e8d4762b1e2e8578fc4d0fd548cebf24afd24f49719c08974df92834565e2c53
+      sha256: "1e12aafe408aa50da80edfd679a2a6bf63ba7ab37c7fa98286da459a757b3399"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.23"
+    version: "2.4.28"
   shared_preferences_foundation:
     dependency: transitive
     description:
@@ -1462,10 +1502,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_android
-      sha256: "17bc677f0b301615530dd1d67e0a9828cafa2d0b6b6eae4cd3679b7eac4a273c"
+      sha256: "611e87fb320b70d1dd721dc46af89c98aceccea9b31fde49e084591414e0c610"
       url: "https://pub.dev"
     source: hosted
-    version: "6.3.30"
+    version: "6.3.33"
   url_launcher_ios:
     dependency: transitive
     description:
@@ -1643,5 +1683,5 @@ packages:
     source: hosted
     version: "3.1.4"
 sdks:
-  dart: ">=3.11.4 <4.0.0"
-  flutter: ">=3.38.4"
+  dart: ">=3.12.0 <4.0.0"
+  flutter: ">=3.44.0"

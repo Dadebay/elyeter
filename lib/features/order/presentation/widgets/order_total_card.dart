@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../../core/widgets/app_loader.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -28,22 +29,58 @@ class OrderTotalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final isDark = context.isDark;
 
     return OrderCard(
       child: Column(
         children: [
-          Text(
-            l10n.orderTotalTitle,
-            style: context.textTheme.labelSmall?.copyWith(
-              color: AppColors.grey500,
+          Container(
+            width: double.infinity,
+            constraints: const BoxConstraints(minHeight: 120),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.xl,
+            ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              gradient: isDark
+                  ? const RadialGradient(
+                      center: Alignment(0, -0.9),
+                      radius: 1.4,
+                      colors: [Color(0xFF315A46), AppColors.grey900],
+                    )
+                  : const RadialGradient(
+                      center: Alignment(0, -0.9),
+                      radius: 1.4,
+                      colors: [
+                        Color(0xFFC7ECD8),
+                        Color(0xFFE3F2E9),
+                        AppColors.surfaceMuted,
+                      ],
+                      stops: [0, 0.45, 1],
+                    ),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  l10n.orderTotalTitle,
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    color: isDark ? AppColors.grey300 : AppColors.grey700,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                _Total(amount: order.total),
+              ],
             ),
           ),
-          const SizedBox(height: AppSpacing.xxs),
-          _Total(amount: order.total),
           const SizedBox(height: AppSpacing.lg),
           _Line(
             label: l10n.orderProductsTotal,
-            value: CurrencyFormatter.amount(order.productsTotal),
+            value: CurrencyFormatter.amount(
+              order.productsTotal,
+              locale: l10n.localeName,
+            ),
           ),
           _Line(
             label: l10n.orderDeliveryLabel,
@@ -51,19 +88,26 @@ class OrderTotalCard extends StatelessWidget {
             // colour of good news rather than as `0 TMT`.
             value: order.deliveryFee == 0
                 ? l10n.orderDeliveryFree
-                : CurrencyFormatter.amount(order.deliveryFee),
+                : CurrencyFormatter.amount(
+                    order.deliveryFee,
+                    locale: l10n.localeName,
+                  ),
             valueColor: order.deliveryFee == 0 ? AppColors.success : null,
             showCurrency: order.deliveryFee != 0,
           ),
           if (order.cargoFee != 0)
             _Line(
               label: l10n.orderCargo,
-              value: CurrencyFormatter.amount(order.cargoFee),
+              value: CurrencyFormatter.amount(
+                order.cargoFee,
+                locale: l10n.localeName,
+              ),
             ),
           if (order.discount != 0)
             _Line(
               label: l10n.orderDiscount,
-              value: '-${CurrencyFormatter.amount(order.discount)}',
+              value:
+                  '-${CurrencyFormatter.amount(order.discount, locale: l10n.localeName)}',
               valueColor: AppColors.error,
             ),
           const SizedBox(height: AppSpacing.lg),
@@ -85,24 +129,31 @@ class _Total extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = context.isDark ? AppColors.white : AppColors.black;
     return FittedBox(
       fit: BoxFit.scaleDown,
       child: Text.rich(
         TextSpan(
           children: [
-            TextSpan(text: CurrencyFormatter.amount(amount, decimals: 2)),
+            TextSpan(
+              text: CurrencyFormatter.amount(
+                amount,
+                locale: context.l10n.localeName,
+                decimals: 2,
+              ),
+            ),
             const TextSpan(text: ' '),
             TextSpan(
               text: AppConstants.currencySymbol,
               style: context.textTheme.titleMedium?.copyWith(
-                color: AppColors.black,
+                color: color,
                 fontWeight: FontWeight.w700,
               ),
             ),
           ],
         ),
         style: context.textTheme.displayMedium?.copyWith(
-          color: AppColors.black,
+          color: color,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.6,
         ),
@@ -129,7 +180,8 @@ class _Line extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = valueColor ?? AppColors.black;
+    final defaultColor = context.isDark ? AppColors.white : AppColors.black;
+    final color = valueColor ?? defaultColor;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
@@ -141,7 +193,7 @@ class _Line extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: context.textTheme.bodyMedium?.copyWith(
-                color: AppColors.black,
+                color: defaultColor,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -201,11 +253,7 @@ class _DownloadButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               busy
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                  ? const SizedBox(width: 18, height: 18, child: AppLoader())
                   : SvgPicture.asset(
                       AppAssets.iconReceipt,
                       width: 18,

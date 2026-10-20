@@ -11,6 +11,9 @@ class ShopApi {
 
   final ApiClient _client;
 
+  Future<List<ShopBanner>> banners() async =>
+      parseList(await _client.get(ApiEndpoints.banners), ShopBanner.fromJson);
+
   Future<Set<String>> favoriteIds() async {
     final data = await _client.get(ApiEndpoints.favoriteIds);
     if (data is! List) return {};
@@ -75,6 +78,30 @@ class ShopApi {
     );
     return Paginated.fromJson(data, ShopNotification.fromJson);
   }
+}
+
+class ShopBanner {
+  const ShopBanner({
+    required this.id,
+    required this.image,
+    required this.targetType,
+    this.title,
+    this.target,
+  });
+
+  factory ShopBanner.fromJson(Map<String, dynamic> json) => ShopBanner(
+    id: json.intVal('id'),
+    title: json.strOrNull('title'),
+    image: json.str('image'),
+    targetType: json.str('target_type'),
+    target: json.strOrNull('target'),
+  );
+
+  final int id;
+  final String? title;
+  final String image;
+  final String targetType;
+  final String? target;
 }
 
 class SavedLocation {
